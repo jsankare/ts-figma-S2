@@ -1,0 +1,27 @@
+{
+	"type": "module",
+	"scripts": {
+		"build": "concurrently \"tsc --watch\" \"postcss src/styles.css -o public/styles.css --watch\"",
+		"start": "live-server public --mount=/dist:./dist",
+		"lint": "eslint 'src/**/*.{ts,tsx}' --fix"
+	},
+	"devDependencies": {
+		"@types/node": "^22.6.1",
+		"@typescript-eslint/eslint-plugin": "^8.7.0",
+		"@typescript-eslint/parser": "^8.7.0",
+		"autoprefixer": "^10.4.20",
+		"concurrently": "^9.0.1",
+		"eslint": "^9.11.1",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-prettier": "^5.2.1",
+		"live-server": "^1.2.2",
+		"postcss": "^8.4.47",
+		"postcss-cli": "^11.0.0",
+		"prettier": "^3.3.3",
+		"tailwindcss": "^3.4.13",
+		"typescript": "^5.6.2"
+	},
+	"dependencies": {
+		"undici": "^6.19.8"
+	}
+}
