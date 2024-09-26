@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Budget</title>
+        <link href="styles.css" rel="stylesheet">
+        <link href="navbar.css" rel="stylesheet">
+        <link href="modal.css" rel="stylesheet">
+    </head>
+    <body id="body">
+        <main id="main">
+            <button id="openModal">Ajouter un budget</button>
+            <div id="modal" class="modal">
+                <div class="modal-content">
+                <button id="close">&times;</button>
+                <form action="">
+                    <label for="category">Catégorie</label>
+                    <select name="category" id="category">
+                        <option value=""></option>
+                    </select>
+                    <label for="budget">Budget</label>
+                    <input type="number" name="budget" id="budget">
+                    <input type="checkbox" name="alert" id="alert">
+                    <label for="alert">Recevoir une alerte</label>
+                    <input type="submit" value="Ajouter">
+                </form>
+                </div>
+            </div>
+        </main>
+        <script type="module" src="../dist/budget.js"></script>
+        <script type="module" src="../dist/navbar.js"></script>
+        <script type="module" src="../dist/modal.js"></script>
+    </body>
+</html>

@@ -1,0 +1,44 @@
+
+# Node.js
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Directories
+dist/
+build/
+coverage/
+.temp/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor-specific files
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# Temporary files
+*.swp
+*.bak
+*.tmp
+*.old
+*.orig
+
+# TypeScript
+*.tsbuildinfo
+
+pnpm-lock.yaml
