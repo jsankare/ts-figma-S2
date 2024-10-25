@@ -1,16 +1,26 @@
-// Creation of IndexedDB
+// Hash password
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// Create Indexdb database
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("UserDatabase", 1);
 
     request.onerror = (event) => {
-      console.error("Error opening IndexedDB", event);
-      reject("Failed to open database");
+      console.error("Erreur lors de l'ouverture de la base de données", event);
+      reject("Impossible d'ouvrir la base de données");
     };
 
     request.onsuccess = (event) => {
       const db = request.result;
-      console.log("Database opened successfully");
+      console.log("Base de données ouverte avec succès");
       resolve(db);
     };
 
@@ -18,13 +28,13 @@ function openDatabase(): Promise<IDBDatabase> {
       const db = request.result;
       if (!db.objectStoreNames.contains("users")) {
         db.createObjectStore("users", { keyPath: "email" });
-        console.log("Object store 'users' created");
+        console.log("Object store 'users' créé");
       }
     };
   });
 }
 
-// Function to add user data to IndexedDB
+// Add user in database
 function addUser(
   db: IDBDatabase,
   userData: { email: string; password: string },
@@ -35,18 +45,18 @@ function addUser(
     const request = store.add(userData);
 
     request.onsuccess = () => {
-      console.log("User added successfully");
+      console.log("Utilisateur ajouté avec succès");
       resolve();
     };
 
     request.onerror = (event) => {
-      console.error("Error adding user", event);
-      reject("Failed to add user");
+      console.error("Erreur lors de l'ajout de l'utilisateur", event);
+      reject("Échec de l'ajout de l'utilisateur");
     };
   });
 }
 
-// Function to handle form submission
+// Register
 async function handleRegister(event: Event) {
   event.preventDefault();
 
@@ -57,34 +67,33 @@ async function handleRegister(event: Event) {
     document.getElementById("confirm-password") as HTMLInputElement
   ).value;
 
-  // Validate the passwords match
   if (password !== confirmPassword) {
-    alert("Passwords do not match!");
+    alert("Les mots de passe ne correspondent pas !");
     return;
   }
 
-  // Open the database
   const db = await openDatabase();
-
-  // Check if the email already exists
   const userExists = await checkUserExists(db, email);
   if (userExists) {
-    alert("User with this email already exists!");
+    alert("Un utilisateur avec cet e-mail existe déjà !");
     return;
   }
 
-  // Add the user data to IndexedDB
-  const userData = { email, password };
+  // Hash password
+  const hashedPassword = await hashPassword(password);
+  const userData = { email, password: hashedPassword };
+
   try {
     await addUser(db, userData);
-    alert("Registration successful!");
+    alert("Enregistrement réussi !");
+    window.location.href = "login.html";
   } catch (error) {
-    console.error("Registration failed", error);
-    alert("Failed to register user.");
+    console.error("Échec de l'enregistrement", error);
+    alert("Échec de l'enregistrement de l'utilisateur.");
   }
 }
 
-// Function to check if the email already exists in IndexedDB
+// Check if user already exists in db
 function checkUserExists(db: IDBDatabase, email: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readonly");
@@ -92,20 +101,19 @@ function checkUserExists(db: IDBDatabase, email: string): Promise<boolean> {
     const request = store.get(email);
 
     request.onsuccess = () => {
-      if (request.result) {
-        resolve(true); // Email found
-      } else {
-        resolve(false); // Email not found
-      }
+      resolve(Boolean(request.result));
     };
 
     request.onerror = (event) => {
-      console.error("Error checking for user", event);
-      reject("Failed to check user existence");
+      console.error(
+        "Erreur lors de la vérification de l'existence de l'utilisateur",
+        event,
+      );
+      reject("Échec de la vérification de l'existence de l'utilisateur");
     };
   });
 }
 
-// Attach the submit event to the form
+// add submit to form
 const form = document.querySelector("form");
 form?.addEventListener("submit", handleRegister);
