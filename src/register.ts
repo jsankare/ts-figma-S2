@@ -37,7 +37,7 @@ function openDatabase(): Promise<IDBDatabase> {
 // Add user in database
 function addUser(
   db: IDBDatabase,
-  userData: { email: string; password: string },
+  userData: { email: string; password: string, firstname: string, lastname: string },
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readwrite");
@@ -61,6 +61,8 @@ async function handleRegister(event: Event) {
   event.preventDefault();
 
   const email = (document.getElementById("mail") as HTMLInputElement).value;
+  const firstname = (document.getElementById("firstname") as HTMLInputElement).value;
+  const lastname = (document.getElementById("lastname") as HTMLInputElement).value;
   const password = (document.getElementById("password") as HTMLInputElement)
     .value;
   const confirmPassword = (
@@ -81,7 +83,7 @@ async function handleRegister(event: Event) {
 
   // Hash password
   const hashedPassword = await hashPassword(password);
-  const userData = { email, password: hashedPassword };
+  const userData = { email, password: hashedPassword, lastname, firstname };
 
   try {
     await addUser(db, userData);

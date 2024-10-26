@@ -111,8 +111,7 @@ async function handleLogin(event: Event) {
   event.preventDefault();
 
   const email = (document.getElementById("mail") as HTMLInputElement).value;
-  const password = (document.getElementById("password") as HTMLInputElement)
-    .value;
+  const password = (document.getElementById("password") as HTMLInputElement).value;
 
   const db = await openDatabase();
   const user = await getUserByEmail(db, email);
@@ -134,8 +133,8 @@ async function handleLogin(event: Event) {
   try {
     await updateUserToken(db, email, token, tokenExpiry);
 
-    localStorage.setItem("IsAuthenticated", "true");
     localStorage.setItem("authToken", token);
+    localStorage.setItem("userMail", email);
 
     alert("Connexion réussie !");
     window.location.href = "index.html";

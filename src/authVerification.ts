@@ -10,10 +10,10 @@ async function hashPassword(password: string): Promise<string> {
 
 // Check auth && Token validity
 async function checkAuthentication() {
-  const isAuthenticated = localStorage.getItem("IsAuthenticated") === "true";
+  const userEmail = localStorage.getItem("userMail");
   const authToken = localStorage.getItem("authToken");
 
-  if (!isAuthenticated || !authToken) {
+  if (!userEmail || !authToken) {
     window.location.href = "login.html";
     return;
   }
@@ -31,7 +31,7 @@ async function checkAuthentication() {
     // Check token validity
     if (!user || !user.tokenExpiry || new Date(user.tokenExpiry) < new Date()) {
       console.log("Token expiré ou utilisateur introuvable");
-      localStorage.removeItem("IsAuthenticated");
+      localStorage.removeItem("userEmail");
       localStorage.removeItem("authToken");
       window.location.href = "login.html";
     } else {
