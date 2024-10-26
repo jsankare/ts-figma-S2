@@ -9,7 +9,18 @@
     </head>
     <body id="body">
         <main id="main">
-            <p>mon contenu</p>
+            <section class="profile--wrapper">
+                <article class="profile--infos">
+                    <img id="profile-picture" src="https://picsum.photos/200" />
+                    <h3 id="profile-username">test</h3>
+                </article>
+                <div id="buttons" >
+                    <button class="button" id="button--settings" >Paramètres</button>
+                    <button class="button" id="button--password-reset" >Réinitialiser mon mot de passe</button>
+                    <button class="button" id="button--logout" >Me déconnecter</button>
+                    <button class="button" id="button--delete-account" >Supprimer le compte</button>
+                </div>
+            </section>
         </main>
         <script type="module" src="../dist/profil.js"></script>
         <script type="module" src="../dist/navbar.js"></script>
