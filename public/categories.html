@@ -11,17 +11,7 @@
     <body id="body">
         <main id="main">
             <button id="openModal">Ajouter une catégorie</button>
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <button id="close">&times;</button>
-                    <form action="">
-                        <label for="category">Nom de la catégorie</label>
-                        <input type="tel" name="category" id="category" required>
-                        <label for="icon">Icône</label>
-                        <input type="file" name="icon" id="icon">
-                        <input type="submit" value="Ajouter">
-                    </form>
-                </div>
+            <div id="modal" class="modal" data-type="category">
             </div>
         </main>
         <script type="module" src="../dist/categories.js"></script>

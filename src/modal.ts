@@ -1,19 +1,82 @@
-const modal = document.getElementById("modal");
-const btn = document.getElementById("openModal");
-const span = document.getElementById("close");
+document.addEventListener('DOMContentLoaded', () => {
+  const modalContent = document.getElementById("modal") as HTMLElement;
+  const dataType = modalContent.getAttribute('data-type');
 
-if (btn) {
-  btn.onclick = function () {
-    if (modal) {
-      modal.style.display = "block";
-    }
-  };
-}
+  if (dataType) {
+      createModal(dataType, modalContent);
+  }
 
-if (span) {
-  span.onclick = function () {
-    if (modal) {
-      modal.style.display = "none";
-    }
-  };
-}
+  function createModal(type: string, modalContent: HTMLElement) {
+      let formContent = '';
+
+      switch (type) {
+          case 'category':
+              formContent = `
+                  <label for="category">Nom de la catégorie</label>
+                  <input type="text" name="category" id="category" required>
+                  <label for="icon">Icône</label>
+                  <input type="file" name="icon" id="icon">`;
+              break;
+          case 'budget':
+              formContent = `
+                  <label for="category">Catégorie</label>
+                  <select name="category" id="category" required>
+                      <option value=""></option>
+                  </select>
+                  <label for="budget">Budget</label>
+                  <input type="number" name="budget" id="budget" required>
+                  <input type="checkbox" name="alert" id="alert">
+                  <label for="alert">Recevoir une alerte</label>`;
+              break;
+          case 'transaction':
+              formContent = `
+                  <label for="type">Type de transaction</label>
+                  <select name="type" id="type" required>
+                      <option value="credit">Crédit</option>
+                      <option value="debit">Débit</option>
+                  </select>
+                  <label for="name">Libellé</label>
+                  <input type="text" name="name" id="name" required>
+                  <label for="amount">Montant</label>
+                  <input type="number" name="amount" id="amount" required>
+                  <label for="category">Catégorie</label>
+                  <select name="category" id="category" required>
+                      <option value=""></option>
+                  </select>
+                  <label for="date">Date</label>
+                  <input type="date" name="date" id="date" required>`;
+              break;
+          default:
+              console.log('Unknown modal type');
+              return; 
+      }
+
+      modalContent.innerHTML = `
+          <div class="modal-content">
+              <button id="close">&times;</button>
+              <form action="">
+                  ${formContent}
+                  <input type="submit" value="Ajouter">
+              </form>
+          </div>`;
+  }
+
+  const btn = document.getElementById("openModal");
+  const span = document.getElementById("close");
+
+  if (btn) {
+      btn.onclick = function () {
+          if (modalContent) {
+              modalContent.style.display = "block";
+          }
+      };
+  }
+
+  if (span) {
+      span.onclick = function () {
+          if (modalContent) {
+              modalContent.style.display = "none";
+          }
+      };
+  }
+});
