@@ -11,28 +11,7 @@
     <body id="body">
         <main id="main">
             <button id="openModal">Ajouter une transaction</button>
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <button id="close">&times;</button>
-                    <form action="">
-                        <label for="type">type de transaction</label>
-                        <select name="type" id="type"  required>
-                            <option value="credit">Crédit</option>
-                            <option value="debit">Débit</option>
-                        </select>
-                        <label for="name">Libellé</label>
-                        <input type="text" name="name" id="name" required>
-                        <label for="amount">Montant</label>
-                        <input type="number" name="amount" id="amount" required>
-                        <label for="category">Catégorie</label>
-                        <select name="category" id="category">
-                            <option value=""></option>
-                        </select>
-                        <label for="date">Date</label>
-                        <input type="date" name="date" id="date">
-                        <input type="submit" value="Ajouter">
-                    </form>
-                </div>
+            <div id="modal" class="modal" data-type="transaction">    
             </div>
         </main>
         <script type="module" src="dist/transactions.js"></script>
