@@ -11,21 +11,7 @@
     <body id="body">
         <main id="main">
             <button id="openModal">Ajouter un budget</button>
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                <button id="close">&times;</button>
-                <form action="">
-                    <label for="category">Catégorie</label>
-                    <select name="category" id="category">
-                        <option value=""></option>
-                    </select>
-                    <label for="budget">Budget</label>
-                    <input type="number" name="budget" id="budget">
-                    <input type="checkbox" name="alert" id="alert">
-                    <label for="alert">Recevoir une alerte</label>
-                    <input type="submit" value="Ajouter">
-                </form>
-                </div>
+            <div id="modal" class="modal" data-type="budget">
             </div>
         </main>
         <script type="module" src="dist/budgets.js"></script>
