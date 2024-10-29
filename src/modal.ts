@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
       switch (type) {
           case 'category':
               formContent = `
+                <form id="categoryForm" action="">
                   <label for="category">Nom de la catégorie</label>
                   <input type="text" name="category" id="category" required>
                   <label for="icon">Icône</label>
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
               break;
           case 'budget':
               formContent = `
+                <form action="" id="budgetForm">
                   <label for="category">Catégorie</label>
                   <select name="category" id="category" required>
                       <option value=""></option>
@@ -30,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
               break;
           case 'transaction':
               formContent = `
+                <form action="" id="transactionForm">
                   <label for="type">Type de transaction</label>
                   <select name="type" id="type" required>
                       <option value="credit">Crédit</option>
@@ -54,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
       modalContent.innerHTML = `
           <div class="modal-content">
               <button id="close">&times;</button>
-              <form action="">
                   ${formContent}
                   <input type="submit" value="Ajouter">
               </form>
