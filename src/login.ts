@@ -80,8 +80,8 @@ async function handleLogin(event: Event) {
   try {
     await updateUserToken(db, email, token, tokenExpiry);
 
-    localStorage.setItem("authToken", token);
     localStorage.setItem("userMail", email);
+    document.cookie = `token=${token}; expires=${tokenExpiry}`;
 
     alert("Connexion réussie !");
     window.location.href = "index.html";
