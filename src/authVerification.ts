@@ -1,12 +1,4 @@
-// Hash password
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
+import { openDatabase } from "./utils/openDatabase.js";
 
 // Check auth && Token validity
 async function checkAuthentication() {
@@ -46,4 +38,4 @@ async function checkAuthentication() {
 }
 
 // Call Auth function at page load
-checkAuthentication();
+checkAuthentication().then(() => console.log("success"));
