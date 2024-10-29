@@ -6,9 +6,8 @@ async function handleFormSubmit(event: Event) {
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
     const categoryName = formData.get('category') as string;
-    const categoryIcon = formData.get('icon') as string;
     const originalCategoryName = formData.get('originalCategoryName') as string || categoryName;
-    
+
     // Validate form data
     if (!categoryName) {
         alert('Category name is required');
@@ -25,7 +24,7 @@ async function handleFormSubmit(event: Event) {
         }
 
         // Add or update category in the database
-        await addCategory(db, { name: categoryName, icon: categoryIcon });
+        await addCategory(db, { name: categoryName });
         alert('Category saved successfully');
 
         // Update category listing
@@ -33,6 +32,10 @@ async function handleFormSubmit(event: Event) {
 
         // Reset form
         form.reset();
+        const modalContent = document.getElementById("modal") as HTMLElement;
+        if (modalContent) {
+            modalContent.style.display = "none";
+        }
     } catch (error) {
         console.error('Error saving category:', error);
         alert('Error saving category');
@@ -64,7 +67,7 @@ function openCategoryDatabase(): Promise<IDBDatabase> {
 }
 
 // Function to add or update category in the database
-function addCategory(db: IDBDatabase, categoryData: { name: string; icon: string }): Promise<void> {
+function addCategory(db: IDBDatabase, categoryData: { name: string }): Promise<void> {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction('categories', 'readwrite');
         const store = transaction.objectStore('categories');
@@ -113,7 +116,7 @@ async function updateCategoryListing() {
             categoryListing.innerHTML = '';
             categories.forEach((category: { name: string; icon: string }) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${category.name} - ${category.icon}`;
+                listItem.textContent = `${category.name}`;
 
                 // Create edit button
                 const editButton = document.createElement('button');
@@ -123,17 +126,18 @@ async function updateCategoryListing() {
                         modalContent.style.display = "block";
                     }
                 };
-                editButton.textContent = 'Edit';
+
+                editButton.textContent = ' - Edit';
                 editButton.addEventListener('click', () => {
                     const form = document.getElementById('categoryForm') as HTMLFormElement;
                     (form.elements.namedItem('category') as HTMLInputElement).value = category.name;
-                    (form.elements.namedItem('icon') as HTMLInputElement).value = category.icon;
+                    (form.querySelector('input[type="submit"]') as HTMLButtonElement).value = 'Mettre à jour';
                     (form.elements.namedItem('originalCategoryName') as HTMLInputElement).value = category.name;
                 });
 
                 // Create delete button
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
+                deleteButton.textContent = ' - Delete';
                 deleteButton.addEventListener('click', async () => {
                     const confirmed = confirm(`Are you sure you want to delete the category "${category.name}"?`);
                     if (confirmed) {

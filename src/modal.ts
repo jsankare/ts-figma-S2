@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
           case 'category':
               formContent = `
                 <form id="categoryForm" action="">
+                <input type="hidden" name="originalCategoryName">
                   <label for="category">Nom de la catégorie</label>
                   <input type="text" name="category" id="category" required>
-                  <label for="icon">Icône</label>
-                  <input type="file" name="icon" id="icon">`;
+                 `;
               break;
           case 'budget':
               formContent = `
