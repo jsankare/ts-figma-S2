@@ -2,8 +2,10 @@ import { getCurrentUser } from "./utils/getCurrentUser.js";
 import { openDatabase } from "./utils/openDatabase.js";
 import { logoutLogic } from "./utils/logout.js";
 import { uploadImage } from "./utils/uploadImage.js";
+import { displayLoading } from "./utils/displayLoading.js";
 import { alert } from "./utils/alert.js";
 
+displayLoading(true);
 async function displayUserProfile() {
   try {
     const db = await openDatabase();
@@ -13,13 +15,14 @@ async function displayUserProfile() {
       window.location.href = "login.html";
       return;
     }
-
     const user = await getCurrentUser(db, userEmail);
+
     if (!user) {
       console.error("Utilisateur introuvable.");
       window.location.href = "login.html";
       return;
     }
+    displayLoading(false);
 
     const usernameElement = document.getElementById(
       "profile--username",
