@@ -15,7 +15,7 @@ pids/
 *.pid.lock
 
 # Directories
-dist/
+public/dist/
 build/
 coverage/
 .temp/

@@ -1,43 +1,15 @@
-// Hash password
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-// Create Indexdb database
-function openDatabase(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open("UserDatabase", 1);
-
-    request.onerror = (event) => {
-      console.error("Erreur lors de l'ouverture de la base de données", event);
-      reject("Impossible d'ouvrir la base de données");
-    };
-
-    request.onsuccess = (event) => {
-      const db = request.result;
-      console.log("Base de données ouverte avec succès");
-      resolve(db);
-    };
-
-    request.onupgradeneeded = (event) => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains("users")) {
-        db.createObjectStore("users", { keyPath: "email" });
-        console.log("Object store 'users' créé");
-      }
-    };
-  });
-}
+import { hashPassword } from "./utils/hashPassword.js";
+import { openDatabase } from "./utils/openDatabase.js";
 
 // Add user in database
 function addUser(
   db: IDBDatabase,
-  userData: { email: string; password: string, firstname: string, lastname: string },
+  userData: {
+    email: string;
+    password: string;
+    firstname: string;
+    lastname: string;
+  },
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readwrite");
@@ -61,8 +33,10 @@ async function handleRegister(event: Event) {
   event.preventDefault();
 
   const email = (document.getElementById("mail") as HTMLInputElement).value;
-  const firstname = (document.getElementById("firstname") as HTMLInputElement).value;
-  const lastname = (document.getElementById("lastname") as HTMLInputElement).value;
+  const firstname = (document.getElementById("firstname") as HTMLInputElement)
+    .value;
+  const lastname = (document.getElementById("lastname") as HTMLInputElement)
+    .value;
   const password = (document.getElementById("password") as HTMLInputElement)
     .value;
   const confirmPassword = (
