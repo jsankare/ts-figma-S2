@@ -1,19 +1,11 @@
-// Hash password
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
+import { openDatabase } from "./utils/openDatabase.js";
 
 // Check auth && Token validity
 async function checkAuthentication() {
-  const isAuthenticated = localStorage.getItem("IsAuthenticated") === "true";
+  const userEmail = localStorage.getItem("userMail");
   const authToken = localStorage.getItem("authToken");
 
-  if (!isAuthenticated || !authToken) {
+  if (!userEmail || !authToken) {
     window.location.href = "login.html";
     return;
   }
@@ -31,7 +23,7 @@ async function checkAuthentication() {
     // Check token validity
     if (!user || !user.tokenExpiry || new Date(user.tokenExpiry) < new Date()) {
       console.log("Token expiré ou utilisateur introuvable");
-      localStorage.removeItem("IsAuthenticated");
+      localStorage.removeItem("userEmail");
       localStorage.removeItem("authToken");
       window.location.href = "login.html";
     } else {
@@ -46,4 +38,4 @@ async function checkAuthentication() {
 }
 
 // Call Auth function at page load
-checkAuthentication();
+checkAuthentication().then(() => console.log("success"));
