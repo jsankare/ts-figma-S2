@@ -34,6 +34,15 @@ async function displayUserProfile() {
     ) as HTMLFormElement;
 
     const deletePicture = document.getElementById("delete-picture");
+    const fileNameElement = document.getElementById(
+      "file-name",
+    ) as HTMLParagraphElement;
+    const fileTypeElement = document.getElementById(
+        "file-type",
+    ) as HTMLParagraphElement;
+    const fileSizeElement = document.getElementById(
+        "file-size",
+    ) as HTMLParagraphElement;
 
     if (user.picture) {
       profilePicture.src = user.picture;
@@ -67,6 +76,14 @@ async function displayUserProfile() {
 
         if (fileInput.files?.length) {
           const file = fileInput.files[0];
+
+          const fileName = file.name.split(".")[0];
+          const fileType = file.type.split("/")[1];
+          const fileSize = file.size / 1024;
+
+          fileNameElement.textContent = `Nom du fichier : ${fileName}`;
+          fileTypeElement.textContent = `Type de fichier : ${fileType}`;
+          fileSizeElement.textContent = `Taille du fichier : ${fileSize.toFixed(2)} ko (Ancienne norme)`;
           try {
             const pictureDataUrl = await uploadImage(file);
             await updateUserProfilePicture(db, userEmail, pictureDataUrl);
@@ -142,6 +159,7 @@ buttons.passwordResetButton?.addEventListener("click", () => {
 buttons.logoutButton?.addEventListener("click", () => {
   logoutLogic();
 });
+
 buttons.deleteAccountButton?.addEventListener("click", () => {
   alert("success", "Ceci est le contenu de mon alerte");
 });
