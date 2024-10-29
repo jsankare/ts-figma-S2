@@ -38,10 +38,10 @@ async function displayUserProfile() {
       "file-name",
     ) as HTMLParagraphElement;
     const fileTypeElement = document.getElementById(
-        "file-type",
+      "file-type",
     ) as HTMLParagraphElement;
     const fileSizeElement = document.getElementById(
-        "file-size",
+      "file-size",
     ) as HTMLParagraphElement;
 
     if (user.picture) {
