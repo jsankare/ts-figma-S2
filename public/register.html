@@ -10,6 +10,10 @@
 </head>
 <body>
     <form class="form form--register" action="">
+        <label class="label" for="firstname">Votre nom</label>
+        <input class="input" type="text" name="firstname" id="firstname" required>
+        <label class="label" for="lastname">Votre prénom</label>
+        <input class="input" type="text" name="lastname" id="lastname" required>
         <label class="label" for="mail">Mail</label>
         <input class="input" type="email" name="mail" id="mail" required>
         <label class="label" for="password">Mot de passe</label>
@@ -18,6 +22,7 @@
         <input class="input" type="password" name="confirm-password" id="confirm-password" required>
         <button class="submit" type="submit">S'inscrire</button>
     </form>
-    <script type="module" src="../dist/register.js"></script>
+    <p>Déjà un compte ? <a href="/login.html" >Me connecter</a></p>
+    <script type="module" src="dist/register.js"></script>
 </body>
 </html>
