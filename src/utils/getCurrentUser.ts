@@ -2,7 +2,15 @@ export function getCurrentUser(
   db: IDBDatabase,
   email: string,
 ): Promise<
-  | { email: string; password: string; token?: string; tokenExpiry?: Date }
+  | {
+      email: string;
+      password: string;
+      firstname: string;
+      lastname: string;
+      picture: string;
+      token?: string;
+      tokenExpiry?: Date;
+    }
   | undefined
 > {
   return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-import { openDatabase } from "./utils/openDatabase.js";
+import { openDatabase } from "./openDatabase";
 
 // Check auth && Token validity
 async function checkAuthentication() {
