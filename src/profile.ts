@@ -101,6 +101,8 @@ async function displayUserProfile() {
               "Erreur lors de la mise à jour de la photo de profil",
             );
           }
+        } else {
+          toastAlert("error", "Aucune image n'a été détectée");
         }
       });
     }
