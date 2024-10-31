@@ -1,25 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   const modalContent = document.getElementById("modal") as HTMLElement;
-  const dataType = modalContent.getAttribute('data-type');
+  const dataType = modalContent.getAttribute("data-type");
 
   if (dataType) {
-      createModal(dataType, modalContent);
+    createModal(dataType, modalContent);
   }
 
   function createModal(type: string, modalContent: HTMLElement) {
-      let formContent = '';
+    let formContent = "";
 
-      switch (type) {
-          case 'category':
-              formContent = `
+    switch (type) {
+      case "category":
+        formContent = `
                 <form id="categoryForm" action="">
                 <input type="hidden" name="originalCategoryName">
                   <label for="category">Nom de la catégorie</label>
                   <input type="text" name="category" id="category" required>
                  `;
-              break;
-          case 'budget':
-              formContent = `
+        break;
+      case "budget":
+        formContent = `
                 <form action="" id="budgetForm">
                   <label for="category">Catégorie</label>
                   <select name="category" id="category" required>
@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   <input type="number" name="budget" id="budget" required>
                   <input type="checkbox" name="alert" id="alert">
                   <label for="alert">Recevoir une alerte</label>`;
-              break;
-          case 'transaction':
-              formContent = `
+        break;
+      case "transaction":
+        formContent = `
                 <form action="" id="transactionForm">
                   <label for="type">Type de transaction</label>
                   <select name="type" id="type" required>
@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
                   </select>
                   <label for="date">Date</label>
                   <input type="date" name="date" id="date" required>`;
-              break;
-          default:
-              console.log('Unknown modal type');
-              return; 
-      }
+        break;
+      default:
+        console.log("Unknown modal type");
+        return;
+    }
 
-      modalContent.innerHTML = `
+    modalContent.innerHTML = `
           <div class="modal-content">
               <button id="close">&times;</button>
                   ${formContent}
@@ -67,18 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const span = document.getElementById("close");
 
   if (btn) {
-      btn.onclick = function () {
-          if (modalContent) {
-              modalContent.style.display = "block";
-          }
-      };
+    btn.onclick = function () {
+      if (modalContent) {
+        modalContent.style.display = "block";
+      }
+    };
   }
 
   if (span) {
-      span.onclick = function () {
-          if (modalContent) {
-              modalContent.style.display = "none";
-          }
-      };
+    span.onclick = function () {
+      if (modalContent) {
+        modalContent.style.display = "none";
+      }
+    };
   }
 });

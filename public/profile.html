@@ -5,25 +5,38 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Profil</title>
         <link href="styles.css" rel="stylesheet">
-        <link href="navbar.css" rel="stylesheet">
+        <link href="styles/navbar.css" rel="stylesheet">
+        <link href="styles/alert.css" rel="stylesheet">
+        <link href="styles/profile.css" rel="stylesheet">
+        <link href="styles/loader.css" rel="stylesheet">
     </head>
     <body id="body">
         <main id="main">
-            <section class="profile--wrapper">
-                <article class="profile--infos">
-                    <img id="profile-picture" src="https://picsum.photos/200" />
-                    <h3 id="profile-username">test</h3>
+            <section id="profile--wrapper">
+                <article id="profile--infos">
+                    <img id="profile--picture" src="" alt="Photo de profil" />
+                    <p id="file-name"></p>
+                    <p id="file-type"></p>
+                    <p id="file-size"></p>
+                    <form id="button--addProfilePicture" class="button" style="display: none;" action="">
+                        <label id="label--image" for="myfile">Choisissez une photo de profil :</label>
+                        <input type="file" accept="image/*" id="myfile" name="myfile">
+                        <input id="submit--image" type="submit">
+                    </form>
+                    <button id="delete-picture">Supprimer l'image</button>
+                    <h2 id="profile--username"></h2>
                 </article>
+                <p id="chrono" ></p>
                 <div id="buttons" >
                     <button class="button" id="button--settings" >Paramètres</button>
-                    <button class="button" id="button--password-reset" >Réinitialiser mon mot de passe</button>
+                    <button class="button" id="button--passwordReset" >Réinitialiser mon mot de passe</button>
                     <button class="button" id="button--logout" >Me déconnecter</button>
-                    <button class="button" id="button--delete-account" >Supprimer le compte</button>
+                    <button class="button" id="button--deleteAccount" >Supprimer le compte</button>
                 </div>
             </section>
         </main>
-        <script type="module" src="dist/profil.js"></script>
-        <script type="module" src="dist/navbar.js"></script>
-        <script type="module" src="dist/authVerification.js"></script>
+        <script type="module" src="dist/profile.js"></script>
+        <script type="module" src="dist/utils/navbar.js"></script>
+        <script type="module" src="dist/utils/authVerification.js"></script>
     </body>
 </html>
