@@ -12,6 +12,19 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
+    border: solid 1px black;
+    padding: 2rem;
+}
+
+#delete-picture, #submit--image {
+    padding: 0.5rem 1rem;
+    background-color: #e1e1e1;
+    border-radius: 1rem;
+    border: 1px solid black;
+    transition: all ease-in-out 0.1s;
+}
+#delete-picture:hover, #submit--image:hover {
+    transform: scale(1.05);
 }
 
 #profile--picture {
