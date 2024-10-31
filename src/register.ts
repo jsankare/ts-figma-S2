@@ -9,6 +9,7 @@ function addUser(
     password: string;
     firstname: string;
     lastname: string;
+    picture: string;
   },
 ): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -17,7 +18,6 @@ function addUser(
     const request = store.add(userData);
 
     request.onsuccess = () => {
-      console.log("Utilisateur ajouté avec succès");
       resolve();
     };
 
@@ -42,6 +42,7 @@ async function handleRegister(event: Event) {
   const confirmPassword = (
     document.getElementById("confirm-password") as HTMLInputElement
   ).value;
+  const picture = "";
 
   if (password !== confirmPassword) {
     alert("Les mots de passe ne correspondent pas !");
@@ -57,7 +58,13 @@ async function handleRegister(event: Event) {
 
   // Hash password
   const hashedPassword = await hashPassword(password);
-  const userData = { email, password: hashedPassword, lastname, firstname };
+  const userData = {
+    email,
+    password: hashedPassword,
+    lastname,
+    firstname,
+    picture,
+  };
 
   try {
     await addUser(db, userData);

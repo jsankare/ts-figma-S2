@@ -1,12 +1,22 @@
-import { openDatabase } from "./utils/openDatabase.js";
+import { openDatabase } from "./openDatabase.js";
+import { logoutLogic } from "./logout.js";
+
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()?.split(";").shift() || null;
+  }
+  return null;
+}
 
 // Check auth && Token validity
 async function checkAuthentication() {
   const userEmail = localStorage.getItem("userMail");
-  const authToken = localStorage.getItem("authToken");
+  const authToken = getCookie("token");
 
   if (!userEmail || !authToken) {
-    window.location.href = "login.html";
+    logoutLogic();
     return;
   }
 
@@ -22,18 +32,13 @@ async function checkAuthentication() {
 
     // Check token validity
     if (!user || !user.tokenExpiry || new Date(user.tokenExpiry) < new Date()) {
-      console.log("Token expiré ou utilisateur introuvable");
-      localStorage.removeItem("userEmail");
-      localStorage.removeItem("authToken");
-      window.location.href = "login.html";
-    } else {
-      console.log("Authentification réussie !");
+      logoutLogic();
     }
   };
 
   request.onerror = () => {
     console.error("Erreur lors de la vérification du token");
-    window.location.href = "login.html";
+    logoutLogic();
   };
 }
 

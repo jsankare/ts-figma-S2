@@ -1,3 +1,5 @@
+import { logoutLogic } from "./logout.js";
+
 const body = document.getElementById("body");
 
 if (body) {
@@ -63,8 +65,6 @@ if (body) {
 
   // Logout
   logout.addEventListener("click", () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userMail");
-    window.location.href = "login.html";
+    logoutLogic();
   });
 }
