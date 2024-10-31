@@ -1,11 +1,3 @@
-// notificationUtil.ts
-
-/**
- * Fonction utilitaire pour gérer les notifications Web avec prise en charge optionnelle de la vibration.
- * @param title - Le titre de la notification
- * @param options - Options supplémentaires pour personnaliser la notification
- * @param vibrationPattern - Modèle de vibration pour les appareils compatibles (facultatif)
- */
 export function showNotification(
   title: string,
   options?: NotificationOptions,
@@ -18,17 +10,12 @@ export function showNotification(
 
   const createNotification = () => {
     const notification = new Notification(title, options);
-
-    // Ajouter des événements à la notification
     notification.onclick = () => {
       console.log("Notification cliquée !");
     };
-
     notification.onclose = () => {
       console.log("Notification fermée.");
     };
-
-    // Activer la vibration si elle est supportée
     if (vibrationPattern && "vibrate" in navigator) {
       navigator.vibrate(vibrationPattern);
     }
@@ -48,3 +35,5 @@ export function showNotification(
     console.warn("Les notifications sont désactivées pour ce site.");
   }
 }
+
+(window as any).notifyMe = showNotification;
