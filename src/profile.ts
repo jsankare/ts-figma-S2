@@ -63,6 +63,15 @@ async function displayUserProfile() {
             profilePicture.style.display = "none";
             addProfileButton.style.display = "flex";
             deletePicture.style.display = "none";
+            showNotification(
+              "Votre site vous informe",
+              {
+                body: "Votre image de profil a bien été supprimée",
+                icon: "/assets/logo_no_bg.svg",
+                requireInteraction: false,
+              },
+              [200, 100, 200],
+            );
           } catch (error) {
             toastAlert(
               "error",
@@ -96,6 +105,15 @@ async function displayUserProfile() {
             profilePicture.src = pictureDataUrl;
             profilePicture.style.display = "block";
             addProfileButton.style.display = "none";
+            showNotification(
+              "Votre site vous informe",
+              {
+                body: "Votre image de profil a bien été mise à jour",
+                icon: "/assets/logo_no_bg.svg",
+                requireInteraction: false,
+              },
+              [200, 100, 200],
+            );
           } catch (error) {
             toastAlert(
               "error",
@@ -148,22 +166,6 @@ async function updateUserProfilePicture(
     };
   });
 }
-
-// Appeler la fonction de notification
-function notifyMe() {
-  showNotification(
-    "Notification de test",
-    {
-      body: "Voici une notification de test pour votre profil !",
-      icon: "/assets/logo_no_bg.svg",
-      requireInteraction: true,
-    },
-    [200, 100, 200],
-  ); // Modèle de vibration pour les appareils compatibles
-}
-
-// Ajouter notifyMe au contexte global pour le HTML
-(window as any).notifyMe = notifyMe;
 
 const buttonLabels = ["settings", "passwordReset", "logout", "deleteAccount"];
 const buttons: { [key: string]: HTMLElement | null } = {};
