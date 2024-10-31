@@ -32,10 +32,7 @@ async function checkAuthentication() {
 
     // Check token validity
     if (!user || !user.tokenExpiry || new Date(user.tokenExpiry) < new Date()) {
-      console.log("Token expiré ou utilisateur introuvable");
       logoutLogic();
-    } else {
-      console.log("Authentification réussie !");
     }
   };
 
