@@ -2,27 +2,29 @@ import { getCurrentUser } from "./utils/getCurrentUser.js";
 import { openDatabase } from "./utils/openDatabase.js";
 import { logoutLogic } from "./utils/logout.js";
 import { uploadImage } from "./utils/uploadImage.js";
-import { displayLoading } from "./utils/displayLoading.js";
-import { alert } from "./utils/alert.js";
+// import { displayLoading } from "./utils/displayLoading.js";
+import { toastAlert } from "./utils/alert.js";
 
-displayLoading(true);
 async function displayUserProfile() {
+  console.time("profile");
   try {
+    // displayLoading(true);
     const db = await openDatabase();
     const userEmail = localStorage.getItem("userMail");
     if (!userEmail) {
       console.error("Aucun utilisateur connecté.");
-      window.location.href = "login.html";
+      logoutLogic();
       return;
     }
+    console.table(db);
     const user = await getCurrentUser(db, userEmail);
 
     if (!user) {
       console.error("Utilisateur introuvable.");
-      window.location.href = "login.html";
+      logoutLogic();
       return;
     }
-    displayLoading(false);
+    // displayLoading(false);
 
     const usernameElement = document.getElementById(
       "profile--username",
@@ -61,7 +63,7 @@ async function displayUserProfile() {
             addProfileButton.style.display = "flex";
             deletePicture.style.display = "none";
           } catch (error) {
-            alert(
+            toastAlert(
               "error",
               "Erreur lors de la suppression de la photo de profil",
             );
@@ -94,7 +96,7 @@ async function displayUserProfile() {
             profilePicture.style.display = "block";
             addProfileButton.style.display = "none";
           } catch (error) {
-            alert(
+            toastAlert(
               "error",
               "Erreur lors de la mise à jour de la photo de profil",
             );
@@ -108,6 +110,7 @@ async function displayUserProfile() {
       error,
     );
   }
+  console.timeEnd("profile");
 }
 
 async function updateUserProfilePicture(
@@ -127,7 +130,6 @@ async function updateUserProfilePicture(
         user.picture = pictureDataUrl;
         const updateRequest = store.put(user);
         updateRequest.onsuccess = () => {
-          console.log("Image de profil mise à jour avec succès");
           resolve();
         };
         updateRequest.onerror = () => {
@@ -152,11 +154,14 @@ buttonLabels.forEach((label) => {
 });
 
 buttons.settingsButton?.addEventListener("click", () => {
-  console.log("hello settings");
+  toastAlert("error", "Vous avez cliqué sur 'parametres'");
 });
 
 buttons.passwordResetButton?.addEventListener("click", () => {
-  console.log("hello password reset");
+  toastAlert(
+    "success",
+    "Vous avez cliqué sur 'Reinitialiser mon mot de passe'",
+  );
 });
 
 buttons.logoutButton?.addEventListener("click", () => {
@@ -164,7 +169,7 @@ buttons.logoutButton?.addEventListener("click", () => {
 });
 
 buttons.deleteAccountButton?.addEventListener("click", () => {
-  alert("success", "Ceci est le contenu de mon alerte");
+  toastAlert("success", "Vous avez cliqué sur 'Supprimer le compte'");
 });
 
 document.addEventListener("DOMContentLoaded", () => {

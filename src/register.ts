@@ -18,7 +18,6 @@ function addUser(
     const request = store.add(userData);
 
     request.onsuccess = () => {
-      console.log("Utilisateur ajouté avec succès");
       resolve();
     };
 

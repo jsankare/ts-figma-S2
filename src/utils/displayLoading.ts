@@ -1,3 +1,5 @@
+// A update => ne charge pas les écouteurs d'évenements lors de refresh
+
 export function displayLoading(isLoading: boolean): void {
   const mainContent = document.getElementById("main") as HTMLElement;
   let loadingElement = document.getElementById("loading");
@@ -12,14 +14,14 @@ export function displayLoading(isLoading: boolean): void {
       // Crée et ajoute l'indicateur de chargement
       loadingElement = document.createElement("div");
       loadingElement.id = "loading";
-      loadingElement.textContent = "Chargement en cours...";
-      loadingElement.style.fontStyle = "italic";
-      loadingElement.style.color = "#666";
-      loadingElement.style.textAlign = "center";
-      loadingElement.style.padding = "20px";
-      loadingElement.style.fontSize = "1.5rem";
 
-      mainContent.replaceChildren(loadingElement); // Remplace le contenu de <main> par l'indicateur de chargement
+      // Ajoute le cercle de chargement animé
+      const loader = document.createElement("div");
+      loader.classList.add("loader");
+      loadingElement.appendChild(loader);
+
+      // Remplace le contenu de <main> par l'indicateur de chargement
+      mainContent.replaceChildren(loadingElement);
     }
   } else {
     // Restaure le contenu original de <main> une fois le chargement terminé

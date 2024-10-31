@@ -1,4 +1,4 @@
-export function alert(type: "success" | "error", content: string): void {
+export function toastAlert(type: "success" | "error", content: string): void {
   const body = document.getElementsByTagName("body")[0];
 
   let container = document.getElementById("toast-container") as HTMLDivElement;
