@@ -4,6 +4,7 @@ import { logoutLogic } from "./utils/logout.js";
 import { uploadImage } from "./utils/uploadImage.js";
 // import { displayLoading } from "./utils/displayLoading.js";
 import { toastAlert } from "./utils/alert.js";
+import { showNotification } from "./utils/notification.js";
 
 async function displayUserProfile() {
   console.time("profile");
@@ -147,6 +148,22 @@ async function updateUserProfilePicture(
     };
   });
 }
+
+// Appeler la fonction de notification
+function notifyMe() {
+  showNotification(
+    "Notification de test",
+    {
+      body: "Voici une notification de test pour votre profil !",
+      icon: "/assets/logo_no_bg.svg",
+      requireInteraction: true,
+    },
+    [200, 100, 200],
+  ); // Modèle de vibration pour les appareils compatibles
+}
+
+// Ajouter notifyMe au contexte global pour le HTML
+(window as any).notifyMe = notifyMe;
 
 const buttonLabels = ["settings", "passwordReset", "logout", "deleteAccount"];
 const buttons: { [key: string]: HTMLElement | null } = {};
