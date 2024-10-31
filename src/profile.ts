@@ -4,6 +4,7 @@ import { logoutLogic } from "./utils/logout.js";
 import { uploadImage } from "./utils/uploadImage.js";
 // import { displayLoading } from "./utils/displayLoading.js";
 import { toastAlert } from "./utils/alert.js";
+import { showNotification } from "./utils/notification.js";
 
 async function displayUserProfile() {
   console.time("profile");
@@ -62,6 +63,15 @@ async function displayUserProfile() {
             profilePicture.style.display = "none";
             addProfileButton.style.display = "flex";
             deletePicture.style.display = "none";
+            showNotification(
+              "Votre site vous informe",
+              {
+                body: "Votre image de profil a bien été supprimée",
+                icon: "/assets/logo_no_bg.svg",
+                requireInteraction: false,
+              },
+              [200, 100, 200],
+            );
           } catch (error) {
             toastAlert(
               "error",
@@ -95,6 +105,15 @@ async function displayUserProfile() {
             profilePicture.src = pictureDataUrl;
             profilePicture.style.display = "block";
             addProfileButton.style.display = "none";
+            showNotification(
+              "Votre site vous informe",
+              {
+                body: "Votre image de profil a bien été mise à jour",
+                icon: "/assets/logo_no_bg.svg",
+                requireInteraction: false,
+              },
+              [200, 100, 200],
+            );
           } catch (error) {
             toastAlert(
               "error",
