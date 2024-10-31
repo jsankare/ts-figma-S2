@@ -30,7 +30,10 @@
 #profile--picture {
     width: 100%;
     max-width: 15rem;
-    border-radius: 50rem;
+    max-height: 15rem;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 5000rem;
 }
 
 #profile--username {
