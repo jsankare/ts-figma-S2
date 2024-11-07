@@ -9,18 +9,21 @@ document.addEventListener("DOMContentLoaded", () => {
   function createModal(type: string, modalContent: HTMLElement) {
     let formContent = "";
 
-    switch (type) {
-      case "category":
-        formContent = `
-                <form id="categoryForm" action="">
-                <input type="hidden" name="originalCategoryName">
+
+      switch (type) {
+          case 'category':
+              formContent = `
+                <form id="categoriesForm" action="">
+                    <input type="hidden" name="id">
                   <label for="category">Nom de la catégorie</label>
-                  <input type="text" name="category" id="category" required>
+                  <input type="text" name="name" id="category" required>
                  `;
-        break;
-      case "budget":
-        formContent = `
-                <form action="" id="budgetForm">
+
+              break;
+          case 'budget':
+              formContent = `
+                <form action="" id="budgetsForm">
+                    <input type="hidden" name="id" id="budgetId">
                   <label for="category">Catégorie</label>
                   <select name="category" id="category" required>
                       <option value=""></option>
@@ -29,10 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
                   <input type="number" name="budget" id="budget" required>
                   <input type="checkbox" name="alert" id="alert">
                   <label for="alert">Recevoir une alerte</label>`;
-        break;
-      case "transaction":
-        formContent = `
-                <form action="" id="transactionForm">
+
+              break;
+          case 'transaction':
+              formContent = `
+                <form action="" id="transactionsForm">
                   <label for="type">Type de transaction</label>
                   <select name="type" id="type" required>
                       <option value="credit">Crédit</option>
@@ -75,10 +79,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (span) {
-    span.onclick = function () {
-      if (modalContent) {
-        modalContent.style.display = "none";
-      }
-    };
+      span.onclick = function () {
+          if (modalContent) {
+              modalContent.style.display = "none";
+              const form = modalContent.querySelector('form') as HTMLFormElement;           
+                if (form) {
+                    form.reset();
+                    clearErrorMessage();
+                }
+          }
+      };
   }
 });
+
+function clearErrorMessage() {
+    const errorElement = document.querySelector('.error');
+    if (errorElement) {
+        errorElement.remove();
+    }
+}
