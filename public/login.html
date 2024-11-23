@@ -1,20 +1,42 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-        <link href="styles.css" rel="stylesheet">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Expense Tracker</title>
+    <link href="styles.css" rel="stylesheet">
+    <link href="styles/auth.css" rel="stylesheet">
+</head>
     <body>
-        <form action="">
-            <label for="mail">Mail</label>
-            <input type="email" name="mail" id="mail" required>
-            <label for="password">Mot de passe</label>
-            <input type="password" name="password" id="password" required>
-            <input type="submit" value="Se connecter">
-        </form>
-        <p>Pas de compte ? <a href="/register.html" >Créer un compte</a></p>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <img src="assets/logo_no_bg.svg" alt="Expense Tracker Logo" class="logo">
+                    <h1 class="auth-title">Welcome Back!</h1>
+                    <p class="auth-subtitle">Sign in to manage your expenses</p>
+                </div>
+                
+                <img src="assets/man-with-hand-on-chin-svgrepo-com.svg" alt="Login Illustration" class="auth-illustration">
+                
+                <form class="form">
+                    <div class="form-group">
+                        <label class="label" for="mail">Email</label>
+                        <input class="input" type="email" name="mail" id="mail" required placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="label" for="password">Password</label>
+                        <input class="input" type="password" name="password" id="password" required placeholder="Enter your password">
+                    </div>
+                    
+                    <button type="submit" class="submit-button">Sign In</button>
+                </form>
+                
+                <div class="auth-footer">
+                    Don't have an account? <a href="/register.html" class="auth-link">Create one</a>
+                </div>
+            </div>
+        </div>
         <script type="module" src="dist/login.js"></script>
     </body>
 </html>
