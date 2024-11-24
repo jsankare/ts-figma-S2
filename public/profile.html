@@ -9,33 +9,114 @@
         <link href="styles/alert.css" rel="stylesheet">
         <link href="styles/profile.css" rel="stylesheet">
         <link href="styles/loader.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body id="body">
         <main id="main">
-            <section id="profile--wrapper">
-                <article id="profile--infos">
-                    <img id="profile--picture" src="" alt="Photo de profil" />
-                    <p id="file-name"></p>
-                    <p id="file-type"></p>
-                    <p id="file-size"></p>
-                    <form id="button--addProfilePicture" class="button" style="display: none;" action="">
-                        <label id="label--image" for="myfile">Choisissez une photo de profil :</label>
-                        <input type="file" accept="image/*" id="myfile" name="myfile">
-                        <input id="submit--image" type="submit">
-                    </form>
-                    <button id="delete-picture">Supprimer l'image</button>
-                    <h2 id="profile--username"></h2>
-                </article>
-                <p id="chrono" ></p>
-                <div id="buttons" >
-                    <button class="button" id="button--settings" >Paramètres</button>
-                    <button class="button" id="button--passwordReset" >Réinitialiser mon mot de passe</button>
-                    <button class="button" id="button--logout" >Me déconnecter</button>
-                    <button class="button" id="button--deleteAccount" >Supprimer le compte</button>
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-image-container">
+                        <img id="profile--picture" src="" alt="Photo de profil" />
+                        <div class="profile-image-overlay" id="change-photo">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h2 id="profile--username"></h2>
+                        <p class="text-gray-600">Membre depuis janvier 2024</p>
+                    </div>
+                    <button id="delete-picture" style="display: none;">
+                        <i class="fas fa-trash-alt"></i>
+                        Supprimer la photo
+                    </button>
                 </div>
-            </section>
+
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">€2,450</div>
+                        <div class="stat-label">Balance totale</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Transactions ce mois</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Budgets actifs</div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="action-button" id="button--settings">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </button>
+                    <button class="action-button" id="button--passwordReset">
+                        <i class="fas fa-key"></i>
+                        Changer le mot de passe
+                    </button>
+                    <button class="action-button" id="button--logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Me déconnecter
+                    </button>
+                    <button class="action-button danger" id="button--deleteAccount">
+                        <i class="fas fa-trash-alt"></i>
+                        Supprimer le compte
+                    </button>
+                </div>
+
+                <form id="button--addProfilePicture" class="upload-form" action="">
+                    <h3>Changer la photo de profil</h3>
+                    <label id="label--image" for="myfile" class="file-input-label">
+                        <i class="fas fa-upload"></i>
+                        Choisir une photo
+                    </label>
+                    <input type="file" accept="image/*" id="myfile" name="myfile" class="file-input">
+                    <div class="file-info">
+                        <p id="file-name"></p>
+                        <p id="file-type"></p>
+                        <p id="file-size"></p>
+                    </div>
+                    <button id="submit--image" type="submit">
+                        <i class="fas fa-check"></i>
+                        Confirmer
+                    </button>
+                </form>
+
+                <div class="upload-overlay" id="upload-overlay"></div>
+
+                <div class="settings-modal" id="settings-modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Paramètres du compte</h3>
+                        <button class="close-button" id="close-settings">&times;</button>
+                    </div>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" class="form-input" value="John">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-input" value="Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" value="john.doe@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Devise préférée</label>
+                            <select class="form-input">
+                                <option value="EUR">EUR (€)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="save-button">Enregistrer les modifications</button>
+                    </form>
+                </div>
+            </div>
         </main>
-        <script type="module" src="dist/profile.js"></script>
+    <script type="module" src="dist/profile.js"></script>
         <script type="module" src="dist/utils/navbar.js"></script>
         <script type="module" src="dist/utils/authVerification.js"></script>
     </body>

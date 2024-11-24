@@ -2,14 +2,11 @@ import { getCurrentUser } from "./utils/getCurrentUser.js";
 import { openDatabase } from "./utils/openDatabase.js";
 import { logoutLogic } from "./utils/logout.js";
 import { uploadImage } from "./utils/uploadImage.js";
-// import { displayLoading } from "./utils/displayLoading.js";
 import { toastAlert } from "./utils/alert.js";
 import { showNotification } from "./utils/notification.js";
 
 async function displayUserProfile() {
-  console.time("profile");
   try {
-    // displayLoading(true);
     const db = await openDatabase();
     const userEmail = localStorage.getItem("userMail");
     if (!userEmail) {
@@ -17,20 +14,18 @@ async function displayUserProfile() {
       logoutLogic();
       return;
     }
-    console.table(db);
-    const user = await getCurrentUser(db, userEmail);
 
+    const user = await getCurrentUser(db, userEmail);
     if (!user) {
       console.error("Utilisateur introuvable.");
       logoutLogic();
       return;
     }
-    // displayLoading(false);
 
     const usernameElement = document.getElementById(
       "profile--username",
     ) as HTMLHeadingElement;
-    usernameElement.textContent = `Coucou ${user.firstname} !`;
+    usernameElement.textContent = `${user.firstname} ${user.lastname}`;
 
     const profilePicture = document.getElementById(
       "profile--picture",
@@ -38,7 +33,8 @@ async function displayUserProfile() {
     const addProfileButton = document.getElementById(
       "button--addProfilePicture",
     ) as HTMLFormElement;
-
+    const uploadOverlay = document.getElementById("upload-overlay");
+    const changePhotoButton = document.getElementById("change-photo");
     const deletePicture = document.getElementById("delete-picture");
     const fileNameElement = document.getElementById(
       "file-name",
@@ -50,88 +46,83 @@ async function displayUserProfile() {
       "file-size",
     ) as HTMLParagraphElement;
 
+    // Profile picture handling
     if (user.picture) {
       profilePicture.src = user.picture;
-      profilePicture.style.display = "block";
-      addProfileButton.style.display = "none";
       if (deletePicture) {
         deletePicture.style.display = "block";
         deletePicture.addEventListener("click", async () => {
           try {
             await updateUserProfilePicture(db, userEmail, "");
-            profilePicture.src = "";
-            profilePicture.style.display = "none";
-            addProfileButton.style.display = "flex";
+            profilePicture.src = "/assets/user_default.svg";
             deletePicture.style.display = "none";
-            showNotification(
-              "Votre site vous informe",
-              {
-                body: "Votre image de profil a bien été supprimée",
-                icon: "/assets/logo_no_bg.svg",
-                requireInteraction: false,
-              },
-              [200, 100, 200],
-            );
+            showNotification("Photo supprimée", {
+              body: "Votre photo de profil a été supprimée avec succès",
+              icon: "/assets/logo_no_bg.svg",
+            });
           } catch (error) {
-            toastAlert(
-              "error",
-              "Erreur lors de la suppression de la photo de profil",
-            );
+            toastAlert("error", "Erreur lors de la suppression de la photo");
           }
         });
       }
     } else {
-      profilePicture.style.display = "none";
-      addProfileButton.style.display = "flex";
+      profilePicture.src = "/assets/user_default.svg";
       if (deletePicture) deletePicture.style.display = "none";
+    }
 
-      addProfileButton.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const fileInput = document.getElementById("myfile") as HTMLInputElement;
+    // Change photo button handling
+    if (changePhotoButton && uploadOverlay) {
+      changePhotoButton.addEventListener("click", () => {
+        addProfileButton.classList.add("visible");
+        uploadOverlay.classList.add("visible");
+      });
 
-        if (fileInput.files?.length) {
-          const file = fileInput.files[0];
-
-          const fileName = file.name.split(".")[0];
-          const fileType = file.type.split("/")[1];
-          const fileSize = file.size / 1024;
-
-          fileNameElement.textContent = `Nom du fichier : ${fileName}`;
-          fileTypeElement.textContent = `Type de fichier : ${fileType}`;
-          fileSizeElement.textContent = `Taille du fichier : ${fileSize.toFixed(2)} ko (Ancienne norme)`;
-          try {
-            const pictureDataUrl = await uploadImage(file);
-            await updateUserProfilePicture(db, userEmail, pictureDataUrl);
-            profilePicture.src = pictureDataUrl;
-            profilePicture.style.display = "block";
-            addProfileButton.style.display = "none";
-            showNotification(
-              "Votre site vous informe",
-              {
-                body: "Votre image de profil a bien été mise à jour",
-                icon: "/assets/logo_no_bg.svg",
-                requireInteraction: false,
-              },
-              [200, 100, 200],
-            );
-          } catch (error) {
-            toastAlert(
-              "error",
-              "Erreur lors de la mise à jour de la photo de profil",
-            );
-          }
-        } else {
-          toastAlert("error", "Aucune image n'a été détectée");
+      uploadOverlay.addEventListener("click", (e) => {
+        if (e.target === uploadOverlay) {
+          addProfileButton.classList.remove("visible");
+          uploadOverlay.classList.remove("visible");
         }
       });
     }
+
+    // File upload handling
+    addProfileButton.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const fileInput = document.getElementById("myfile") as HTMLInputElement;
+
+      if (fileInput.files?.length) {
+        const file = fileInput.files[0];
+        const fileName = file.name.split(".")[0];
+        const fileType = file.type.split("/")[1];
+        const fileSize = (file.size / 1024).toFixed(2);
+
+        fileNameElement.textContent = `Nom: ${fileName}`;
+        fileTypeElement.textContent = `Type: ${fileType}`;
+        fileSizeElement.textContent = `Taille: ${fileSize} KB`;
+
+        try {
+          const pictureDataUrl = await uploadImage(file);
+          await updateUserProfilePicture(db, userEmail, pictureDataUrl);
+          profilePicture.src = pictureDataUrl;
+          if (deletePicture) deletePicture.style.display = "block";
+          addProfileButton.classList.remove("visible");
+          uploadOverlay?.classList.remove("visible");
+
+          showNotification("Photo mise à jour", {
+            body: "Votre photo de profil a été mise à jour avec succès",
+            icon: "/assets/logo_no_bg.svg",
+          });
+        } catch (error) {
+          toastAlert("error", "Erreur lors de la mise à jour de la photo");
+        }
+      } else {
+        toastAlert("error", "Veuillez sélectionner une image");
+      }
+    });
   } catch (error) {
-    console.error(
-      "Erreur lors de l'affichage des informations de l'utilisateur",
-      error,
-    );
+    console.error("Erreur lors de l'affichage du profil:", error);
+    toastAlert("error", "Erreur lors du chargement du profil");
   }
-  console.timeEnd("profile");
 }
 
 async function updateUserProfilePicture(
@@ -142,46 +133,59 @@ async function updateUserProfilePicture(
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readwrite");
     const store = transaction.objectStore("users");
+    const request = store.get(email);
 
-    const userRequest = store.get(email);
-
-    userRequest.onsuccess = () => {
-      const user = userRequest.result;
+    request.onsuccess = () => {
+      const user = request.result;
       if (user) {
         user.picture = pictureDataUrl;
         const updateRequest = store.put(user);
-        updateRequest.onsuccess = () => {
-          resolve();
-        };
-        updateRequest.onerror = () => {
-          reject("Erreur lors de la mise à jour de l'image de profil");
-        };
+        updateRequest.onsuccess = () => resolve();
+        updateRequest.onerror = () =>
+          reject("Erreur lors de la mise à jour de l'image");
       } else {
         reject("Utilisateur introuvable");
       }
     };
 
-    userRequest.onerror = () => {
+    request.onerror = () =>
       reject("Erreur lors de la récupération de l'utilisateur");
-    };
   });
 }
 
-const buttonLabels = ["settings", "passwordReset", "logout", "deleteAccount"];
+// Settings modal handling
+const settingsButton = document.getElementById("button--settings");
+const settingsModal = document.getElementById("settings-modal");
+const closeSettings = document.getElementById("close-settings");
+
+if (settingsButton && settingsModal && closeSettings) {
+  settingsButton.addEventListener("click", () => {
+    settingsModal.classList.add("visible");
+  });
+
+  closeSettings.addEventListener("click", () => {
+    settingsModal.classList.remove("visible");
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === settingsModal) {
+      settingsModal.classList.remove("visible");
+    }
+  });
+}
+
+// Other button handlers
+const buttonLabels = ["passwordReset", "logout", "deleteAccount"];
 const buttons: { [key: string]: HTMLElement | null } = {};
 
 buttonLabels.forEach((label) => {
   buttons[`${label}Button`] = document.getElementById(`button--${label}`);
 });
 
-buttons.settingsButton?.addEventListener("click", () => {
-  toastAlert("error", "Vous avez cliqué sur 'parametres'");
-});
-
 buttons.passwordResetButton?.addEventListener("click", () => {
   toastAlert(
-    "success",
-    "Vous avez cliqué sur 'Reinitialiser mon mot de passe'",
+    "error",
+    "Fonctionnalité de réinitialisation du mot de passe à venir",
   );
 });
 
@@ -190,7 +194,12 @@ buttons.logoutButton?.addEventListener("click", () => {
 });
 
 buttons.deleteAccountButton?.addEventListener("click", () => {
-  toastAlert("success", "Vous avez cliqué sur 'Supprimer le compte'");
+  const confirmed = confirm(
+    "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+  );
+  if (confirmed) {
+    toastAlert("error", "Fonctionnalité de suppression de compte à venir");
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
