@@ -9,12 +9,15 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .welcome-section {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .profile-image {
@@ -23,6 +26,7 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #4299e1;
+    flex-shrink: 0;
 }
 
 .welcome-text h1 {
@@ -38,7 +42,7 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -48,6 +52,7 @@
     padding: 1.5rem;
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: 0;
 }
 
 .stat-card h3 {
@@ -60,6 +65,9 @@
     font-size: 1.5rem;
     font-weight: 600;
     color: #2d3748;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stat-card .trend {
@@ -70,16 +78,16 @@
     font-size: 0.875rem;
 }
 
-.trend.up { 
-    color: #48bb78; 
+.trend.up {
+    color: #48bb78;
 }
-.trend.down { 
-    color: #f56565; 
+.trend.down {
+    color: #f56565;
 }
 
 .charts-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -89,6 +97,11 @@
     padding: 1.5rem;
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .chart-card h2 {
@@ -98,11 +111,24 @@
     margin-bottom: 1rem;
 }
 
+.chart-container {
+    flex: 1;
+    min-height: 300px;
+    position: relative;
+    width: 100%;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
 .recent-transactions {
     background: white;
     padding: 1.5rem;
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: 0;
 }
 
 .transaction-list {
@@ -118,12 +144,16 @@
     padding: 0.75rem;
     border-radius: 0.5rem;
     background: #f7fafc;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .transaction-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 200px;
+    flex: 1;
 }
 
 .transaction-icon {
@@ -135,11 +165,20 @@
     justify-content: center;
     background: #ebf8ff;
     color: #4299e1;
+    flex-shrink: 0;
+}
+
+.transaction-details {
+    min-width: 0;
+    flex: 1;
 }
 
 .transaction-details h4 {
     font-weight: 500;
     color: #2d3748;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .transaction-details p {
@@ -149,18 +188,23 @@
 
 .transaction-amount {
     font-weight: 600;
+    white-space: nowrap;
 }
 
-.amount-positive { 
-    color: #48bb78; 
+.amount-positive {
+    color: #48bb78;
 }
-.amount-negative { 
-    color: #f56565; 
+.amount-negative {
+    color: #f56565;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
     .charts-grid {
         grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        min-height: 250px;
     }
 }
 
@@ -168,14 +212,44 @@
     .dashboard {
         padding: 1rem;
     }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
+
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        min-height: 200px;
+    }
+
+    .transaction-item {
+        padding: 0.5rem;
+    }
+
+    .transaction-info {
+        min-width: 160px;
+    }
+
+    .transaction-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard {
+        padding: 0.75rem;
+    }
+
+    .chart-container {
+        min-height: 180px;
+    }
+
+    .transaction-info {
+        min-width: 140px;
     }
 }

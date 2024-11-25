@@ -567,12 +567,6 @@ video {
 .block {
   display: block;
 }
-.flex {
-  display: flex;
-}
-.table {
-  display: table;
-}
 .hidden {
   display: none;
 }

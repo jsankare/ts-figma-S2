@@ -1,0 +1,84 @@
+/* Light theme (default) */
+:root {
+    --bg-primary: #f7fafc;
+    --bg-secondary: #ffffff;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --border-color: #e2e8f0;
+    --accent-color: #4299e1;
+    --accent-hover: #3182ce;
+    --danger-color: #e53e3e;
+    --danger-hover: #c53030;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --bg-primary: #1a202c;
+    --bg-secondary: #2d3748;
+    --text-primary: #f7fafc;
+    --text-secondary: #cbd5e0;
+    --border-color: #4a5568;
+    --accent-color: #63b3ed;
+    --accent-hover: #4299e1;
+    --danger-color: #fc8181;
+    --danger-hover: #f56565;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Apply theme variables */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.profile-header,
+.stat-card,
+.settings-modal,
+.upload-form {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.text-gray-600 {
+    color: var(--text-secondary);
+}
+
+.form-input {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-input:focus {
+    border-color: var(--accent-color);
+}
+
+.save-button {
+    background-color: var(--accent-color);
+    color: var(--bg-secondary);
+}
+
+.save-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.action-button {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.action-button:hover {
+    background-color: var(--bg-primary);
+}
+
+.action-button.danger {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.action-button.danger:hover {
+    background-color: var(--danger-hover);
+    color: var(--bg-secondary);
+}

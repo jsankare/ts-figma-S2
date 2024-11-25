@@ -32,7 +32,6 @@ async function initializeDashboard() {
 
     initializeExpenseChart();
     initializeCategoryChart();
-
     loadRecentTransactions();
   } catch (error) {
     console.error("Error initializing dashboard:", error);
@@ -42,6 +41,11 @@ async function initializeDashboard() {
 function initializeExpenseChart() {
   const ctx = document.getElementById("expense-chart") as HTMLCanvasElement;
   if (!ctx) return;
+
+  const chartContainer = document.createElement("div");
+  chartContainer.className = "chart-container";
+  ctx.parentNode?.insertBefore(chartContainer, ctx);
+  chartContainer.appendChild(ctx);
 
   new Chart(ctx, {
     type: "line",
@@ -75,6 +79,7 @@ function initializeExpenseChart() {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: true,
       plugins: {
         legend: {
           display: false,
@@ -83,6 +88,9 @@ function initializeExpenseChart() {
       scales: {
         y: {
           beginAtZero: true,
+          ticks: {
+            callback: (value) => `€${value}`,
+          },
         },
       },
     },
@@ -92,6 +100,11 @@ function initializeExpenseChart() {
 function initializeCategoryChart() {
   const ctx = document.getElementById("category-chart") as HTMLCanvasElement;
   if (!ctx) return;
+
+  const chartContainer = document.createElement("div");
+  chartContainer.className = "chart-container";
+  ctx.parentNode?.insertBefore(chartContainer, ctx);
+  chartContainer.appendChild(ctx);
 
   new Chart(ctx, {
     type: "doughnut",
@@ -112,9 +125,14 @@ function initializeCategoryChart() {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: "bottom",
+          labels: {
+            padding: 20,
+            usePointStyle: true,
+          },
         },
       },
     },
@@ -144,20 +162,20 @@ function loadRecentTransactions() {
   transactionList.innerHTML = transactions
     .map(
       (transaction) => `
-        <div class="transaction-item">
-            <div class="transaction-info">
-                <div class="transaction-icon">
-                    ${transaction.category === "Income" ? "+" : "-"}
-                </div>
-                <div class="transaction-details">
-                    <h4>${transaction.name}</h4>
-                    <p>${transaction.date}</p>
-                </div>
-            </div>
-            <div class="transaction-amount ${transaction.amount > 0 ? "amount-positive" : "amount-negative"}">
-                €${Math.abs(transaction.amount).toFixed(2)}
-            </div>
+      <div class="transaction-item">
+        <div class="transaction-info">
+          <div class="transaction-icon">
+            ${transaction.category === "Income" ? "+" : "-"}
+          </div>
+          <div class="transaction-details">
+            <h4>${transaction.name}</h4>
+            <p>${transaction.date}</p>
+          </div>
         </div>
+        <div class="transaction-amount ${transaction.amount > 0 ? "amount-positive" : "amount-negative"}">
+          €${Math.abs(transaction.amount).toFixed(2)}
+        </div>
+      </div>
     `,
     )
     .join("");
