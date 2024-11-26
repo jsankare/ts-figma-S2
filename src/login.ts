@@ -60,7 +60,7 @@ async function handleLogin(event: Event) {
   const password = (document.getElementById("password") as HTMLInputElement)
     .value;
 
-  const db = await openDatabase();
+  const db = await openDatabase('UserDatabase', 'users', 'email');
   const user = await getCurrentUser(db, email);
   if (!user) {
     alert("L'utilisateur n'existe pas !");
