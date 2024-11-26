@@ -21,7 +21,7 @@ async function checkAuthentication() {
   }
 
   // Fetch token
-  const db = await openDatabase();
+  const db = await openDatabase('UserDatabase', 'users', 'email');
   const transaction = db.transaction("users", "readonly");
   const store = transaction.objectStore("users");
   const index = store.index("token");

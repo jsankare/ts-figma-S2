@@ -49,7 +49,7 @@ async function handleRegister(event: Event) {
     return;
   }
 
-  const db = await openDatabase();
+  const db = await openDatabase('UserDatabase', 'users', 'email');
   const userExists = await checkUserExists(db, email);
   if (userExists) {
     alert("Un utilisateur avec cet e-mail existe déjà !");

@@ -10,7 +10,7 @@ async function displayUserProfile() {
   console.time("profile");
   try {
     // displayLoading(true);
-    const db = await openDatabase();
+    const db = await openDatabase('UserDatabase', 'users', 'email');
     const userEmail = localStorage.getItem("userMail");
     if (!userEmail) {
       console.error("Aucun utilisateur connecté.");
