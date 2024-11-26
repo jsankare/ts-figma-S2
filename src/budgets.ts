@@ -1,5 +1,6 @@
 import { uploadImage } from "./utils/uploadImage.js";
 import { openDatabase } from "./utils/openDatabase.js";
+import { displayMessage } from "./utils/alert.js";
 
 interface Category {
   id: number;
@@ -59,7 +60,6 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
 
   requiredFields.concat(optionalFields).forEach(field => {
     const value = formData.get(field);
-    console.log(`Field: ${field}, Value: ${value}`);
     if (value) {
       item[field] = value;
     }
@@ -67,7 +67,7 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
 
   for (const field of requiredFields) {
     if (!item[field]) {
-      displayMessage('All required fields must be filled', true);
+      displayMessage('All required fields must be filled');
       console.error('Missing required field:', field);
       return;
     }
@@ -81,8 +81,7 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
       const pictureDataUrl = await uploadImage(file);
       item['icon'] = pictureDataUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      displayMessage('Error uploading image', true);
+      displayMessage('Error uploading image');
       return;
     }
   }
@@ -112,6 +111,7 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
       if (modalContent) {
         modalContent.style.display = 'none'; // Close the modal
       }
+      displayMessage('Ajouté', false);
     };
 
     request.onerror = (event) => {
@@ -163,15 +163,16 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
     const store = transaction.objectStore(storeName);
     const request = store.getAll();
 
-    request.onsuccess = (event) => {
+    request.onsuccess = async (event) => {
       const items = (event.target as IDBRequest<(Category | Transaction | Budget)[]>).result;
       const listing = document.getElementById(`${storeName}Listing`);
       if (listing) {
         listing.innerHTML = '';
-        items.forEach((item: Category | Transaction | Budget) => {
+        for (const item of items) {  // Change from forEach to for...of
           const listItem = document.createElement('li');
           if ('amount' in item) {
-            listItem.textContent = `type: ${item.type}, name: ${item.name}, amount: ${item.amount}, category: ${item.category}, date: ${item.date}`;
+            const categoryName = await getCategoryName(item.category);
+            listItem.textContent = `type: ${item.type}, name: ${item.name}, amount: ${item.amount}, category: ${categoryName}, date: ${item.date}`;
           } else if ('name' in item) {
             listItem.innerHTML = `name: ${item.name}`;
             if (item.icon) {
@@ -183,7 +184,13 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
               listItem.appendChild(iconImg);
             }
           } else if ('budget' in item) {
-            listItem.textContent = `category: ${item.category}, budget: ${item.budget}, alert: ${item.alert}`;
+            const categoryName = await getCategoryName(item.category);
+            let alertText = '';
+            if (item.alert) {
+              alertText = 'Alerte activée';
+            }
+          
+            listItem.textContent = `category: ${categoryName}, budget: ${item.budget}, ${alertText}`;
           }
 
           const editButton = createEditButton(item, storeName);
@@ -192,7 +199,7 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
           listItem.appendChild(editButton);
           listItem.appendChild(deleteButton);
           listing.appendChild(listItem);
-        });
+        }
       }
     };
 
@@ -201,6 +208,34 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
     };
   } catch (error) {
     console.error(`Error updating listing:`, error);
+  }
+}
+
+
+async function getCategoryName(categoryId: string): Promise<string> {
+  try {
+    const db = await openDatabase('CategoryDatabase', 'categories', 'id');
+    const transaction = db.transaction('categories', 'readonly');
+    const store = transaction.objectStore('categories');
+    const request = store.get(Number(categoryId));
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = (event) => {
+        const category = (event.target as IDBRequest<Category>).result;
+        if (category) {
+          resolve(category.name);
+        } else {
+          reject('Category not found');
+        }
+      };
+      request.onerror = (event) => {
+        console.error('Error fetching category:', event.target.error);
+        reject('Error fetching category');
+      };
+    });
+  } catch (error) {
+    console.error('Error retrieving category name:', error);
+    throw new Error('Failed to fetch category name');
   }
 }
 
@@ -251,7 +286,6 @@ function fillFormWithItem(item: Category | Transaction | Budget, storeName: stri
       }
     }
   });
-  });
 
   const submitButton = form.querySelector('input[type="submit"]') as HTMLButtonElement;
   submitButton.value = `Mettre à jour`;
@@ -274,13 +308,5 @@ async function deleteItem(dbName: string, storeName: string, id: number, fields:
     };
   } catch (error) {
     console.error(`Error deleting item:`, error);
-  }
-}
-
-function displayMessage(message: string, isError: boolean) {
-  const messageContainer = document.getElementById('message');
-  if (messageContainer) {
-    messageContainer.textContent = message;
-    messageContainer.className = isError ? 'error' : 'success';
   }
 }
