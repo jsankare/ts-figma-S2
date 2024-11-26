@@ -1,0 +1,153 @@
+.budget-info-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.budget-info {
+    width: 100%;
+    background-color: white;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    h2 {
+        color: #4299E1;
+        font-size: 5rem;
+        span {
+            font-size: 3rem;
+        }
+    }
+    h3 {
+        font-size: 3rem;
+        color: #C1C1C1;
+    }
+}
+
+.budgets-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    @media (min-width: 768px) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+    @media (min-width: 900px) {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+.budget-card {
+    width: 100%;
+    background-color: white;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 2.5rem;
+    .budget-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .budget-card-top-left, .budget-card-top-right {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    }
+    .budget-card-top-icon {
+        background-color: #4299E1;
+        opacity: 50%;
+        border-radius: 0.5rem;
+        padding: 0.25rem;
+        position: relative;
+        width: 48px;
+        height: 48px;
+        svg {
+            width: 48px;
+            height: 48px;
+            fill: #10327c;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+    }
+    .budget-card-middle {
+        .budget-card-middle-stat {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            font-size: 1.5rem;
+            color: #797979;
+            font-weight: 600;
+        }
+    }
+    .budget-card-bottom {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        font-size: 1.5rem;
+        color: #797979;
+        div {
+            text-align: center;
+            p {
+                color: black;
+                span {
+                    font-size: 1rem;
+                }
+            }
+        }
+    }
+    .progress-container {
+        position: relative;
+        width: 100%;
+        .progress-bar-background, .progress-bar-foreground {
+            position: absolute;
+            left: 10%;
+            height: 2rem;
+            border-radius: 50rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .progress-bar-background {
+            width: 80%;
+        }
+        .progress-bar-foreground-positive {
+            background-color: blue;
+            width: 25%;
+        }
+        .progress-bar-foreground-medium{
+            background-color: orange;
+            width: 58%;
+        }
+        .progress-bar-foreground-danger {
+            background-color: red;
+            width: 70%;
+        }
+        .progress-bar-background-positive {
+            background-color: rgba(0, 0, 255, 0.5);
+        }
+        .progress-bar-background-medium {
+            background-color: rgba(255, 165, 0, 0.5);
+        }
+        .progress-bar-background-danger {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+    }
+    hr {
+        margin-top: 1rem;
+    }
+}
