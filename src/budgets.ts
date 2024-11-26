@@ -1,4 +1,5 @@
-// import { uploadImage } from "./utils/uploadImage.js";
+import { uploadImage } from "./utils/uploadImage.js";
+import { openDatabase } from "./utils/openDatabase.js";
 
 interface Category {
   id: number;
@@ -77,8 +78,7 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
     const file = fileInput.files[0];
     console.log('File selected for upload:', file);
     try {
-      const pictureDataUrl = await convertFileToBase64(file);
-      console.log('File converted to base64:', pictureDataUrl);
+      const pictureDataUrl = await uploadImage(file);
       item['icon'] = pictureDataUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -108,7 +108,10 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
     request.onsuccess = () => {
       console.log('Item saved successfully:', item);
       form.reset();
-      (form.querySelector('input[type="submit"]') as HTMLButtonElement).value = `Add ${storeName.slice(0, -1)}`;
+      const modalContent = document.getElementById('modal');
+      if (modalContent) {
+        modalContent.style.display = 'none'; // Close the modal
+      }
     };
 
     request.onerror = (event) => {
@@ -129,46 +132,6 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
     console.error(`Error saving item:`, error);
     alert('Error occurred while saving the item');
   }
-}
-
-
-async function convertFileToBase64(file: File): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (reader.result && typeof reader.result === 'string') {
-        resolve(reader.result);
-      } else {
-        reject('Failed to convert file to base64');
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function openDatabase(dbName: string, storeName: string, keyPath: string): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 1);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(storeName)) {
-        console.log(`Creating object store: ${storeName}`);
-        db.createObjectStore(storeName, { keyPath: keyPath });
-      }
-    };
-
-    request.onsuccess = (event) => {
-      console.log('Database opened successfully:', event.target.result);
-      resolve((event.target as IDBOpenDBRequest).result);
-    };
-
-    request.onerror = (event) => {
-      console.error('Error opening database:', (event.target as IDBRequest).error);
-      reject((event.target as IDBRequest).error);
-    };
-  });
 }
 
 async function generateUniqueId(store: IDBObjectStore, keyPath: string): Promise<number> {
@@ -207,8 +170,10 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
         listing.innerHTML = '';
         items.forEach((item: Category | Transaction | Budget) => {
           const listItem = document.createElement('li');
-          if ('name' in item) {
-            listItem.innerHTML = `id: ${item.id}, name: ${item.name}`;
+          if ('amount' in item) {
+            listItem.textContent = `type: ${item.type}, name: ${item.name}, amount: ${item.amount}, category: ${item.category}, date: ${item.date}`;
+          } else if ('name' in item) {
+            listItem.innerHTML = `name: ${item.name}`;
             if (item.icon) {
               const iconImg = document.createElement('img');
               iconImg.src = item.icon;
@@ -217,10 +182,8 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
               iconImg.style.height = '20px';
               listItem.appendChild(iconImg);
             }
-          } else if ('amount' in item) {
-            listItem.textContent = `id: ${item.id}, type: ${item.type}, name: ${item.name}, amount: ${item.amount}, category: ${item.category}, date: ${item.date}`;
           } else if ('budget' in item) {
-            listItem.textContent = `id: ${item.id}, category: ${item.category}, budget: ${item.budget}, alert: ${item.alert}`;
+            listItem.textContent = `category: ${item.category}, budget: ${item.budget}, alert: ${item.alert}`;
           }
 
           const editButton = createEditButton(item, storeName);
@@ -270,13 +233,28 @@ function fillFormWithItem(item: Category | Transaction | Budget, storeName: stri
 
   inputElements.forEach(input => {
     const fieldName = input.name;
-    if (item[fieldName] !== undefined) {
-      (input as HTMLInputElement).value = item[fieldName];
+    if (input.type === 'file') {
+      const fileInput = input as HTMLInputElement;
+      if (item[fieldName] !== undefined && item[fieldName]) {
+        // Si un fichier est sélectionné, récupérer le nom du fichier
+        fileInput.value = ''; // On ne peut pas définir une valeur pour un input de type 'file', donc on le vide
+        const fileName = (item[fieldName] as File);
+        const fileNameField = form.querySelector(`input[name="${fieldName}Name"]`) as HTMLInputElement;
+        if (fileNameField) {
+          fileNameField.value = fileName; // Remplir un champ texte avec le nom du fichier
+        }
+      }
+    } else {
+      // Si ce n'est pas un input de type 'file', mettre à jour la valeur normalement
+      if (item[fieldName] !== undefined) {
+        (input as HTMLInputElement).value = item[fieldName];
+      }
     }
+  });
   });
 
   const submitButton = form.querySelector('input[type="submit"]') as HTMLButtonElement;
-  submitButton.value = `Update ${storeName.slice(0, -1)}`;
+  submitButton.value = `Mettre à jour`;
 }
 
 async function deleteItem(dbName: string, storeName: string, id: number, fields: string[]) {

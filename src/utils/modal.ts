@@ -1,3 +1,4 @@
+import { openDatabase } from './openDatabase.js';
 interface Category {
   id: number;
   name: string;
@@ -74,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('Generated category options:', categoryOptions);
 
     // Populate the category selects in the modal
-    const categorySelects = modalContent.querySelectorAll('select');
+    const categorySelects = modalContent.querySelectorAll('.categorySelect') as NodeListOf<HTMLSelectElement>;
     categorySelects.forEach(select => {
       select.innerHTML = `<option value=""></option>${categoryOptions}`;
     });
@@ -130,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <form id="budgetsForm" action="">
             <input type="hidden" name="id" id="budgetId">
             <label for="budgetCategorySelect">Catégorie</label>
-            <select name="category" id="budgetCategorySelect" required>
+            <select name="category" id="budgetCategorySelect" class="categorySelect" required>
               <option value=""></option>
             </select>
             <label for="budget">Budget</label>
@@ -151,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <label for="amount">Montant</label>
             <input type="number" name="amount" id="amount" required>
             <label for="transactionCategorySelect">Catégorie</label>
-            <select name="category" id="transactionCategorySelect" required>
+            <select name="category" id="transactionCategorySelect" class="categorySelect" required>
               <option value=""></option>
             </select>
             <label for="date">Date</label>
@@ -171,6 +172,10 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.onclick = () => {
       if (modalContent) {
         console.log('Opening modal...');
+        const submitButton = modalContent.querySelector('input[type="submit"]') as HTMLInputElement;
+          if(submitButton) {
+            submitButton.value = "Ajouter";
+          }
         modalContent.style.display = "block";
       }
     };
@@ -198,29 +203,4 @@ function clearErrorMessage() {
     console.log('Clearing error message');
     errorElement.remove();
   }
-}
-
-async function openDatabase(dbName: string, storeName: string, keyPath: string): Promise<IDBDatabase> {
-  console.log('Opening database:', dbName);
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 1);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(storeName)) {
-        console.log(`Creating object store: ${storeName}`);
-        db.createObjectStore(storeName, { keyPath: keyPath });
-      }
-    };
-
-    request.onsuccess = (event) => {
-      console.log('Database opened successfully');
-      resolve((event.target as IDBOpenDBRequest).result);
-    };
-
-    request.onerror = (event) => {
-      console.error('Error opening database:', (event.target as IDBOpenDBRequest).error);
-      reject((event.target as IDBOpenDBRequest).error);
-    };
-  });
 }
