@@ -1,5 +1,4 @@
-
-import { uploadImage } from "./utils/uploadImage.js";
+// import { uploadImage } from "./utils/uploadImage.js";
 
 interface Category {
   id: number;
@@ -24,33 +23,42 @@ interface Budget {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Initializing forms and listings');
   initializeFormAndListing('categoriesForm', 'categoriesListing', 'CategoryDatabase', 'categories', 'id', ['name', 'icon']);
   initializeFormAndListing('budgetsForm', 'budgetsListing', 'BudgetDatabase', 'budgets', 'id', ['category', 'budget'], ['alert']);
   initializeFormAndListing('transactionsForm', 'transactionsListing', 'TransactionDatabase', 'transactions', 'id', ['type', 'name', 'amount', 'category', 'date']);
 });
 
 function initializeFormAndListing(formId: string, listingId: string, dbName: string, storeName: string, keyPath: string, requiredFields: string[], optionalFields: string[] = []) {
+  console.log(`Initializing form with ID: ${formId} and listing with ID: ${listingId}`);
   const form = document.getElementById(formId) as HTMLFormElement;
-  const listing = document.getElementById(listingId);
-
   if (form) {
-    form.addEventListener('submit', (event) => handleFormSubmit(event, dbName, storeName, keyPath, requiredFields, optionalFields));
+    console.log(`Form found: ${formId}`);
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      console.log('Form submit detected for', formId);
+      handleFormSubmit(event, dbName, storeName, keyPath, requiredFields, optionalFields);
+    });
+  } else {
+    console.warn(`Form with ID: ${formId} not found`);
   }
 
+  console.log('Updating listing...');
   updateListing(dbName, storeName, keyPath, requiredFields.concat(optionalFields));
 }
 
+
 async function handleFormSubmit(event: Event, dbName: string, storeName: string, keyPath: string, requiredFields: string[], optionalFields: string[]) {
   event.preventDefault();
-
   const form = event.target as HTMLFormElement;
   const formData = new FormData(form);
 
-  const id = formData.get('id') ? parseInt(formData.get('id') as string, 10) : null;
+  console.log("Form Data:", formData);
   let item: { [key: string]: any } = {};
 
   requiredFields.concat(optionalFields).forEach(field => {
     const value = formData.get(field);
+    console.log(`Field: ${field}, Value: ${value}`);
     if (value) {
       item[field] = value;
     }
@@ -59,6 +67,7 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
   for (const field of requiredFields) {
     if (!item[field]) {
       displayMessage('All required fields must be filled', true);
+      console.error('Missing required field:', field);
       return;
     }
   }
@@ -66,8 +75,10 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
   const fileInput = form.querySelector('#categoryIcon') as HTMLInputElement;
   if (fileInput && fileInput.files?.length) {
     const file = fileInput.files[0];
+    console.log('File selected for upload:', file);
     try {
       const pictureDataUrl = await convertFileToBase64(file);
+      console.log('File converted to base64:', pictureDataUrl);
       item['icon'] = pictureDataUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -76,50 +87,50 @@ async function handleFormSubmit(event: Event, dbName: string, storeName: string,
     }
   }
 
+  console.log('Prepared item for DB:', item);
+
   try {
     const db = await openDatabase(dbName, storeName, keyPath);
+    console.log('Database opened:', db);
     const transaction = db.transaction(storeName, 'readwrite');
     const store = transaction.objectStore(storeName);
 
-    if (id) {
-      item[keyPath] = id;
+    if (formData.get('id')) {
+      item[keyPath] = parseInt(formData.get('id') as string, 10);
+      console.log('Updating item with ID:', item[keyPath]);
     } else {
       const newId = await generateUniqueId(store, keyPath);
       item[keyPath] = newId;
+      console.log('Generated new ID:', newId);
     }
 
     const request = store.put(item);
+    request.onsuccess = () => {
+      console.log('Item saved successfully:', item);
+      form.reset();
+      (form.querySelector('input[type="submit"]') as HTMLButtonElement).value = `Add ${storeName.slice(0, -1)}`;
+    };
 
-    await new Promise((resolve, reject) => {
-      request.onsuccess = () => {
-        form.reset();
-        (form.querySelector('input[type="submit"]') as HTMLButtonElement).value = `Add ${storeName.slice(0, -1)}`;
-        resolve(null);
-      };
-      request.onerror = (event) => {
-        console.error(`Error saving ${storeName.slice(0, -1)}:`, (event.target as IDBRequest).error);
-        alert(`Error saving ${storeName.slice(0, -1)}`);
-        reject((event.target as IDBRequest).error);
-      };
-    });
+    request.onerror = (event) => {
+      console.error(`Error saving item:`, event.target.error);
+      alert('Error saving item');
+    };
 
-    await new Promise((resolve, reject) => {
-      transaction.oncomplete = () => {
-        updateListing(dbName, storeName, keyPath, requiredFields.concat(optionalFields));
-        resolve(null);
-      };
-      transaction.onerror = (event) => {
-        console.error('Transaction error:', (event.target as IDBRequest).error);
-        alert('Transaction error');
-        reject((event.target as IDBRequest).error);
-      };
-    });
+    transaction.oncomplete = () => {
+      console.log('Transaction completed successfully');
+      updateListing(dbName, storeName, keyPath, requiredFields.concat(optionalFields));
+    };
 
+    transaction.onerror = (event) => {
+      console.error('Transaction error:', event.target.error);
+      alert('Transaction error');
+    };
   } catch (error) {
-    console.error(`Error saving ${storeName.slice(0, -1)}:`, error);
-    alert(`Error occurred while saving the ${storeName.slice(0, -1)}`);
+    console.error(`Error saving item:`, error);
+    alert('Error occurred while saving the item');
   }
 }
+
 
 async function convertFileToBase64(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -143,32 +154,40 @@ async function openDatabase(dbName: string, storeName: string, keyPath: string):
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(storeName)) {
+        console.log(`Creating object store: ${storeName}`);
         db.createObjectStore(storeName, { keyPath: keyPath });
       }
     };
 
     request.onsuccess = (event) => {
+      console.log('Database opened successfully:', event.target.result);
       resolve((event.target as IDBOpenDBRequest).result);
     };
 
     request.onerror = (event) => {
-      reject((event.target as IDBOpenDBRequest).error);
+      console.error('Error opening database:', (event.target as IDBRequest).error);
+      reject((event.target as IDBRequest).error);
     };
   });
 }
 
 async function generateUniqueId(store: IDBObjectStore, keyPath: string): Promise<number> {
+  console.log('Generating unique ID...');
   const cursorRequest = store.openCursor(null, 'prev');
   return new Promise<number>((resolve, reject) => {
     cursorRequest.onsuccess = (event) => {
       const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
       if (cursor) {
+        console.log('Found cursor:', cursor);
         resolve(cursor.value[keyPath] + 1);
       } else {
+        console.log('No previous cursor found, starting from ID 1');
         resolve(1);
       }
     };
+
     cursorRequest.onerror = (event) => {
+      console.error('Error generating unique ID:', event.target.error);
       reject((event.target as IDBRequest).error);
     };
   });
@@ -225,29 +244,13 @@ async function updateListing(dbName: string, storeName: string, keyPath: string,
 function createEditButton(item: Category | Transaction | Budget, storeName: string): HTMLButtonElement {
   const editButton = document.createElement('button');
   editButton.textContent = 'Edit';
-  const modalContent = document.getElementById("modal") as HTMLElement;
   editButton.addEventListener('click', () => {
-    if (modalContent) {
+    const modalContent = document.getElementById('modal');
+    if(modalContent) {
       modalContent.style.display = 'block';
     }
-    const form = document.getElementById(`${storeName}Form`) as HTMLFormElement;
-    (form.elements.namedItem('id') as HTMLInputElement).value = item.id.toString();
-    if ('name' in item) {
-      (form.elements.namedItem('name') as HTMLInputElement).value = item.name;
-    } else if ('amount' in item) {
-      (form.elements.namedItem('type') as HTMLInputElement).value = item.type;
-      (form.elements.namedItem('name') as HTMLInputElement).value = item.name;
-      (form.elements.namedItem('amount') as HTMLInputElement).value = item.amount.toString();
-      (form.elements.namedItem('category') as HTMLInputElement).value = item.category;
-      (form.elements.namedItem('date') as HTMLInputElement).value = item.date;
-    } else if ('budget' in item) {
-      (form.elements.namedItem('category') as HTMLInputElement).value = item.category;
-      (form.elements.namedItem('budget') as HTMLInputElement).value = item.budget.toString();
-      if (item.alert !== undefined) {
-        (form.elements.namedItem('alert') as HTMLInputElement).checked = item.alert;
-      }
-    }
-    (form.querySelector('input[type="submit"]') as HTMLButtonElement).value = `Update ${storeName.slice(0, -1)}`;
+    console.log('Editing item:', item);
+    fillFormWithItem(item, storeName);
   });
   return editButton;
 }
@@ -255,68 +258,51 @@ function createEditButton(item: Category | Transaction | Budget, storeName: stri
 function createDeleteButton(item: Category | Transaction | Budget, dbName: string, storeName: string, keyPath: string, fields: string[]): HTMLButtonElement {
   const deleteButton = document.createElement('button');
   deleteButton.textContent = 'Delete';
-  deleteButton.addEventListener('click', async () => {
-    const confirmed = confirm(`Are you sure you want to delete the ${storeName.slice(0, -1)} "${'name' in item ? item.name : item.category}"?`);
-    if (confirmed) {
-      try {
-        await deleteItem(dbName, storeName, item.id);
-        updateListing(dbName, storeName, keyPath, fields);
-      } catch (error) {
-        console.error(`Error deleting ${storeName.slice(0, -1)}:`, error);
-      }
-    }
+  deleteButton.addEventListener('click', () => {
+    deleteItem(dbName, storeName, item[keyPath], fields);
   });
   return deleteButton;
 }
 
-async function deleteItem(dbName: string, storeName: string, id: number) {
+function fillFormWithItem(item: Category | Transaction | Budget, storeName: string) {
+  const form = document.getElementById(`${storeName}Form`) as HTMLFormElement;
+  const inputElements = form.querySelectorAll('input, select');
+
+  inputElements.forEach(input => {
+    const fieldName = input.name;
+    if (item[fieldName] !== undefined) {
+      (input as HTMLInputElement).value = item[fieldName];
+    }
+  });
+
+  const submitButton = form.querySelector('input[type="submit"]') as HTMLButtonElement;
+  submitButton.value = `Update ${storeName.slice(0, -1)}`;
+}
+
+async function deleteItem(dbName: string, storeName: string, id: number, fields: string[]) {
   try {
     const db = await openDatabase(dbName, storeName, 'id');
     const transaction = db.transaction(storeName, 'readwrite');
     const store = transaction.objectStore(storeName);
-    const request = store.delete(id);
 
+    const request = store.delete(id);
     request.onsuccess = () => {
-      console.log(`${storeName.slice(0, -1)} deleted successfully`);
-      updateListing(dbName, storeName, 'id', []);
+      console.log(`Item with ID ${id} deleted`);
+      updateListing(dbName, storeName, 'id', fields);
     };
 
     request.onerror = (event) => {
-      console.error(`Error deleting ${storeName.slice(0, -1)}:`, (event.target as IDBRequest).error);
+      console.error(`Error deleting item:`, (event.target as IDBRequest).error);
     };
   } catch (error) {
-    console.error(`Error deleting ${storeName.slice(0, -1)}:`, error);
+    console.error(`Error deleting item:`, error);
   }
 }
 
-function displayMessage(message: string, isError: boolean = true) {
-  const messageElement = document.createElement('p');
-  messageElement.textContent = message;
-  messageElement.style.color = isError ? 'red' : 'green';
-
-  if (isError) {
-    const form = document.querySelector('form');
-    if (form) {
-      let errorElement = form.querySelector('.error') as HTMLParagraphElement;
-      if (!errorElement) {
-        errorElement = document.createElement('p');
-        errorElement.className = 'error';
-        form.appendChild(errorElement);
-      }
-      errorElement.textContent = message;
-      errorElement.style.color = 'red';
-    }
-  } else {
-    const listing = document.querySelector('.listing');
-    if (listing) {
-      let successElement = listing.querySelector('.success') as HTMLParagraphElement;
-      if (!successElement) {
-        successElement = document.createElement('p');
-        successElement.className = 'success';
-        listing.insertBefore(successElement, listing.firstChild);
-      }
-      successElement.textContent = message;
-      successElement.style.color = 'green';
-    }
+function displayMessage(message: string, isError: boolean) {
+  const messageContainer = document.getElementById('message');
+  if (messageContainer) {
+    messageContainer.textContent = message;
+    messageContainer.className = isError ? 'error' : 'success';
   }
 }
