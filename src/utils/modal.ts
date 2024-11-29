@@ -159,3 +159,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 });
+
+function clearErrorMessage() {
+  const errorElement = document.querySelector('.error');
+  if (errorElement) {
+    console.log('Clearing error message');
+    errorElement.remove();
+  }
+}
