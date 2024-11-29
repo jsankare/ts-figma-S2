@@ -1,9 +1,5 @@
-import { openDatabase } from './openDatabase.js';
-interface Category {
-  id: number;
-  name: string;
-  icon?: string;
-}
+import { getAllItems } from './openDatabase.js';
+import { Category } from '../categories.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const modalContent = document.getElementById("modal") as HTMLElement;
@@ -23,24 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchCategories(): Promise<Category[]> {
     console.log('Fetching categories...');
     try {
-      const db = await openDatabase('CategoryDatabase', 'categories', 'id');
-      console.log('Database opened successfully');
-      const transaction = db.transaction('categories', 'readonly');
-      const store = transaction.objectStore('categories');
-      const request = store.getAll();
-
-      return new Promise<Category[]>((resolve, reject) => {
-        request.onsuccess = (event) => {
-          const categories = (event.target as IDBRequest<Category[]>).result;
-          console.log('Fetched categories:', categories);
-          resolve(categories);
-        };
-
-        request.onerror = (event) => {
-          console.error('Error fetching categories from database:', (event.target as IDBRequest).error);
-          reject([]);
-        };
-      });
+      const categories = await getAllItems('CategoryDatabase', 'categories', 'id');
+      console.log('Categories:', categories);
+      return categories as Category[];
     } catch (error) {
       console.error('Error opening database:', error);
       return [];
@@ -77,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Populate the category selects in the modal
     const categorySelects = modalContent.querySelectorAll('.categorySelect') as NodeListOf<HTMLSelectElement>;
     categorySelects.forEach(select => {
-      select.innerHTML = `<option value=""></option>${categoryOptions}`;
+      select.innerHTML = `<option value="" disabled selected>Choisir une catégorie</option>${categoryOptions}`;
     });
 
     // Initialize close button
@@ -94,23 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       };
     }
-
-    // Prevent form submission from reloading the page
-    const form = modalContent.querySelector('form') as HTMLFormElement;
-    if (form) {
-      form.onsubmit = (event) => {
-        event.preventDefault();
-        handleSubmitForm(event);
-      };
-    }
-  }
-
-  // Handle form submission logic
-  function handleSubmitForm(event: Event) {
-    const form = event.target as HTMLFormElement;
-    console.log("Form submitted:", form);
-    // Perform form submission tasks, e.g., saving to IndexedDB or sending to a server
-    form.reset();
   }
 
   // Generate form content based on modal type
@@ -132,10 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="hidden" name="id" id="budgetId">
             <label for="budgetCategorySelect">Catégorie</label>
             <select name="category" id="budgetCategorySelect" class="categorySelect" required>
-              <option value=""></option>
             </select>
             <label for="budget">Budget</label>
-            <input type="number" name="budget" id="budget" required>
+            <input type="number" name="budget" id="budget" step="0.01" required>
             <input type="checkbox" name="alert" id="alert">
             <label for="alert">Recevoir une alerte</label>
           `;
@@ -144,16 +107,16 @@ document.addEventListener("DOMContentLoaded", () => {
           <form id="transactionsForm" action="">
             <label for="type">Type de transaction</label>
             <select name="type" id="type" required>
+              <option value="" disabled selected>Choisir un type</option>
               <option value="credit">Crédit</option>
               <option value="debit">Débit</option>
             </select>
             <label for="name">Libellé</label>
             <input type="text" name="name" id="name" required>
             <label for="amount">Montant</label>
-            <input type="number" name="amount" id="amount" required>
+            <input type="number" name="amount" id="amount" step="0.01" required>
             <label for="transactionCategorySelect">Catégorie</label>
             <select name="category" id="transactionCategorySelect" class="categorySelect" required>
-              <option value=""></option>
             </select>
             <label for="date">Date</label>
             <input type="date" name="date" id="date" required>
@@ -196,3 +159,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 });
+
+function clearErrorMessage() {
+  const errorElement = document.querySelector('.error');
+  if (errorElement) {
+    console.log('Clearing error message');
+    errorElement.remove();
+  }
+}
