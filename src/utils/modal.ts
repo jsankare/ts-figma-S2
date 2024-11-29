@@ -1,5 +1,5 @@
-import { getAllItems } from './openDatabase.js';
-import { Category } from '../categories.js';
+import { getAllItems } from "./openDatabase.js";
+import { Category } from "../categories.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const modalContent = document.getElementById("modal") as HTMLElement;
@@ -17,13 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch categories from IndexedDB
   async function fetchCategories(): Promise<Category[]> {
-    console.log('Fetching categories...');
+    console.log("Fetching categories...");
     try {
-      const categories = await getAllItems('CategoryDatabase', 'categories', 'id');
-      console.log('Categories:', categories);
+      const categories = await getAllItems(
+        "CategoryDatabase",
+        "categories",
+        "id",
+      );
+      console.log("Categories:", categories);
       return categories as Category[];
     } catch (error) {
-      console.error('Error opening database:', error);
+      console.error("Error opening database:", error);
       return [];
     }
   }
@@ -39,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    console.log('Setting modal content...');
+    console.log("Setting modal content...");
     modalContent.innerHTML = `
       <div class="modal-content">
         <button id="close">&times;</button>
@@ -50,25 +54,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fetch categories and update the category select elements
     const categories = await fetchCategories();
-    const categoryOptions = categories.map(category =>
-      category.id && category.name ? `<option value="${category.id}">${category.name}</option>` : ''
-    ).join('');
-    console.log('Generated category options:', categoryOptions);
+    const categoryOptions = categories
+      .map((category) =>
+        category.id && category.name
+          ? `<option value="${category.id}">${category.name}</option>`
+          : "",
+      )
+      .join("");
+    console.log("Generated category options:", categoryOptions);
 
     // Populate the category selects in the modal
-    const categorySelects = modalContent.querySelectorAll('.categorySelect') as NodeListOf<HTMLSelectElement>;
-    categorySelects.forEach(select => {
+    const categorySelects = modalContent.querySelectorAll(
+      ".categorySelect",
+    ) as NodeListOf<HTMLSelectElement>;
+    categorySelects.forEach((select) => {
       select.innerHTML = `<option value="" disabled selected>Choisir une catégorie</option>${categoryOptions}`;
     });
 
     // Initialize close button
-    const closeButton = modalContent.querySelector('#close') as HTMLElement;
+    const closeButton = modalContent.querySelector("#close") as HTMLElement;
     if (closeButton) {
-      console.log('Close button found');
+      console.log("Close button found");
       closeButton.onclick = () => {
-        console.log('Closing modal...');
+        console.log("Closing modal...");
         modalContent.style.display = "none";
-        const form = modalContent.querySelector('form') as HTMLFormElement;
+        const form = modalContent.querySelector("form") as HTMLFormElement;
         if (form) {
           form.reset();
           clearErrorMessage();
@@ -81,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function getFormContent(type: string): string | null {
     console.log(`Getting form content for type: ${type}`);
     switch (type) {
-      case 'category':
+      case "category":
         return ` 
           <form id="categoriesForm" action="">
             <input type="hidden" name="id">
@@ -90,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <label for="categoryIcon">Icône</label>
             <input type="file" name="icon" id="categoryIcon" accept="image/*" required>
         `;
-      case 'budget':
+      case "budget":
         return `
           <form id="budgetsForm" action="">
             <input type="hidden" name="id" id="budgetId">
@@ -102,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="checkbox" name="alert" id="alert">
             <label for="alert">Recevoir une alerte</label>
           `;
-      case 'transaction':
+      case "transaction":
         return `
           <form id="transactionsForm" action="">
             <label for="type">Type de transaction</label>
@@ -122,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="date" name="date" id="date" required>
           `;
       default:
-        console.error('Unknown form type');
+        console.error("Unknown form type");
         return null;
     }
   }
@@ -131,26 +141,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const span = document.getElementById("close");
 
   if (btn) {
-    console.log('Open modal button found');
+    console.log("Open modal button found");
     btn.onclick = () => {
       if (modalContent) {
-        console.log('Opening modal...');
-        const submitButton = modalContent.querySelector('input[type="submit"]') as HTMLInputElement;
-          if(submitButton) {
-            submitButton.value = "Ajouter";
-          }
+        console.log("Opening modal...");
+        const submitButton = modalContent.querySelector(
+          'input[type="submit"]',
+        ) as HTMLInputElement;
+        if (submitButton) {
+          submitButton.value = "Ajouter";
+        }
         modalContent.style.display = "block";
       }
     };
   }
 
   if (span) {
-    console.log('Close button found');
+    console.log("Close button found");
     span.onclick = () => {
       if (modalContent) {
-        console.log('Closing modal...');
+        console.log("Closing modal...");
         modalContent.style.display = "none";
-        const form = modalContent.querySelector('form') as HTMLFormElement;
+        const form = modalContent.querySelector("form") as HTMLFormElement;
         if (form) {
           form.reset();
           clearErrorMessage();
@@ -161,9 +173,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function clearErrorMessage() {
-  const errorElement = document.querySelector('.error');
+  const errorElement = document.querySelector(".error");
   if (errorElement) {
-    console.log('Clearing error message');
+    console.log("Clearing error message");
     errorElement.remove();
   }
 }

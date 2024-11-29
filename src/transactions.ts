@@ -10,10 +10,23 @@ export interface Transaction {
 }
 
 export function isTransaction(item: any): item is Transaction {
-    return (item as Transaction).amount !== undefined;
+  return (item as Transaction).amount !== undefined;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  handleFormSubmit('transactionsForm', 'transactionsListing', 'TransactionDatabase', 'transactions', 'id', ['type', 'name', 'amount', 'category', 'date']);
-  updateListing('TransactionDatabase', 'transactions', 'id', ['type', 'name', 'amount', 'category', 'date']);
+document.addEventListener("DOMContentLoaded", () => {
+  handleFormSubmit(
+    "transactionsForm",
+    "transactionsListing",
+    "TransactionDatabase",
+    "transactions",
+    "id",
+    ["type", "name", "amount", "category", "date"],
+  );
+  updateListing("TransactionDatabase", "transactions", "id", [
+    "type",
+    "name",
+    "amount",
+    "category",
+    "date",
+  ]);
 });
