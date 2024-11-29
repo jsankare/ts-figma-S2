@@ -61,6 +61,4 @@ export function displayMessage(message: string, isError: boolean = true) {
 
         }
   }
-
-  
 }
