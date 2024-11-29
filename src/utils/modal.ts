@@ -45,12 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Setting modal content...");
     modalContent.innerHTML = `
-      <div class="modal-content">
-        <button id="close">&times;</button>
-        ${formContent}
-        <input type="submit" value="Ajouter">
-      </div>
-    `;
+          <div class="modal-content">
+                  ${formContent}
+                  <div class="form-buttons">
+                    <input id="close" class="button button-secondary" type="button" value="Annuler">
+                    <input class="button button-primary" type="submit" value="Ajouter">
+                  </div>
+              </form>
+              </section>
+          </div>`;
 
     // Fetch categories and update the category select elements
     const categories = await fetchCategories();
@@ -93,43 +96,58 @@ document.addEventListener("DOMContentLoaded", () => {
     switch (type) {
       case "category":
         return ` 
-          <form id="categoriesForm" action="">
-            <input type="hidden" name="id">
-            <label for="category">Nom de la catégorie</label>
-            <input type="text" name="name" id="category" required>
-            <label for="categoryIcon">Icône</label>
+          <h1 class="form-title">Ajouter une catégorie</h1>
+          <hr class="form-separator"/>
+          <form class="modal-form" id="categoriesForm" action="">
+            <input class="" type="hidden" name="id">
+            <label class="label label-text" for="category">Nom de la catégorie</label>
+            <input class="input input-text" type="text" name="name" id="category" required>
+            <label class="label label-icons" for="icon">Choisir une icône</label>
             <input type="file" name="icon" id="categoryIcon" accept="image/*" required>
         `;
       case "budget":
         return `
-          <form id="budgetsForm" action="">
+          <h1 class="form-title">Ajouter un budget</h1>
+          <hr class="form-separator"/>
+          <form class="modal-form" id="budgetsForm" action="">
             <input type="hidden" name="id" id="budgetId">
-            <label for="budgetCategorySelect">Catégorie</label>
-            <select name="category" id="budgetCategorySelect" class="categorySelect" required>
-            </select>
-            <label for="budget">Budget</label>
-            <input type="number" name="budget" id="budget" step="0.01" required>
-            <input type="checkbox" name="alert" id="alert">
-            <label for="alert">Recevoir une alerte</label>
+            
+            <label class="label label-text" for="name">Nom du budget</label>
+            <input class="input input-text" placeholder="Le nom du budget" type="text" name="name" id="name" required>
+            
+            <label class="label label-select" for="budgetCategorySelect">Catégorie</label>
+            <select class="categorySelect input input-select" name="category" id="budgetCategorySelect" required></select>
+            
+            <label class="label label-number" for="budget">Budget</label>
+            <input class="input input-number" type="number" name="budget" id="budget" step="0.01" required>
+            
+            <div class="checkbox-input-container">
+              <label class="label label-checkbox" for="alert">Être alerté lors du dépassement</label>
+              <div class="custom-checkbox-container">
+                <input type="checkbox" name="alert" id="alert" class="input-checkbox">
+                <label for="alert" class="custom-checkbox"></label>
+              </div>
+            </div>
           `;
       case "transaction":
         return `
-          <form id="transactionsForm" action="">
-            <label for="type">Type de transaction</label>
-            <select name="type" id="type" required>
-              <option value="" disabled selected>Choisir un type</option>
-              <option value="credit">Crédit</option>
-              <option value="debit">Débit</option>
+          <h1 class="form-title">Ajouter une transaction</h1>
+          <hr class="form-separator"/>
+          <form class="modal-form" id="transactionsForm" action="">
+            <label class="label label-text" for="type">Type de transaction</label>
+            <select class="input input-text" name="type" id="type" required>
+              <option class="input input-select" value="" disabled selected>Choisir un type</option>
+              <option class="select-option" value="credit">Crédit</option>
+              <option class="select-option" value="debit">Débit</option>
             </select>
-            <label for="name">Libellé</label>
-            <input type="text" name="name" id="name" required>
-            <label for="amount">Montant</label>
-            <input type="number" name="amount" id="amount" step="0.01" required>
+            <label class="label label-text" for="name">Libellé</label>
+            <input placeholder="Achat compulsif sur amazon .." class="input input-text" type="text" name="name" id="name" required>
+            <label class="label label-number" for="amount">Montant</label>
+            <input class="input input-number" type="number" name="amount" id="amount" step="0.01" required>
             <label for="transactionCategorySelect">Catégorie</label>
-            <select name="category" id="transactionCategorySelect" class="categorySelect" required>
-            </select>
-            <label for="date">Date</label>
-            <input type="date" name="date" id="date" required>
+            <select class="categorySelect input input-select" name="category" id="transactionCategorySelect" required></select>
+            <label class="label label-date" for="date">Date</label>
+            <input class="input input-date" type="date" name="date" id="date" required>
           `;
       default:
         console.error("Unknown form type");
