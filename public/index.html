@@ -1,80 +1,79 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker - Dashboard</title>
-    <link href="styles.css" rel="stylesheet">
-    <link href="styles/navbar.css" rel="stylesheet">
-    <link href="styles/dashboard.css" rel="stylesheet">
-</head>
-<body id="body">
-<main id="main" class="dashboard">
-    <div class="dashboard-header">
-        <div class="welcome-section">
-            <img src="" alt="Profile Picture" class="profile-image" id="profile-image">
-            <div class="welcome-text">
-                <h1>Bienvenue, <span id="user-name">AddANameToDisplay</span>!</h1>
-                <p>Lorem ipsum toto ignita el herio del mundo</p>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Expense Tracker - Dashboard</title>
+        <link href="styles.css" rel="stylesheet">
+        <link href="styles/navbar.css" rel="stylesheet">
+        <link href="styles/dashboard.css" rel="stylesheet">
+    </head>
+    <body id="body">
+        <main id="main" class="dashboard">
+            <div class="dashboard-header">
+                <div class="welcome-section">
+                    <img src="" alt="Profile Picture" class="profile-image" id="profile-image">
+                    <div class="welcome-text">
+                        <h1>Bienvenue, <span id="user-name"></span>!</h1>
+                        <p>Gérez vos dépenses efficacement</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>Balance totale</h3>
-            <div class="value">€2,450.85</div>
-            <div class="trend up">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 4L12 8L4 8L8 4Z" fill="currentColor"/>
-                </svg>
-                +12.5%
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Balance totale</h3>
+                    <div class="value" id="total-balance">--</div>
+                    <div class="trend" id="balance-trend">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 4L12 8L4 8L8 4Z" fill="currentColor"/>
+                        </svg>
+                        <span>--</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Dépenses mensuelles</h3>
+                    <div class="value" id="monthly-expenses">--</div>
+                    <div class="trend" id="expenses-trend">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 12L12 8L4 8L8 12Z" fill="currentColor"/>
+                        </svg>
+                        <span>--</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Etat des budgets</h3>
+                    <div class="value" id="budget-status">--</div>
+                    <div class="trend" id="budget-trend">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 4L12 8L4 8L8 4Z" fill="currentColor"/>
+                        </svg>
+                        <span>--</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="stat-card">
-            <h3>Dépenses mensuelles</h3>
-            <div class="value">€1,250.40</div>
-            <div class="trend down">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 12L12 8L4 8L8 12Z" fill="currentColor"/>
-                </svg>
-                -3.2%
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2>Suivi des dépenses</h2>
+                    <canvas id="expense-chart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h2>Dépenses par catégories</h2>
+                    <canvas id="category-chart"></canvas>
+                </div>
             </div>
-        </div>
 
-        <div class="stat-card">
-            <h3>Etat des budgets</h3>
-            <div class="value">75%</div>
-            <div class="trend up">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 4L12 8L4 8L8 4Z" fill="currentColor"/>
-                </svg>
-                Tout va bien
+            <div class="recent-transactions">
+                <h2>Transactions récentes</h2>
+                <div class="transaction-list" id="recent-transactions-list"></div>
             </div>
-        </div>
-    </div>
-
-    <div class="charts-grid">
-        <div class="chart-card">
-            <h2>Suivi des dépenses</h2>
-            <canvas id="expense-chart"></canvas>
-        </div>
-
-        <div class="chart-card">
-            <h2>Dépenses par catégories</h2>
-            <canvas id="category-chart"></canvas>
-        </div>
-    </div>
-
-    <div class="recent-transactions">
-        <h2>Transactions récentes</h2>
-        <div class="transaction-list"></div>
-    </div>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="module" src="dist/index.js"></script>
-<script type="module" src="dist/utils/navbar.js"></script>
-<!-- <script type="module" src="dist/authVerification.js"></script> -->
-</body>
+        </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="dist/index.js"></script>
+    <script type="module" src="dist/utils/navbar.js"></script>
+    </body>
 </html>
