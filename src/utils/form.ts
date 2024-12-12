@@ -93,14 +93,56 @@ export async function handleFormSubmit(
 }
 
 // Afficher les éléments dans le listage
-async function displayItems(items: (Category | Transaction | Budget)[], storeName: string, dbName: string, keyPath: string, fields: string[]) {
+async function displayItems(
+  items: (Category | Transaction | Budget)[],
+  storeName: string,
+  dbName: string,
+  keyPath: string,
+  fields: string[]
+) {
   const listing = document.getElementById(`${storeName}Listing`);
   if (listing) {
     listing.innerHTML = '';
+
+    // Initialisation de variables pour le drag and drop
+    let draggedItem: HTMLElement | null = null;
+
     for (const item of items) {
       const listItem = document.createElement('li');
       console.log('Processing item:', item);
 
+      // Ajout des attributs pour le drag and drop
+      listItem.draggable = true; // Rendre l'élément draggable
+      listItem.setAttribute('data-id', JSON.stringify(item)); // Stocker l'item sous forme de data
+
+      // Gestion des événements drag and drop
+      listItem.addEventListener('dragstart', (e) => {
+        draggedItem = listItem;
+        listItem.style.opacity = '0.5';
+      });
+
+      listItem.addEventListener('dragend', () => {
+        draggedItem = null;
+        listItem.style.opacity = '1';
+      });
+
+      listItem.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Permet de déposer l'élément
+      });
+
+      listItem.addEventListener('drop', (e) => {
+        e.preventDefault();
+
+        if (draggedItem && draggedItem !== listItem) {
+          // Réorganise les éléments dans le DOM
+          listing.insertBefore(draggedItem, listItem);
+
+          // Vous pouvez également mettre à jour l'ordre dans la base de données ici si nécessaire
+          console.log(`Item déplacé :`, draggedItem.getAttribute('data-id'));
+        }
+      });
+
+      // Ajout du contenu des items
       if (isTransaction(item)) {
         try {
           const categoryId = Number(item.category);
@@ -141,6 +183,7 @@ async function displayItems(items: (Category | Transaction | Budget)[], storeNam
         }
       }
 
+      // Ajout des boutons d'édition et de suppression
       const editButton = createEditButton(item, storeName);
       const deleteButton = createDeleteButton(item, dbName, storeName, keyPath, fields);
 
@@ -152,6 +195,7 @@ async function displayItems(items: (Category | Transaction | Budget)[], storeNam
     console.warn(`Listing element with ID ${storeName}Listing not found`);
   }
 }
+
 
 // Mettre à jour le listage avec les éléments de la base de données
 export async function updateListing(dbName: string, storeName: string, keyPath: string, fields: string[]) {
