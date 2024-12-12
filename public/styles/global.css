@@ -79,3 +79,7 @@ main {
         width: 5rem;
     }
 }
+
+.category-icon-image {
+    max-width: 2.5rem;
+}
