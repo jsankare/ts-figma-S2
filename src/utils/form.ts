@@ -259,8 +259,8 @@ export async function updateListing(
 
 // Créer un bouton d'édition pour un élément
 function createEditButton(
-    item: Category | Transaction | Budget,
-    storeName: string,
+  item: Category | Transaction | Budget,
+  storeName: string,
 ): HTMLButtonElement {
   const editButton = document.createElement("button");
 
@@ -283,7 +283,6 @@ function createEditButton(
 
   return editButton;
 }
-
 
 // Créer un bouton de suppression pour un élément
 function createDeleteButton(

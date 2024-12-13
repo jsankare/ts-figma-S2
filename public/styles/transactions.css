@@ -1,5 +1,8 @@
 .list {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .transaction-card {
@@ -9,6 +12,7 @@
     border-radius: 1.5rem;
     display: flex;
     gap: 1rem;
+    position: relative;
     flex-direction: column;
     .transaction-card-top {
         display: flex;
@@ -27,14 +31,14 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        svg {
-            /*font-size: 44rem;*/
-        }
     }
-    .transaction-card-icons {
+    .transaction-card-actions {
         display: flex;
         gap: 2rem;
-        div {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        button {
             svg {
                 height: 40px;
                 width: 40px;
