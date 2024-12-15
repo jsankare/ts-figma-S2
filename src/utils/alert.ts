@@ -24,43 +24,35 @@ export function toastAlert(type: "success" | "error", content: string): void {
   }, 5000);
 }
 
-export function displayMessage(message: string, isError: boolean = true) {
+export function displayMessage(message: string, isError: boolean = true, container: string) {
+  console.log(`Displaying message: ${message} (Error: ${isError}) in container: ${container}`);
+
   const messageElement = document.createElement('p');
   messageElement.textContent = message;
   messageElement.style.color = isError ? 'red' : 'green';
 
-  if (isError) {
-      const form = document.querySelector('form');
-      if (form) {
-          let errorElement = form.querySelector('.error') as HTMLParagraphElement;
-          if (!errorElement) {
-              errorElement = document.createElement('p');
-              errorElement.className = 'error';
-              form.appendChild(errorElement);
-          }
-          errorElement.textContent = message;
-          errorElement.style.color = 'red';
+  const targetContainer = document.querySelector(container);
+  if (targetContainer) {
+    console.log(`Container found: ${container}`);
+    let messageContainer = targetContainer.querySelector(isError ? '.error' : '.success') as HTMLParagraphElement;
 
-          form.querySelectorAll('input, textarea, select').forEach((input) => {
-            input.addEventListener('input', () => {
-              if (errorElement) errorElement.remove();
-            });
-          });
-      }
+    if (!messageContainer) {
+      // Créer un nouvel élément si nécessaire
+      messageContainer = document.createElement('p');
+      messageContainer.className = isError ? 'error' : 'success';
+      targetContainer.insertBefore(messageContainer, targetContainer.firstChild); // Ajouter au début
+    }
+
+    messageContainer.textContent = message;
+
+    // Ajouter un gestionnaire d'événement pour effacer le message lorsqu'un champ est modifié
+    targetContainer.querySelectorAll('input, textarea, select').forEach((input) => {
+      input.addEventListener('input', () => {
+        if (messageContainer) messageContainer.remove();
+      });
+    });
   } else {
-      const listing = document.querySelector('.listing');
-      if (listing) {
-          let successElement = listing.querySelector('.success') as HTMLParagraphElement;
-          if (!successElement) {
-              successElement = document.createElement('p');
-              successElement.className = 'success';
-              listing.insertBefore(successElement, listing.firstChild);
-          }
-          successElement.textContent = message;
-          successElement.style.color = 'green';
-
-        }
+    console.error(`Container not found: ${container}`);
   }
-
-  
 }
+

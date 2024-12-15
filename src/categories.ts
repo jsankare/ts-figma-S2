@@ -3,7 +3,7 @@ import { handleFormSubmit, updateListing } from "./utils/form.js";
 export interface Category {
   id: number;
   name: string;
-  icon?: string;
+  icon?: object;
 }
 
 // Gardes de type
@@ -12,6 +12,6 @@ export function isCategory(item: any): item is Category {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  handleFormSubmit('categoriesForm', 'categoriesListing', 'CategoryDatabase', 'categories', 'id', ['name', 'icon']);
-  updateListing('CategoryDatabase', 'categories', 'id', ['name', 'icon']);
+  handleFormSubmit('categoriesForm', 'categoriesListing', 'CategoryDatabase', 'categories', 'id', ['name', 'icon'], ['existingIcon']);
+  updateListing('CategoryDatabase', 'categories', 'id', ['name', 'icon'], ['existingIcon']);
 });
