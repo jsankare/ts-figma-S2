@@ -131,16 +131,38 @@ export async function getAllItems(dbName: string, storeName: string, keyPath: st
 }
 
 // Supprimer un élément de la base de données
-export async function deleteItem(dbName: string, storeName: string, id: number, fields: string[]): Promise<void> {
+export async function deleteItem(
+  dbName: string, 
+  storeName: string, 
+  id: number, 
+  fields: string[]
+): Promise<void> {
   try {
     const db = await openDatabase(dbName, storeName, 'id');
     const transaction = db.transaction(storeName, 'readwrite');
     const store = transaction.objectStore(storeName);
 
     const request = store.delete(id);
+
     return new Promise<void>((resolve, reject) => {
-      request.onsuccess = () => {
+      request.onsuccess = async () => {
         console.log(`Item with ID ${id} deleted`);
+
+        // Vérifiez si la suppression concerne une catégorie
+        if (storeName === 'categories') {
+          console.log(`Updating transactions and budgets for deleted category ID ${id}`);
+
+          try {
+            // Mettre à jour les transactions
+            await updateRelatedStore('TransactionDatabase', 'transactions', 'category', id);
+
+            // Mettre à jour les budgets
+            await updateRelatedStore('BudgetDatabase', 'budgets', 'category', id);
+          } catch (updateError) {
+            console.error(`Error updating related stores:`, updateError);
+          }
+        }
+
         resolve();
       };
 
@@ -151,6 +173,51 @@ export async function deleteItem(dbName: string, storeName: string, id: number, 
     });
   } catch (error) {
     console.error(`Error deleting item:`, error);
+    throw error;
+  }
+}
+
+async function updateRelatedStore(
+  dbName: string, 
+  storeName: string, 
+  fieldName: string, 
+  id: number
+): Promise<void> {
+  try {
+    // Ouvrir la base de données correspondante
+    const db = await openDatabase(dbName, storeName, 'id');
+    const transaction = db.transaction(storeName, 'readwrite');
+    const store = transaction.objectStore(storeName);
+
+    const cursorRequest = store.openCursor();
+
+    return new Promise((resolve, reject) => {
+      cursorRequest.onsuccess = () => {
+        const cursor = cursorRequest.result;
+
+        if (cursor) {
+          const record = cursor.value;
+
+          // Vérifiez si le champ correspond à l'ID supprimé
+          if (record[fieldName] === id) {
+            record[fieldName] = undefined;
+            cursor.update(record);
+          }
+
+          cursor.continue();
+        } else {
+          // Aucun autre enregistrement
+          resolve();
+        }
+      };
+
+      cursorRequest.onerror = (event) => {
+        console.error(`Error updating ${storeName}:`, (event.target as IDBRequest).error);
+        reject((event.target as IDBRequest).error);
+      };
+    });
+  } catch (error) {
+    console.error(`Error updating related store (${storeName}):`, error);
     throw error;
   }
 }
