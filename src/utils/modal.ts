@@ -69,8 +69,14 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('Closing modal...');
         modalContent.style.display = "none";
         const form = modalContent.querySelector('form') as HTMLFormElement;
+        console.log(form);
         if (form) {
           form.reset();
+          const previewImage = form.querySelector('#iconPreview') as HTMLImageElement;
+          if (previewImage) {
+            previewImage.style.display = 'none';
+            previewImage.src = ''; // Supprime l'aperçu de l'image
+          }
           clearErrorMessage();
         }
       };
@@ -88,7 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <label for="category">Nom de la catégorie</label>
             <input type="text" name="name" id="category" required>
             <label for="categoryIcon">Icône</label>
-            <input type="file" name="icon" id="categoryIcon" accept="image/*" required>
+            <img id="iconPreview" style="display: none; max-width: 100px;" alt="Aperçu de l'icône" />
+            <button type="button" id="deleteIconButton" style="display: none;">Supprimer l'image</button>
+            <input type="file" name="icon" id="categoryIcon" accept="image/*">
         `;
       case 'budget':
         return `
@@ -105,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case 'transaction':
         return `
           <form id="transactionsForm" action="">
+            <input type="hidden" name="id" id="budgetId">
             <label for="type">Type de transaction</label>
             <select name="type" id="type" required>
               <option value="" disabled selected>Choisir un type</option>
@@ -113,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </select>
             <label for="name">Libellé</label>
             <input type="text" name="name" id="name" required>
+            <label for="name">Description</label>
+            <textarea name="description" id="description"></textarea>
             <label for="amount">Montant</label>
             <input type="number" name="amount" id="amount" step="0.01" required>
             <label for="transactionCategorySelect">Catégorie</label>
