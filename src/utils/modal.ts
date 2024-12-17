@@ -1,5 +1,41 @@
 import { getAllItems } from "./openDatabase.js";
 import { Category } from "../categories.js";
+import { getIcons } from "./get-icons.js";
+
+const icons = getIcons();
+
+function getCategoryIcons(): void {
+  const iconsContainer = document.getElementById("iconsContainer");
+  if (!iconsContainer) {
+    console.error("Icons container not found");
+    return;
+  }
+
+  iconsContainer.innerHTML = "";
+
+  icons.forEach((icon) => {
+    console.log(icon);
+    const img = document.createElement("img");
+    img.src = icon.icon; // Set the icon source
+    img.alt = icon.name; // Set the alt text
+    img.title = icon.name;
+    img.className = "category-icon";
+
+    // Optional: Add a click handler to select an icon
+    img.addEventListener("click", () => {
+      console.log(`Icon clicked: ${icon.name}`);
+      const iconPreview = document.getElementById(
+        "iconPreview",
+      ) as HTMLImageElement;
+      if (iconPreview) {
+        iconPreview.style.display = "block";
+        iconPreview.src = icon.icon; // Set the preview image to selected icon
+      }
+    });
+
+    iconsContainer.appendChild(img);
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const modalContent = document.getElementById("modal") as HTMLElement;
@@ -36,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function createModal(type: string, modalContent: HTMLElement) {
     console.log(`Creating modal for type: ${type}`);
 
-    // Start by creating the form structure without category options
+    // Generate and set the form content
     const formContent = getFormContent(type);
     if (!formContent) {
       console.error("Unknown modal type");
@@ -45,14 +81,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Setting modal content...");
     modalContent.innerHTML = `
-      <div class="modal-content">
-        <button id="close">&times;</button>
-        ${formContent}
-        <input type="submit" value="Ajouter">
-      </div>
-    `;
+    <div class="modal-content">
+      <button id="close">&times;</button>
+      ${formContent}
+      <input type="submit" value="Ajouter">
+    </div>
+  `;
 
-    // Fetch categories and update the category select elements
+    // Call getCategoryIcons after the modal content is rendered
+    if (type === "category") {
+      getCategoryIcons();
+    }
+
+    // Fetch categories and update the selects
     const categories = await fetchCategories();
     const categoryOptions = categories
       .map((category) =>
@@ -63,10 +104,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
     console.log("Generated category options:", categoryOptions);
 
-    // Populate the category selects in the modal
     const categorySelects = modalContent.querySelectorAll(
       ".categorySelect",
     ) as NodeListOf<HTMLSelectElement>;
+
     categorySelects.forEach((select) => {
       select.innerHTML = `<option value="" disabled selected>Choisir une catégorie</option>${categoryOptions}`;
     });
@@ -74,12 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize close button
     const closeButton = modalContent.querySelector("#close") as HTMLElement;
     if (closeButton) {
-      console.log("Close button found");
       closeButton.onclick = () => {
         console.log("Closing modal...");
         modalContent.style.display = "none";
         const form = modalContent.querySelector("form") as HTMLFormElement;
-        console.log(form);
         if (form) {
           form.reset();
           const previewImage = form.querySelector(
@@ -87,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ) as HTMLImageElement;
           if (previewImage) {
             previewImage.style.display = "none";
-            previewImage.src = ""; // Supprime l'aperçu de l'image
+            previewImage.src = "";
           }
           clearErrorMessage();
         }
@@ -100,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Getting form content for type: ${type}`);
     switch (type) {
       case "category":
+        getCategoryIcons();
         return ` 
           <form id="categoriesForm" action="">
             <input type="hidden" name="id">
@@ -107,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="text" name="name" id="category" required>
             <label for="categoryIcon">Icône</label>
             <img id="iconPreview" style="display: none; max-width: 100px;" alt="Aperçu de l'icône" />
+                      <div id="iconsContainer" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
             <button type="button" id="deleteIconButton" style="display: none;">Supprimer l'image</button>
             <input type="file" name="icon" id="categoryIcon" accept="image/*">
         `;
