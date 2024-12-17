@@ -1,14 +1,14 @@
 import {
-  getAllItems,
   addItemToDatabase,
   deleteItem,
+  getAllItems,
   getItemById,
 } from "./openDatabase.js";
 import { displayMessage } from "./alert.js";
 import { uploadImage } from "./uploadImage.js";
 import { Budget, isBudget } from "../budgets.js";
 import { Category, isCategory } from "../categories.js";
-import { Transaction, isTransaction } from "../transactions.js";
+import { isTransaction, Transaction } from "../transactions.js";
 
 // Gérer la soumission du formulaire
 export async function handleFormSubmit(
@@ -46,7 +46,7 @@ export async function handleFormSubmit(
     // Gérer la case à cocher d'alerte
     const alertCheckbox = form.querySelector(
       'input[name="alert"]',
-    ) as HTMLInputElement;
+    ) as HTMLInputElement | null;
     item.alert = alertCheckbox?.checked || false;
 
     // Valider les champs obligatoires
@@ -100,8 +100,7 @@ export async function handleFormSubmit(
       console.log("File selected for upload:", file);
 
       try {
-        const pictureDataUrl = await uploadImage(file);
-        item.icon = pictureDataUrl;
+        item.icon = await uploadImage(file);
       } catch (error) {
         console.error("Error uploading image:", error);
         displayMessage(
@@ -128,7 +127,7 @@ export async function handleFormSubmit(
       // Réinitialiser les champs cachés
       const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
       hiddenInputs.forEach((input) => {
-        input.value = "";
+        (input as HTMLInputElement).value = "";
       });
 
       // Fermer la modale
@@ -199,10 +198,10 @@ async function displayItems(
 
       // Ajout des attributs pour le drag and drop
       listItem.draggable = true; // Rendre l'élément draggable
-      listItem.setAttribute("data-id", JSON.stringify(item.id)); // Stocker l'item sous forme de data
+      listItem.setAttribute("data-id", item.id.toString()); // Stocker l'item sous forme de data
 
       // Gestion des événements drag and drop
-      listItem.addEventListener("dragstart", (e) => {
+      listItem.addEventListener("dragstart", () => {
         draggedItem = listItem;
         listItem.style.opacity = "0.5";
       });
@@ -229,8 +228,9 @@ async function displayItems(
       if (isTransaction(item)) {
         try {
           let categoryName = "";
-          if (item.category) {
-            const categoryId = Number(item.category);
+          const categoryId = item.category ? Number(item.category) : null;
+
+          if (categoryId !== null) {
             const category = await getItemById(
               "CategoryDatabase",
               "categories",
@@ -266,7 +266,7 @@ async function displayItems(
           // Date
           const dateDiv = document.createElement("div");
           dateDiv.classList.add("date");
-          dateDiv.textContent = `${item.date}`;
+          dateDiv.textContent = item.date ? `${item.date}` : "";
           transactionDiv.appendChild(dateDiv);
 
           // Description
@@ -351,17 +351,23 @@ async function displayItems(
 
           // Vérifier si `categoryId` est défini avant de filtrer
           const filteredTransactions = transactions.filter((transaction) => {
+            if (!isTransaction(transaction)) return false;
             if (!transaction.category || !transaction.date) return false;
             const transactionDate = new Date(transaction.date);
             return (
               categoryId !== null &&
-              transaction.category === categoryId &&
+              Number(transaction.category) === categoryId &&
               transactionDate.getMonth() === currentMonth
             );
           });
 
           const totalTransactionAmount = filteredTransactions.reduce(
-            (sum, transaction) => sum + parseFloat(transaction.amount || 0),
+            (sum, transaction) => {
+              if (isTransaction(transaction)) {
+                return sum + (transaction.amount || 0);
+              }
+              return sum;
+            },
             0,
           );
 
@@ -476,7 +482,7 @@ function createEditButton(
 ): HTMLButtonElement {
   const editButton = document.createElement("button");
   editButton.classList.add("action-button", "edit-button");
-  editButton.title = "Modifier"; // Ajout d’un titre pour l’accessibilité
+  editButton.title = "Modifier"; // Ajout d'un titre pour l'accessibilité
 
   const editIcon = document.createElement("i");
   editIcon.classList.add("fas", "fa-edit", "action-icon", "edit-icon");
@@ -506,7 +512,7 @@ function createDeleteButton(
 ): HTMLButtonElement {
   const deleteButton = document.createElement("button");
   deleteButton.classList.add("action-button", "delete-button");
-  deleteButton.title = "Supprimer"; // Ajout d’un titre pour l’accessibilité
+  deleteButton.title = "Supprimer"; // Ajout d'un titre pour l'accessibilité
 
   const deleteIcon = document.createElement("i");
   deleteIcon.classList.add("fas", "fa-trash", "action-icon", "delete-icon");
@@ -572,19 +578,16 @@ function fillFormWithItem(
     return;
   }
 
-  const inputElements = form.querySelectorAll("input, select, textarea");
-  const iconPreview = form.querySelector(
-    "#iconPreview",
-  ) as HTMLImageElement | null;
-  const fileInput = form.querySelector(
-    "#categoryIcon",
-  ) as HTMLInputElement | null;
-  const deleteButton = form.querySelector(
-    "#deleteIconButton",
-  ) as HTMLButtonElement | null;
-  let existingImageInput = form.querySelector(
+  const inputElements = form.querySelectorAll<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >("input, select, textarea");
+  const iconPreview = form.querySelector<HTMLImageElement>("#iconPreview");
+  const fileInput = form.querySelector<HTMLInputElement>("#categoryIcon");
+  const deleteButton =
+    form.querySelector<HTMLButtonElement>("#deleteIconButton");
+  let existingImageInput = form.querySelector<HTMLInputElement>(
     'input[name="existingIcon"]',
-  ) as HTMLInputElement | null;
+  );
 
   // Créer un champ caché pour conserver l'URL de l'image actuelle si nécessaire
   if (storeName === "categories" && !existingImageInput) {
@@ -596,14 +599,12 @@ function fillFormWithItem(
 
   // Remplir les champs du formulaire
   inputElements.forEach((input) => {
-    const fieldName = (input as HTMLInputElement | HTMLSelectElement).name;
-    if (fieldName && item[fieldName] !== undefined) {
+    const fieldName = input.name;
+    if (fieldName && fieldName in item) {
       if (input instanceof HTMLInputElement && input.type === "file") {
-        input.style.display = "none"; // Masquer le champ file au début
+        input.style.display = "none";
       } else {
-        (input as HTMLInputElement | HTMLTextAreaElement).value = String(
-          item[fieldName],
-        );
+        input.value = String((item as any)[fieldName]);
       }
     }
   });
@@ -612,16 +613,16 @@ function fillFormWithItem(
   if (
     existingImageInput &&
     iconPreview &&
-    typeof item.icon === "string" &&
-    item.icon.trim() !== ""
+    "icon" in item &&
+    typeof item.icon === "string"
   ) {
     if (item.icon) {
-      iconPreview.src = item.icon as string;
+      iconPreview.src = item.icon;
       iconPreview.style.display = "block";
-      existingImageInput.value = item.icon as string; // Stocker l'URL actuelle
+      existingImageInput.value = item.icon;
     } else {
       iconPreview.style.display = "none";
-      existingImageInput.value = ""; // Pas d'image existante
+      existingImageInput.value = "";
     }
   }
 
@@ -629,8 +630,8 @@ function fillFormWithItem(
   if (
     deleteButton &&
     existingImageInput &&
-    typeof item.icon === "string" &&
-    item.icon.trim() !== ""
+    "icon" in item &&
+    typeof item.icon === "string"
   ) {
     if (item.icon) {
       deleteButton.style.display = "inline-block";
@@ -638,7 +639,7 @@ function fillFormWithItem(
         if (iconPreview) iconPreview.style.display = "none";
         if (fileInput) fileInput.style.display = "block";
         deleteButton.style.display = "none";
-        existingImageInput.value = "";
+        existingImageInput!.value = "";
       };
     } else {
       deleteButton.style.display = "none";
@@ -649,19 +650,21 @@ function fillFormWithItem(
 
   // Gérer l'événement "changement d'image"
   if (fileInput && existingImageInput && iconPreview) {
-    fileInput.removeEventListener("change", handleFileChange); // Supprimer l'ancien gestionnaire
+    fileInput.removeEventListener("change", handleFileChange);
     fileInput.addEventListener("change", handleFileChange);
 
-    function handleFileChange(event: Event) {
+    function handleFileChange(this: HTMLInputElement, event: Event): void {
       const target = event.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = () => {
-          iconPreview.src = reader.result as string;
-          iconPreview.style.display = "block";
+          if (iconPreview) {
+            iconPreview.src = reader.result as string;
+            iconPreview.style.display = "block";
+          }
           if (deleteButton) deleteButton.style.display = "inline-block";
-          existingImageInput.value = ""; // Vider la valeur de l'image existante
+          if (existingImageInput) existingImageInput.value = "";
         };
         reader.readAsDataURL(file);
       }
@@ -669,9 +672,9 @@ function fillFormWithItem(
   }
 
   // Mettre à jour le texte du bouton de soumission
-  const submitButton = form.querySelector(
+  const submitButton = form.querySelector<HTMLInputElement>(
     'input[type="submit"]',
-  ) as HTMLInputElement;
+  );
   if (submitButton) {
     submitButton.value = "Mettre à jour";
   }

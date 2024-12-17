@@ -4,6 +4,7 @@ export interface Category {
   id: number;
   name: string;
   icon?: object;
+  amount?: number;
 }
 
 // Gardes de type
@@ -21,11 +22,5 @@ document.addEventListener("DOMContentLoaded", () => {
     ["name", "icon"],
     ["existingIcon"],
   );
-  updateListing(
-    "CategoryDatabase",
-    "categories",
-    "id",
-    ["name", "icon"],
-    ["existingIcon"],
-  );
+  updateListing("CategoryDatabase", "categories", "id", ["name", "icon"]);
 });

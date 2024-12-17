@@ -1,6 +1,13 @@
+interface NavigatorWithBattery extends Navigator {
+  getBattery(): Promise<{
+    charging: boolean;
+    level: number;
+    addEventListener(type: string, listener: EventListener): void;
+  }>;
+}
 async function displayBatteryStatus() {
   // Vérifie si l'API Battery est disponible
-  if (!navigator.getBattery) {
+  if (!("getBattery" in navigator)) {
     console.warn(
       "L'API Battery Status n'est pas prise en charge par ce navigateur.",
     );
@@ -8,7 +15,7 @@ async function displayBatteryStatus() {
   }
 
   try {
-    const battery = await navigator.getBattery();
+    const battery = await (navigator as NavigatorWithBattery).getBattery();
 
     // Création d'un conteneur pour afficher le statut
     const batteryStatusContainer = document.createElement("div");
