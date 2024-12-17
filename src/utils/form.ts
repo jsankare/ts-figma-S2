@@ -1,14 +1,9 @@
-import {
-  getAllItems,
-  addItemToDatabase,
-  deleteItem,
-  getItemById,
-} from "./openDatabase.js";
-import { displayMessage } from "./alert.js";
-import { uploadImage } from "./uploadImage.js";
-import { Budget, isBudget } from "../budgets.js";
-import { Category, isCategory } from "../categories.js";
-import { Transaction, isTransaction } from "../transactions.js";
+import {addItemToDatabase, deleteItem, getAllItems, getItemById,} from "./openDatabase.js";
+import {displayMessage} from "./alert.js";
+import {uploadImage} from "./uploadImage.js";
+import {Budget, isBudget} from "../budgets.js";
+import {Category, isCategory} from "../categories.js";
+import {isTransaction, Transaction} from "../transactions.js";
 
 // Gérer la soumission du formulaire
 export async function handleFormSubmit(
@@ -100,8 +95,7 @@ export async function handleFormSubmit(
       console.log("File selected for upload:", file);
 
       try {
-        const pictureDataUrl = await uploadImage(file);
-        item.icon = pictureDataUrl;
+        item.icon = await uploadImage(file);
       } catch (error) {
         console.error("Error uploading image:", error);
         displayMessage(
@@ -202,7 +196,7 @@ async function displayItems(
       listItem.setAttribute("data-id", JSON.stringify(item.id)); // Stocker l'item sous forme de data
 
       // Gestion des événements drag and drop
-      listItem.addEventListener("dragstart", (e) => {
+      listItem.addEventListener("dragstart", () => {
         draggedItem = listItem;
         listItem.style.opacity = "0.5";
       });
@@ -658,10 +652,12 @@ function fillFormWithItem(
       if (file) {
         const reader = new FileReader();
         reader.onload = () => {
-          iconPreview.src = reader.result as string;
-          iconPreview.style.display = "block";
+          if (iconPreview) {
+            iconPreview.src = reader.result as string;
+            iconPreview.style.display = "block";
+          }
           if (deleteButton) deleteButton.style.display = "inline-block";
-          existingImageInput.value = ""; // Vider la valeur de l'image existante
+          existingImageInput && existingImageInput.value = ""; // Vider la valeur de l'image existante
         };
         reader.readAsDataURL(file);
       }
