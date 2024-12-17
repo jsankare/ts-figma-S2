@@ -24,35 +24,47 @@ export function toastAlert(type: "success" | "error", content: string): void {
   }, 5000);
 }
 
-export function displayMessage(message: string, isError: boolean = true, container: string) {
-  console.log(`Displaying message: ${message} (Error: ${isError}) in container: ${container}`);
+export function displayMessage(
+  message: string,
+  isError: boolean = true,
+  container: string,
+) {
+  console.log(
+    `Displaying message: ${message} (Error: ${isError}) in container: ${container}`,
+  );
 
-  const messageElement = document.createElement('p');
+  const messageElement = document.createElement("p");
   messageElement.textContent = message;
-  messageElement.style.color = isError ? 'red' : 'green';
+  messageElement.style.color = isError ? "red" : "green";
 
   const targetContainer = document.querySelector(container);
   if (targetContainer) {
     console.log(`Container found: ${container}`);
-    let messageContainer = targetContainer.querySelector(isError ? '.error' : '.success') as HTMLParagraphElement;
+    let messageContainer = targetContainer.querySelector(
+      isError ? ".error" : ".success",
+    ) as HTMLParagraphElement;
 
     if (!messageContainer) {
       // Créer un nouvel élément si nécessaire
-      messageContainer = document.createElement('p');
-      messageContainer.className = isError ? 'error' : 'success';
-      targetContainer.insertBefore(messageContainer, targetContainer.firstChild); // Ajouter au début
+      messageContainer = document.createElement("p");
+      messageContainer.className = isError ? "error" : "success";
+      targetContainer.insertBefore(
+        messageContainer,
+        targetContainer.firstChild,
+      ); // Ajouter au début
     }
 
     messageContainer.textContent = message;
 
     // Ajouter un gestionnaire d'événement pour effacer le message lorsqu'un champ est modifié
-    targetContainer.querySelectorAll('input, textarea, select').forEach((input) => {
-      input.addEventListener('input', () => {
-        if (messageContainer) messageContainer.remove();
+    targetContainer
+      .querySelectorAll("input, textarea, select")
+      .forEach((input) => {
+        input.addEventListener("input", () => {
+          if (messageContainer) messageContainer.remove();
+        });
       });
-    });
   } else {
     console.error(`Container not found: ${container}`);
   }
 }
-

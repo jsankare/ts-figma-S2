@@ -1,4 +1,9 @@
-import { getAllItems, addItemToDatabase, deleteItem, getItemById } from "./openDatabase.js";
+import {
+  getAllItems,
+  addItemToDatabase,
+  deleteItem,
+  getItemById,
+} from "./openDatabase.js";
 import { displayMessage } from "./alert.js";
 import { uploadImage } from "./uploadImage.js";
 import { Budget, isBudget } from "../budgets.js";
@@ -13,7 +18,7 @@ export async function handleFormSubmit(
   storeName: string,
   keyPath: string,
   requiredFields: string[],
-  optionalFields: string[] = []
+  optionalFields: string[] = [],
 ) {
   const form = document.getElementById(formId) as HTMLFormElement;
 
@@ -23,9 +28,9 @@ export async function handleFormSubmit(
   }
 
   console.log(`Form found: ${formId}`);
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    console.log('Form submission started');
+    console.log("Form submission started");
 
     const formData = new FormData(form);
     let item: { [key: string]: any } = {};
@@ -39,7 +44,9 @@ export async function handleFormSubmit(
     });
 
     // Gérer la case à cocher d'alerte
-    const alertCheckbox = form.querySelector('input[name="alert"]') as HTMLInputElement;
+    const alertCheckbox = form.querySelector(
+      'input[name="alert"]',
+    ) as HTMLInputElement;
     item.alert = alertCheckbox?.checked || false;
 
     // Valider les champs obligatoires
@@ -57,49 +64,62 @@ export async function handleFormSubmit(
     }
 
     // Récupérer l'icône existante
-    const existingIcon = formData.get('existingIcon');
+    const existingIcon = formData.get("existingIcon");
     if (existingIcon) {
       item.icon = existingIcon;
     }
 
     // Gérer le téléchargement de fichiers
-    const fileInput = form.querySelector('#categoryIcon') as HTMLInputElement;
-if (fileInput && fileInput.files?.length) {
-  const file = fileInput.files[0];
-  const maxSize = 5 * 1024 * 1024; // Taille maximale en octets (ex. 5 Mo)
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Types MIME autorisés
+    const fileInput = form.querySelector("#categoryIcon") as HTMLInputElement;
+    if (fileInput && fileInput.files?.length) {
+      const file = fileInput.files[0];
+      const maxSize = 5 * 1024 * 1024; // Taille maximale en octets (ex. 5 Mo)
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif"]; // Types MIME autorisés
 
-  // Vérification de la taille et du type de fichier
-  if (file.size > maxSize) {
-    console.error('File is too large.');
-    displayMessage('The selected file is too large. Please select a file smaller than 5 MB.', true, `#${formId}`);
-    return;
-  }
+      // Vérification de la taille et du type de fichier
+      if (file.size > maxSize) {
+        console.error("File is too large.");
+        displayMessage(
+          "The selected file is too large. Please select a file smaller than 5 MB.",
+          true,
+          `#${formId}`,
+        );
+        return;
+      }
 
-  if (!allowedTypes.includes(file.type)) {
-    console.error('File type is not allowed.');
-    displayMessage('Invalid file type. Please upload a JPEG, PNG, or GIF image.', true, `#${formId}`);
-    return;
-  }
+      if (!allowedTypes.includes(file.type)) {
+        console.error("File type is not allowed.");
+        displayMessage(
+          "Invalid file type. Please upload a JPEG, PNG, or GIF image.",
+          true,
+          `#${formId}`,
+        );
+        return;
+      }
 
-  console.log('File selected for upload:', file);
+      console.log("File selected for upload:", file);
 
-  try {
-    const pictureDataUrl = await uploadImage(file);
-    item.icon = pictureDataUrl;
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    displayMessage('Error uploading the image. Please try again.', true, `#${formId}`);
-    return;
-  }
-}
+      try {
+        const pictureDataUrl = await uploadImage(file);
+        item.icon = pictureDataUrl;
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        displayMessage(
+          "Error uploading the image. Please try again.",
+          true,
+          `#${formId}`,
+        );
+        return;
+      }
+    }
 
-
-    console.log('Prepared item for DB:', item);
+    console.log("Prepared item for DB:", item);
 
     try {
-      const hiddenIdInput = form.querySelector('input[type="hidden"][name="id"]') as HTMLInputElement;
-      const isUpdate = hiddenIdInput && hiddenIdInput.value.trim() !== '';
+      const hiddenIdInput = form.querySelector(
+        'input[type="hidden"][name="id"]',
+      ) as HTMLInputElement;
+      const isUpdate = hiddenIdInput && hiddenIdInput.value.trim() !== "";
       console.log(isUpdate);
       // Ajouter l'élément dans la base de données
       await addItemToDatabase(dbName, storeName, keyPath, item, formData);
@@ -108,40 +128,45 @@ if (fileInput && fileInput.files?.length) {
       // Réinitialiser les champs cachés
       const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
       hiddenInputs.forEach((input) => {
-        input.value = '';
+        input.value = "";
       });
 
       // Fermer la modale
-      const modalContent = document.getElementById('modal');
+      const modalContent = document.getElementById("modal");
       if (modalContent) {
-        modalContent.style.display = 'none';
+        modalContent.style.display = "none";
       }
 
       // Mettre à jour la liste des éléments (sans recharger la page)
-      await updateListing(dbName, storeName, keyPath, requiredFields.concat(optionalFields));
-      console.log('Item added successfully:', item);
+      await updateListing(
+        dbName,
+        storeName,
+        keyPath,
+        requiredFields.concat(optionalFields),
+      );
+      console.log("Item added successfully:", item);
 
-      if(isUpdate){
-        displayMessage('Item updated succesfully !', false, `#${listingId}`)
+      if (isUpdate) {
+        displayMessage("Item updated succesfully !", false, `#${listingId}`);
       } else {
         // Afficher un message de succès avant de mettre à jour la liste
-        displayMessage('Item added successfully!', false, `#${listingId}`);
+        displayMessage("Item added successfully!", false, `#${listingId}`);
       }
-
 
       // Vibration pour confirmer
       if (navigator.vibrate) {
         navigator.vibrate(200);
       }
     } catch (error) {
-      console.error('Error saving item:', error);
-      displayMessage('An error occurred while saving the item.', true, `#${formId}`);
+      console.error("Error saving item:", error);
+      displayMessage(
+        "An error occurred while saving the item.",
+        true,
+        `#${formId}`,
+      );
     }
   });
 }
-
-
-
 
 // Afficher les éléments dans le listage
 async function displayItems(
@@ -149,18 +174,18 @@ async function displayItems(
   storeName: string,
   dbName: string,
   keyPath: string,
-  fields: string[]
+  fields: string[],
 ) {
   const listing = document.getElementById(`${storeName}Listing`);
   if (listing) {
-    listing.innerHTML = ''; // Réinitialise le contenu de la liste
+    listing.innerHTML = ""; // Réinitialise le contenu de la liste
 
     if (items.length === 0) {
       // Afficher un message si la liste est vide
-      const emptyMessage = document.createElement('p');
-      emptyMessage.textContent = 'Aucun élément à afficher.';
-      emptyMessage.style.color = 'gray';
-      emptyMessage.style.textAlign = 'center';
+      const emptyMessage = document.createElement("p");
+      emptyMessage.textContent = "Aucun élément à afficher.";
+      emptyMessage.style.color = "gray";
+      emptyMessage.style.textAlign = "center";
       listing.appendChild(emptyMessage);
       return; // Arrêter l'exécution si aucun élément à afficher
     }
@@ -169,29 +194,29 @@ async function displayItems(
     let draggedItem: HTMLElement | null = null;
 
     for (const item of items) {
-      const listItem = document.createElement('li');
-      console.log('Processing item:', item);
+      const listItem = document.createElement("li");
+      console.log("Processing item:", item);
 
       // Ajout des attributs pour le drag and drop
       listItem.draggable = true; // Rendre l'élément draggable
-      listItem.setAttribute('data-id', JSON.stringify(item.id)); // Stocker l'item sous forme de data
+      listItem.setAttribute("data-id", JSON.stringify(item.id)); // Stocker l'item sous forme de data
 
       // Gestion des événements drag and drop
-      listItem.addEventListener('dragstart', (e) => {
+      listItem.addEventListener("dragstart", (e) => {
         draggedItem = listItem;
-        listItem.style.opacity = '0.5';
+        listItem.style.opacity = "0.5";
       });
 
-      listItem.addEventListener('dragend', () => {
+      listItem.addEventListener("dragend", () => {
         draggedItem = null;
-        listItem.style.opacity = '1';
+        listItem.style.opacity = "1";
       });
 
-      listItem.addEventListener('dragover', (e) => {
+      listItem.addEventListener("dragover", (e) => {
         e.preventDefault(); // Permet de déposer l'élément
       });
 
-      listItem.addEventListener('drop', (e) => {
+      listItem.addEventListener("drop", (e) => {
         e.preventDefault();
 
         if (draggedItem && draggedItem !== listItem) {
@@ -203,210 +228,237 @@ async function displayItems(
       // Ajout du contenu des items
       if (isTransaction(item)) {
         try {
-            let categoryName = '';
-            if (item.category) {
-                const categoryId = Number(item.category);
-                const category = await getItemById('CategoryDatabase', 'categories', 'id', categoryId);
-                if (isCategory(category)) {
-                    categoryName = category.name;
-                }
-            } else {
-                categoryName = "Non défini";
+          let categoryName = "";
+          if (item.category) {
+            const categoryId = Number(item.category);
+            const category = await getItemById(
+              "CategoryDatabase",
+              "categories",
+              "id",
+              categoryId,
+            );
+            if (isCategory(category)) {
+              categoryName = category.name;
             }
-    
-            const transactionDiv = document.createElement('div');
-            transactionDiv.classList.add('transaction');
-    
-            const headerDiv = document.createElement('div');
-            headerDiv.classList.add('transaction_header');
-            // Nom de la transaction
-            const nameDiv = document.createElement('div');
-            nameDiv.classList.add('name');
-            nameDiv.textContent = `${item.name}`;
-            headerDiv.appendChild(nameDiv);
-            
-            // Montant
-            const amountDiv = document.createElement('div');
-            amountDiv.classList.add('amount');
-            amountDiv.textContent = `${item.amount} €`;
-            headerDiv.appendChild(amountDiv);
+          } else {
+            categoryName = "Non défini";
+          }
 
-            transactionDiv.appendChild(headerDiv);
-            
-            // Date
-            const dateDiv = document.createElement('div');
-            dateDiv.classList.add('date');
-            dateDiv.textContent = `${item.date}`;
-            transactionDiv.appendChild(dateDiv);
-    
-            // Description
-            if (item.description) {
-                const descriptionDiv = document.createElement('div');
-                descriptionDiv.classList.add('description');
-                descriptionDiv.textContent = `${item.description}`;
-                transactionDiv.appendChild(descriptionDiv);
-            }
-    
-            // Conteneur des tags (type et catégorie)
-            const tagDiv = document.createElement('div');
-            tagDiv.classList.add('tags');
-    
-            // Tag type
-            const typeDiv = document.createElement('div');
-            typeDiv.classList.add('type', item.type.toLowerCase());
-            typeDiv.textContent = `${item.type === 'credit' ? 'Crédit' : 'Débit'}`;
-            tagDiv.appendChild(typeDiv);
-    
-            // Tag catégorie
-            const categoryDiv = document.createElement('div');
-            categoryDiv.classList.add('category');
-            categoryDiv.textContent = `${categoryName}`;
-            tagDiv.appendChild(categoryDiv);
-    
-            transactionDiv.appendChild(tagDiv);
-    
-    
-    
-            // Ajouter l'ensemble au listItem
-            listItem.appendChild(transactionDiv);
+          const transactionDiv = document.createElement("div");
+          transactionDiv.classList.add("transaction");
+
+          const headerDiv = document.createElement("div");
+          headerDiv.classList.add("transaction_header");
+          // Nom de la transaction
+          const nameDiv = document.createElement("div");
+          nameDiv.classList.add("name");
+          nameDiv.textContent = `${item.name}`;
+          headerDiv.appendChild(nameDiv);
+
+          // Montant
+          const amountDiv = document.createElement("div");
+          amountDiv.classList.add("amount");
+          amountDiv.textContent = `${item.amount} €`;
+          headerDiv.appendChild(amountDiv);
+
+          transactionDiv.appendChild(headerDiv);
+
+          // Date
+          const dateDiv = document.createElement("div");
+          dateDiv.classList.add("date");
+          dateDiv.textContent = `${item.date}`;
+          transactionDiv.appendChild(dateDiv);
+
+          // Description
+          if (item.description) {
+            const descriptionDiv = document.createElement("div");
+            descriptionDiv.classList.add("description");
+            descriptionDiv.textContent = `${item.description}`;
+            transactionDiv.appendChild(descriptionDiv);
+          }
+
+          // Conteneur des tags (type et catégorie)
+          const tagDiv = document.createElement("div");
+          tagDiv.classList.add("tags");
+
+          // Tag type
+          const typeDiv = document.createElement("div");
+          typeDiv.classList.add("type", item.type.toLowerCase());
+          typeDiv.textContent = `${item.type === "credit" ? "Crédit" : "Débit"}`;
+          tagDiv.appendChild(typeDiv);
+
+          // Tag catégorie
+          const categoryDiv = document.createElement("div");
+          categoryDiv.classList.add("category");
+          categoryDiv.textContent = `${categoryName}`;
+          tagDiv.appendChild(categoryDiv);
+
+          transactionDiv.appendChild(tagDiv);
+
+          // Ajouter l'ensemble au listItem
+          listItem.appendChild(transactionDiv);
         } catch (error) {
-            console.error('Error fetching category for transaction:', error);
+          console.error("Error fetching category for transaction:", error);
         }
-    } else if (isCategory(item)) {
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category-item');
-        
-        if (typeof item.icon === 'string' && item.icon.trim() !== "") {
+      } else if (isCategory(item)) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.classList.add("category-item");
+
+        if (typeof item.icon === "string" && item.icon.trim() !== "") {
           // Si item.icon est une chaîne non vide, l'afficher directement
           const iconImg = document.createElement("img");
-          iconImg.src = item.icon;  // Utilise l'URL de l'icône dans le cas d'une chaîne
+          iconImg.src = item.icon; // Utilise l'URL de l'icône dans le cas d'une chaîne
           iconImg.alt = `${item.name} icon`;
           iconImg.classList.add("item-icon");
           categoryDiv.appendChild(iconImg);
-      } else {
+        } else {
           console.log("L'icône est vide ou invalide");
-      }
-      
-        
+        }
+
         const nameSpan = document.createElement("p");
-        nameSpan.classList.add('category-name');
+        nameSpan.classList.add("category-name");
         nameSpan.textContent = item.name;
         categoryDiv.appendChild(nameSpan);
-        
+
         listItem.appendChild(categoryDiv);
       } else if (isBudget(item)) {
         try {
-            let categoryName = '';
-            let categoryId = null; // Déclarer `categoryId` dans la portée générale
-    
-            if (item.category) {
-                categoryId = Number(item.category);
-                const category = await getItemById('CategoryDatabase', 'categories', 'id', categoryId);
-                if (isCategory(category)) {
-                    categoryName = category.name;
-                }
-            } else {
-                categoryName = "Non défini";
-            }
-    
-            // Calculer la somme des transactions pour la catégorie et le mois actuel
-            const currentMonth = new Date().getMonth(); // Mois actuel (0-11)
-            const transactions = await getAllItems('TransactionDatabase', 'transactions', 'id');
-    
-            // Vérifier si `categoryId` est défini avant de filtrer
-            const filteredTransactions = transactions.filter((transaction) => {
-                if (!transaction.category || !transaction.date) return false;
-                const transactionDate = new Date(transaction.date);
-                return categoryId !== null && transaction.category === categoryId && transactionDate.getMonth() === currentMonth;
-            });
-    
-            const totalTransactionAmount = filteredTransactions.reduce(
-                (sum, transaction) => sum + parseFloat(transaction.amount || 0),
-                0
-            );
-    
-            // Calculer le pourcentage de progression et vérifier si le budget est dépassé
-            const isOverBudget = totalTransactionAmount > item.budget;
-            const progressPercentage = Math.min((totalTransactionAmount / item.budget) * 100, 100);
-            const overBudgetAmount = totalTransactionAmount - item.budget;
-    
-            // Créer les éléments DOM
-            const budgetDiv = document.createElement('div');
-            budgetDiv.classList.add('budget');
-    
-            const categoryDiv = document.createElement('div');
-            categoryDiv.classList.add('category');
-            categoryDiv.textContent = `${categoryName}`;
-            budgetDiv.appendChild(categoryDiv);
+          let categoryName = "";
+          let categoryId = null; // Déclarer `categoryId` dans la portée générale
 
-            const budgetAmountDiv = document.createElement('div');
-            budgetAmountDiv.classList.add('budget-amount');
-            budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget}`;
-            budgetDiv.appendChild(budgetAmountDiv);
-    
-    
-            if (isOverBudget) {
-                const overBudgetDiv = document.createElement('div');
-                overBudgetDiv.classList.add('over-budget');
-                overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)}`;
-                budgetDiv.appendChild(overBudgetDiv);
+          if (item.category) {
+            categoryId = Number(item.category);
+            const category = await getItemById(
+              "CategoryDatabase",
+              "categories",
+              "id",
+              categoryId,
+            );
+            if (isCategory(category)) {
+              categoryName = category.name;
             }
-    
-            // Ajouter la barre de progression
-            const progressContainer = document.createElement('div');
-            progressContainer.classList.add('progress-container');
-    
-            const progressBar = document.createElement('div');
-            progressBar.classList.add('progress-bar');
-            progressBar.style.width = `${progressPercentage}%`;
-    
-            // Changer la couleur si le budget est dépassé
-            if (isOverBudget) {
-                progressBar.style.backgroundColor = '#ff4d4d'; // Rouge
-            }
-    
-            const progressLabel = document.createElement('span');
-            progressLabel.classList.add('progress-label');
-            progressLabel.textContent = isOverBudget
-                ? `Over Budget (${progressPercentage.toFixed(1)}%)`
-                : `${progressPercentage.toFixed(1)}%`;
-    
-            progressContainer.appendChild(progressBar);
-            progressContainer.appendChild(progressLabel);
-            budgetDiv.appendChild(progressContainer);
-    
-            const alertDiv = document.createElement('div');
-            alertDiv.classList.add('alert');
-            alertDiv.textContent = item.alert ? 'Alert enabled' : '';
-            budgetDiv.appendChild(alertDiv);
-    
-            listItem.appendChild(budgetDiv);
-    
+          } else {
+            categoryName = "Non défini";
+          }
+
+          // Calculer la somme des transactions pour la catégorie et le mois actuel
+          const currentMonth = new Date().getMonth(); // Mois actuel (0-11)
+          const transactions = await getAllItems(
+            "TransactionDatabase",
+            "transactions",
+            "id",
+          );
+
+          // Vérifier si `categoryId` est défini avant de filtrer
+          const filteredTransactions = transactions.filter((transaction) => {
+            if (!transaction.category || !transaction.date) return false;
+            const transactionDate = new Date(transaction.date);
+            return (
+              categoryId !== null &&
+              transaction.category === categoryId &&
+              transactionDate.getMonth() === currentMonth
+            );
+          });
+
+          const totalTransactionAmount = filteredTransactions.reduce(
+            (sum, transaction) => sum + parseFloat(transaction.amount || 0),
+            0,
+          );
+
+          // Calculer le pourcentage de progression et vérifier si le budget est dépassé
+          const isOverBudget = totalTransactionAmount > item.budget;
+          const progressPercentage = Math.min(
+            (totalTransactionAmount / item.budget) * 100,
+            100,
+          );
+          const overBudgetAmount = totalTransactionAmount - item.budget;
+
+          // Créer les éléments DOM
+          const budgetDiv = document.createElement("div");
+          budgetDiv.classList.add("budget");
+
+          const categoryDiv = document.createElement("div");
+          categoryDiv.classList.add("category");
+          categoryDiv.textContent = `${categoryName}`;
+          budgetDiv.appendChild(categoryDiv);
+
+          const budgetAmountDiv = document.createElement("div");
+          budgetAmountDiv.classList.add("budget-amount");
+          budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget}`;
+          budgetDiv.appendChild(budgetAmountDiv);
+
+          if (isOverBudget) {
+            const overBudgetDiv = document.createElement("div");
+            overBudgetDiv.classList.add("over-budget");
+            overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)}`;
+            budgetDiv.appendChild(overBudgetDiv);
+          }
+
+          // Ajouter la barre de progression
+          const progressContainer = document.createElement("div");
+          progressContainer.classList.add("progress-container");
+
+          const progressBar = document.createElement("div");
+          progressBar.classList.add("progress-bar");
+          progressBar.style.width = `${progressPercentage}%`;
+
+          // Changer la couleur si le budget est dépassé
+          if (isOverBudget) {
+            progressBar.style.backgroundColor = "#ff4d4d"; // Rouge
+          }
+
+          const progressLabel = document.createElement("span");
+          progressLabel.classList.add("progress-label");
+          progressLabel.textContent = isOverBudget
+            ? `Over Budget (${progressPercentage.toFixed(1)}%)`
+            : `${progressPercentage.toFixed(1)}%`;
+
+          progressContainer.appendChild(progressBar);
+          progressContainer.appendChild(progressLabel);
+          budgetDiv.appendChild(progressContainer);
+
+          const alertDiv = document.createElement("div");
+          alertDiv.classList.add("alert");
+          alertDiv.textContent = item.alert ? "Alert enabled" : "";
+          budgetDiv.appendChild(alertDiv);
+
+          listItem.appendChild(budgetDiv);
         } catch (error) {
-            console.error('Error fetching category for budget:', error);
+          console.error("Error fetching category for budget:", error);
         }
+      }
+
+      // Ajout des boutons d'édition et de suppression
+      const buttonContainer = document.createElement("div");
+      buttonContainer.classList.add("action");
+      const editButton = createEditButton(item, storeName);
+      const copyButton = createCopyButton(item, storeName);
+      const deleteButton = createDeleteButton(
+        item,
+        dbName,
+        storeName,
+        keyPath,
+        fields,
+      );
+
+      buttonContainer.appendChild(editButton);
+      buttonContainer.appendChild(copyButton);
+      buttonContainer.appendChild(deleteButton);
+      listItem.appendChild(buttonContainer);
+      listing.appendChild(listItem);
     }
-    
-    
-    
-    // Ajout des boutons d'édition et de suppression
-    const buttonContainer = document.createElement('div')
-    buttonContainer.classList.add('action')
-    const editButton = createEditButton(item, storeName);
-    const deleteButton = createDeleteButton(item, dbName, storeName, keyPath, fields);
-    
-    buttonContainer.appendChild(editButton);
-    buttonContainer.appendChild(deleteButton);
-    listItem.appendChild(buttonContainer)
-    listing.appendChild(listItem);
-    }    
   } else {
     console.warn(`Listing element with ID ${storeName}Listing not found`);
   }
 }
 
 // Mettre à jour le listage avec les éléments de la base de données
-export async function updateListing(dbName: string, storeName: string, keyPath: string, fields: string[]) {
+export async function updateListing(
+  dbName: string,
+  storeName: string,
+  keyPath: string,
+  fields: string[],
+) {
   try {
     console.log(`Updating listing for ${storeName}`);
     const items = await getAllItems(dbName, storeName, keyPath);
@@ -418,23 +470,26 @@ export async function updateListing(dbName: string, storeName: string, keyPath: 
 }
 
 // Créer un bouton d'édition pour un élément
-function createEditButton(item: Category | Transaction | Budget, storeName: string): HTMLButtonElement {
-  const editButton = document.createElement('button');
-  editButton.classList.add('action-button', 'edit-button');
-  editButton.title = 'Modifier'; // Ajout d’un titre pour l’accessibilité
+function createEditButton(
+  item: Category | Transaction | Budget,
+  storeName: string,
+): HTMLButtonElement {
+  const editButton = document.createElement("button");
+  editButton.classList.add("action-button", "edit-button");
+  editButton.title = "Modifier"; // Ajout d’un titre pour l’accessibilité
 
-  const editIcon = document.createElement('i');
-  editIcon.classList.add('fas', 'fa-edit', 'action-icon', 'edit-icon');
-  editIcon.setAttribute('aria-hidden', 'true'); // Masquer pour les lecteurs d'écran
-  
+  const editIcon = document.createElement("i");
+  editIcon.classList.add("fas", "fa-edit", "action-icon", "edit-icon");
+  editIcon.setAttribute("aria-hidden", "true"); // Masquer pour les lecteurs d'écran
+
   editButton.appendChild(editIcon);
 
-  editButton.addEventListener('click', () => {
-    const modalContent = document.getElementById('modal');
+  editButton.addEventListener("click", () => {
+    const modalContent = document.getElementById("modal");
     if (modalContent) {
-      modalContent.style.display = 'block';
+      modalContent.style.display = "block";
     }
-    console.log('Editing item:', item);
+    console.log("Editing item:", item);
     fillFormWithItem(item, storeName);
   });
 
@@ -442,18 +497,24 @@ function createEditButton(item: Category | Transaction | Budget, storeName: stri
 }
 
 // Créer un bouton de suppression pour un élément
-function createDeleteButton(item: Category | Transaction | Budget, dbName: string, storeName: string, keyPath: string, fields: string[]): HTMLButtonElement {
-  const deleteButton = document.createElement('button');
-  deleteButton.classList.add('action-button', 'delete-button');
-  deleteButton.title = 'Supprimer'; // Ajout d’un titre pour l’accessibilité
+function createDeleteButton(
+  item: Category | Transaction | Budget,
+  dbName: string,
+  storeName: string,
+  keyPath: string,
+  fields: string[],
+): HTMLButtonElement {
+  const deleteButton = document.createElement("button");
+  deleteButton.classList.add("action-button", "delete-button");
+  deleteButton.title = "Supprimer"; // Ajout d’un titre pour l’accessibilité
 
-  const deleteIcon = document.createElement('i');
-  deleteIcon.classList.add('fas', 'fa-trash', 'action-icon', 'delete-icon');
-  deleteIcon.setAttribute('aria-hidden', 'true'); // Masquer pour les lecteurs d'écran
+  const deleteIcon = document.createElement("i");
+  deleteIcon.classList.add("fas", "fa-trash", "action-icon", "delete-icon");
+  deleteIcon.setAttribute("aria-hidden", "true"); // Masquer pour les lecteurs d'écran
 
   deleteButton.appendChild(deleteIcon);
 
-  deleteButton.addEventListener('click', () => {
+  deleteButton.addEventListener("click", () => {
     deleteItem(dbName, storeName, item.id, fields);
     updateListing(dbName, storeName, keyPath, fields);
   });
@@ -461,73 +522,135 @@ function createDeleteButton(item: Category | Transaction | Budget, dbName: strin
   return deleteButton;
 }
 
+function createCopyButton(
+  item: Category | Transaction | Budget,
+  storeName: string,
+): HTMLButtonElement {
+  const copyButton = document.createElement("button");
+  copyButton.classList.add("action-button", "copy-button");
+  copyButton.title = "Copy";
 
-function fillFormWithItem(item: Category | Transaction | Budget, storeName: string) {
+  const copyIcon = document.createElement("i");
+  copyIcon.classList.add("fas", "fa-copy", "action-icon", "copy-icon");
+  copyIcon.setAttribute("aria-hidden", "true");
+
+  copyButton.appendChild(copyIcon);
+
+  copyButton.addEventListener("click", async () => {
+    try {
+      let itemToCopy: any = { ...item };
+
+      // Do not copy img path, find workaround later ?
+      if ("icon" in itemToCopy) {
+        delete itemToCopy.icon;
+      }
+
+      const itemData = JSON.stringify(itemToCopy, null, 2);
+
+      await navigator.clipboard.writeText(itemData);
+      console.log("Copied item to clipboard:", itemData);
+
+      setTimeout(() => {
+        copyButton.textContent = "";
+        copyButton.appendChild(copyIcon);
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy item:", err);
+    }
+  });
+
+  return copyButton;
+}
+
+function fillFormWithItem(
+  item: Category | Transaction | Budget,
+  storeName: string,
+) {
   const form = document.getElementById(`${storeName}Form`) as HTMLFormElement;
   if (!form) {
     console.error(`Formulaire introuvable pour ${storeName}`);
     return;
   }
 
-  const inputElements = form.querySelectorAll('input, select, textarea');
-  const iconPreview = form.querySelector('#iconPreview') as HTMLImageElement | null;
-  const fileInput = form.querySelector('#categoryIcon') as HTMLInputElement | null;
-  const deleteButton = form.querySelector('#deleteIconButton') as HTMLButtonElement | null;
-  let existingImageInput = form.querySelector('input[name="existingIcon"]') as HTMLInputElement | null;
+  const inputElements = form.querySelectorAll("input, select, textarea");
+  const iconPreview = form.querySelector(
+    "#iconPreview",
+  ) as HTMLImageElement | null;
+  const fileInput = form.querySelector(
+    "#categoryIcon",
+  ) as HTMLInputElement | null;
+  const deleteButton = form.querySelector(
+    "#deleteIconButton",
+  ) as HTMLButtonElement | null;
+  let existingImageInput = form.querySelector(
+    'input[name="existingIcon"]',
+  ) as HTMLInputElement | null;
 
   // Créer un champ caché pour conserver l'URL de l'image actuelle si nécessaire
-  if (storeName === 'categories' && !existingImageInput) {
-    existingImageInput = document.createElement('input');
-    existingImageInput.type = 'hidden';
-    existingImageInput.name = 'existingIcon';
+  if (storeName === "categories" && !existingImageInput) {
+    existingImageInput = document.createElement("input");
+    existingImageInput.type = "hidden";
+    existingImageInput.name = "existingIcon";
     form.appendChild(existingImageInput);
   }
 
   // Remplir les champs du formulaire
-  inputElements.forEach(input => {
+  inputElements.forEach((input) => {
     const fieldName = (input as HTMLInputElement | HTMLSelectElement).name;
     if (fieldName && item[fieldName] !== undefined) {
-      if (input instanceof HTMLInputElement && input.type === 'file') {
-        input.style.display = 'none'; // Masquer le champ file au début
+      if (input instanceof HTMLInputElement && input.type === "file") {
+        input.style.display = "none"; // Masquer le champ file au début
       } else {
-        (input as HTMLInputElement | HTMLTextAreaElement).value = String(item[fieldName]);
+        (input as HTMLInputElement | HTMLTextAreaElement).value = String(
+          item[fieldName],
+        );
       }
     }
   });
 
   // Gestion de l'aperçu de l'image
-  if (existingImageInput && iconPreview && typeof item['icon'] === 'string' && item['icon'].trim() !== "") {
-    if (item['icon']) {
-      iconPreview.src = item['icon'] as string;
-      iconPreview.style.display = 'block';
-      existingImageInput.value = item['icon'] as string; // Stocker l'URL actuelle
+  if (
+    existingImageInput &&
+    iconPreview &&
+    typeof item.icon === "string" &&
+    item.icon.trim() !== ""
+  ) {
+    if (item.icon) {
+      iconPreview.src = item.icon as string;
+      iconPreview.style.display = "block";
+      existingImageInput.value = item.icon as string; // Stocker l'URL actuelle
     } else {
-      iconPreview.style.display = 'none';
-      existingImageInput.value = ''; // Pas d'image existante
+      iconPreview.style.display = "none";
+      existingImageInput.value = ""; // Pas d'image existante
     }
   }
 
   // Gestion du bouton "Supprimer l'image"
-  if (deleteButton && existingImageInput  && typeof item['icon'] === 'string' && item['icon'].trim() !== "") {
-    if (item['icon']) {
-      deleteButton.style.display = 'inline-block';
+  if (
+    deleteButton &&
+    existingImageInput &&
+    typeof item.icon === "string" &&
+    item.icon.trim() !== ""
+  ) {
+    if (item.icon) {
+      deleteButton.style.display = "inline-block";
       deleteButton.onclick = () => {
-        if (iconPreview) iconPreview.style.display = 'none';
-        if (fileInput) fileInput.style.display = 'block';
-        deleteButton.style.display = 'none';
-        existingImageInput.value = '';
+        if (iconPreview) iconPreview.style.display = "none";
+        if (fileInput) fileInput.style.display = "block";
+        deleteButton.style.display = "none";
+        existingImageInput.value = "";
       };
     } else {
-      deleteButton.style.display = 'none';
+      deleteButton.style.display = "none";
     }
   } else {
-    if (fileInput) fileInput.style.display = 'block';
+    if (fileInput) fileInput.style.display = "block";
   }
 
   // Gérer l'événement "changement d'image"
   if (fileInput && existingImageInput && iconPreview) {
-    fileInput.removeEventListener('change', handleFileChange); // Supprimer l'ancien gestionnaire
-    fileInput.addEventListener('change', handleFileChange);
+    fileInput.removeEventListener("change", handleFileChange); // Supprimer l'ancien gestionnaire
+    fileInput.addEventListener("change", handleFileChange);
 
     function handleFileChange(event: Event) {
       const target = event.target as HTMLInputElement;
@@ -536,9 +659,9 @@ function fillFormWithItem(item: Category | Transaction | Budget, storeName: stri
         const reader = new FileReader();
         reader.onload = () => {
           iconPreview.src = reader.result as string;
-          iconPreview.style.display = 'block';
-          if (deleteButton) deleteButton.style.display = 'inline-block';
-          existingImageInput.value = ''; // Vider la valeur de l'image existante
+          iconPreview.style.display = "block";
+          if (deleteButton) deleteButton.style.display = "inline-block";
+          existingImageInput.value = ""; // Vider la valeur de l'image existante
         };
         reader.readAsDataURL(file);
       }
@@ -546,8 +669,10 @@ function fillFormWithItem(item: Category | Transaction | Budget, storeName: stri
   }
 
   // Mettre à jour le texte du bouton de soumission
-  const submitButton = form.querySelector('input[type="submit"]') as HTMLInputElement;
+  const submitButton = form.querySelector(
+    'input[type="submit"]',
+  ) as HTMLInputElement;
   if (submitButton) {
-    submitButton.value = 'Mettre à jour';
+    submitButton.value = "Mettre à jour";
   }
 }
