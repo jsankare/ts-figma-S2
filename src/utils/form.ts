@@ -228,8 +228,9 @@ async function displayItems(
       if (isTransaction(item)) {
         try {
           let categoryName = "";
-          if (item.category) {
-            const categoryId = Number(item.category);
+          const categoryId = item.category ? Number(item.category) : null;
+
+          if (categoryId !== null) {
             const category = await getItemById(
               "CategoryDatabase",
               "categories",
@@ -265,7 +266,7 @@ async function displayItems(
           // Date
           const dateDiv = document.createElement("div");
           dateDiv.classList.add("date");
-          dateDiv.textContent = `${item.date}`;
+          dateDiv.textContent = item.date ? `${item.date}` : "";
           transactionDiv.appendChild(dateDiv);
 
           // Description
@@ -350,17 +351,23 @@ async function displayItems(
 
           // Vérifier si `categoryId` est défini avant de filtrer
           const filteredTransactions = transactions.filter((transaction) => {
+            if (!isTransaction(transaction)) return false;
             if (!transaction.category || !transaction.date) return false;
             const transactionDate = new Date(transaction.date);
             return (
               categoryId !== null &&
-              transaction.category === categoryId &&
+              Number(transaction.category) === categoryId &&
               transactionDate.getMonth() === currentMonth
             );
           });
 
           const totalTransactionAmount = filteredTransactions.reduce(
-            (sum, transaction) => sum + parseFloat(transaction.amount || 0),
+            (sum, transaction) => {
+              if (isTransaction(transaction)) {
+                return sum + (transaction.amount || 0);
+              }
+              return sum;
+            },
             0,
           );
 
