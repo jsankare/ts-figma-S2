@@ -1,25 +1,47 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Page principale</title>
-        <link href="styles.css" rel="stylesheet">
-        <link href="styles/navbar.css" rel="stylesheet">
-    </head>
-    <body id="body" class="bg-dark-50 text-center">
-        <main id="main">
-            <h1 class="text-4xl font-bold text-green-600">Page principale</h1>
-            <p class="mt-4 text-lg text-gray-700">Bienvenue sur la page principale de votre application TypeScript et Tailwind CSS.</p>
-            <a href="about.html" class="mt-6 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">Accéder à la page À propos</a>
-            <a href="login.html">Login</a>
-            <a href="register.html">Register</a>
-        </main>
-        <script type="module" src="dist/index.js"></script>
-        <script type="module" src="dist/utils/preferredTheme.js"></script>
-        <script type="module" src="dist/utils/navbar.js"></script>
-        <script type="module" src="dist/utils/authVerification.js"></script>
-        <script type="module" src="dist/utils/battery-status.js"></script>
-        <script type="module" src="dist/utils/fullscreen.js"></script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page principale</title>
+    <link href="styles.css" rel="stylesheet">
+    <link href="styles/navbar.css" rel="stylesheet">
+</head>
+<body id="body" class="bg-dark-50 text-center">
+<main id="main">
+    <h1 class="text-4xl font-bold text-green-600">Page principale</h1>
+    <p class="mt-4 text-lg text-gray-700">
+        Bienvenue sur la page principale de votre application TypeScript et Tailwind CSS.
+    </p>
+    <a href="about.html" class="mt-6 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">Accéder à la page À propos</a>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+
+    <h1>Idle Detector Demo</h1>
+
+    <!-- Import Idle Detector Script -->
+    <script type="module">
+        import { startIdleDetector } from './dist/utils/idleDetector.js';
+
+        startIdleDetector({
+            threshold: 30000, // 30 seconds
+            onIdle: () => {
+                console.log("User is idle or screen is locked.");
+                alert("You've been idle for a while!");
+            },
+            onActive: () => {
+                console.log("User is active again.");
+            }
+        });
+    </script>
+</main>
+
+<!-- Other scripts -->
+<script type="module" src="dist/index.js"></script>
+<script type="module" src="dist/utils/preferredTheme.js"></script>
+<script type="module" src="dist/utils/navbar.js"></script>
+<script type="module" src="dist/utils/authVerification.js"></script>
+<script type="module" src="dist/utils/battery-status.js"></script>
+<script type="module" src="dist/utils/fullscreen.js"></script>
+</body>
 </html>
