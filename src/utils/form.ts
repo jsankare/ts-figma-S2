@@ -71,36 +71,13 @@ export async function handleFormSubmit(
 
     // Gérer le téléchargement de fichiers
     const fileInput = form.querySelector("#categoryIcon") as HTMLInputElement;
-    if (fileInput && fileInput.files?.length) {
-      const file = fileInput.files[0];
-      const maxSize = 5 * 1024 * 1024; // Taille maximale en octets (ex. 5 Mo)
-      const allowedTypes = ["image/jpeg", "image/png", "image/gif"]; // Types MIME autorisés
-
-      // Vérification de la taille et du type de fichier
-      if (file.size > maxSize) {
-        console.error("File is too large.");
-        displayMessage(
-          "The selected file is too large. Please select a file smaller than 5 MB.",
-          true,
-          `#${formId}`,
-        );
-        return;
-      }
-
-      if (!allowedTypes.includes(file.type)) {
-        console.error("File type is not allowed.");
-        displayMessage(
-          "Invalid file type. Please upload a JPEG, PNG, or GIF image.",
-          true,
-          `#${formId}`,
-        );
-        return;
-      }
-
-      console.log("File selected for upload:", file);
-
+    const svgIconInput = form.querySelector("#iconPreview") as HTMLInputElement;
+    if (svgIconInput && svgIconInput.src) {
+      console.log(svgIconInput);
+      console.log("icon chosen");
+      console.log(svgIconInput.src);
       try {
-        item.icon = await uploadImage(file);
+        item.icon = svgIconInput.src;
       } catch (error) {
         console.error("Error uploading image:", error);
         displayMessage(
@@ -109,6 +86,47 @@ export async function handleFormSubmit(
           `#${formId}`,
         );
         return;
+      }
+    } else {
+      if (fileInput && fileInput.files?.length) {
+        const file = fileInput.files[0];
+        const maxSize = 5 * 1024 * 1024; // Taille maximale en octets (ex. 5 Mo)
+        const allowedTypes = ["image/jpeg", "image/png", "image/gif"]; // Types MIME autorisés
+
+        // Vérification de la taille et du type de fichier
+        if (file.size > maxSize) {
+          console.error("File is too large.");
+          displayMessage(
+            "The selected file is too large. Please select a file smaller than 5 MB.",
+            true,
+            `#${formId}`,
+          );
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          console.error("File type is not allowed.");
+          displayMessage(
+            "Invalid file type. Please upload a JPEG, PNG, or GIF image.",
+            true,
+            `#${formId}`,
+          );
+          return;
+        }
+
+        console.log("File selected for upload:", file);
+
+        try {
+          item.icon = await uploadImage(file);
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          displayMessage(
+            "Error uploading the image. Please try again.",
+            true,
+            `#${formId}`,
+          );
+          return;
+        }
       }
     }
 
