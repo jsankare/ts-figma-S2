@@ -1,3 +1,5 @@
+import { detectBrowser } from "./navigatorDetection.js";
+
 interface NavigatorWithBattery extends Navigator {
   getBattery(): Promise<{
     charging: boolean;
@@ -6,8 +8,9 @@ interface NavigatorWithBattery extends Navigator {
   }>;
 }
 async function displayBatteryStatus() {
+  const browser = detectBrowser();
   // Vérifie si l'API Battery est disponible
-  if (!("getBattery" in navigator)) {
+  if (!("getBattery" in navigator) || browser === "Brave") {
     console.warn(
       "L'API Battery Status n'est pas prise en charge par ce navigateur.",
     );

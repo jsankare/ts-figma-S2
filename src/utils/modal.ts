@@ -1,5 +1,39 @@
 import { getAllItems } from "./openDatabase.js";
 import { Category } from "../categories.js";
+import { getIcons } from "./get-icons.js";
+
+const icons = getIcons();
+
+function getCategoryIcons(): void {
+  const iconsContainer = document.getElementById("iconsContainer");
+  if (!iconsContainer) {
+    console.error("Icons container not found");
+    return;
+  }
+
+  iconsContainer.innerHTML = "";
+
+  icons.forEach((icon) => {
+    const img = document.createElement("img");
+    img.src = icon.icon; // Set the icon source
+    img.alt = icon.name; // Set the alt text
+    img.title = icon.name;
+    img.className = "category-icon";
+
+    // Optional: Add a click handler to select an icon
+    img.addEventListener("click", () => {
+      const iconPreview = document.getElementById(
+        "iconPreview",
+      ) as HTMLImageElement;
+      if (iconPreview) {
+        iconPreview.style.display = "block";
+        iconPreview.src = icon.icon; // Set the preview image to selected icon
+      }
+    });
+
+    iconsContainer.appendChild(img);
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const modalContent = document.getElementById("modal") as HTMLElement;
@@ -36,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function createModal(type: string, modalContent: HTMLElement) {
     console.log(`Creating modal for type: ${type}`);
 
-    // Start by creating the form structure without category options
+    // Generate and set the form content
     const formContent = getFormContent(type);
     if (!formContent) {
       console.error("Unknown modal type");
@@ -45,14 +79,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Setting modal content...");
     modalContent.innerHTML = `
-      <div class="modal-content">
-        <button id="close">&times;</button>
-        ${formContent}
-        <input type="submit" value="Ajouter">
-      </div>
-    `;
+          <div class="modal-content">
+                  ${formContent}
+                  <div class="form-buttons">
+                    <input id="close" class="button button-secondary" type="button" value="Annuler">
+                    <input class="button button-primary" type="submit" value="Ajouter">
+                  </div>
+              </form>
+              </section>
+          </div>`;
 
-    // Fetch categories and update the category select elements
+    // Call getCategoryIcons after the modal content is rendered
+    if (type === "category") {
+      getCategoryIcons();
+    }
+
+    // Fetch categories and update the selects
     const categories = await fetchCategories();
     const categoryOptions = categories
       .map((category) =>
@@ -63,10 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
     console.log("Generated category options:", categoryOptions);
 
-    // Populate the category selects in the modal
     const categorySelects = modalContent.querySelectorAll(
       ".categorySelect",
     ) as NodeListOf<HTMLSelectElement>;
+
     categorySelects.forEach((select) => {
       select.innerHTML = `<option value="" disabled selected>Choisir une catégorie</option>${categoryOptions}`;
     });
@@ -74,12 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize close button
     const closeButton = modalContent.querySelector("#close") as HTMLElement;
     if (closeButton) {
-      console.log("Close button found");
       closeButton.onclick = () => {
         console.log("Closing modal...");
         modalContent.style.display = "none";
         const form = modalContent.querySelector("form") as HTMLFormElement;
-        console.log(form);
         if (form) {
           form.reset();
           const previewImage = form.querySelector(
@@ -87,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ) as HTMLImageElement;
           if (previewImage) {
             previewImage.style.display = "none";
-            previewImage.src = ""; // Supprime l'aperçu de l'image
+            previewImage.src = "";
           }
           clearErrorMessage();
         }
@@ -100,49 +140,64 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Getting form content for type: ${type}`);
     switch (type) {
       case "category":
+        getCategoryIcons();
         return ` 
-          <form id="categoriesForm" action="">
-            <input type="hidden" name="id">
-            <label for="category">Nom de la catégorie</label>
-            <input type="text" name="name" id="category" required>
-            <label for="categoryIcon">Icône</label>
+          <h1 class="form-title">Ajouter une catégorie</h1>
+          <hr class="form-separator"/>
+          <form class="modal-form" id="categoriesForm" action="">
+            <input class="" type="hidden" name="id">
+            <label class="label label-text" for="category">Nom de la catégorie</label>
+            <input class="input input-text" type="text" name="name" id="category" required>
+            <label class="label label-icons" for="icon">Choisir une icône</label>
             <img id="iconPreview" style="display: none; max-width: 100px;" alt="Aperçu de l'icône" />
+                      <div id="iconsContainer" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
             <button type="button" id="deleteIconButton" style="display: none;">Supprimer l'image</button>
             <input type="file" name="icon" id="categoryIcon" accept="image/*">
+            </form>
         `;
       case "budget":
         return `
-          <form id="budgetsForm" action="">
+          <h1 class="form-title">Ajouter un budget</h1>
+          <hr class="form-separator"/>
+          <form class="modal-form" id="budgetsForm" action="">
             <input type="hidden" name="id" id="budgetId">
-            <label for="budgetCategorySelect">Catégorie</label>
-            <select name="category" id="budgetCategorySelect" class="categorySelect" required>
+            <label class="label label-select" for="budgetCategorySelect">Catégorie</label>
+            <select name="category" id="budgetCategorySelect" class="categorySelect input input-select" required>
             </select>
-            <label for="budget">Budget</label>
-            <input type="number" name="budget" id="budget" step="0.01" required>
-            <input type="checkbox" name="alert" id="alert">
-            <label for="alert">Recevoir une alerte</label>
+            <label class="label label-number" for="budget">Budget</label>
+            <input class="input input-number" type="number" name="budget" id="budget" step="0.01" required>
+            
+            <div class="checkbox-input-container">
+              <label class="label label-checkbox" for="alert">Être alerté lors du dépassement</label>
+              <div class="custom-checkbox-container">
+                <input type="checkbox" name="alert" id="alert" class="input-checkbox">
+                <label for="alert" class="custom-checkbox"></label>
+              </div>
+            </div>
           `;
       case "transaction":
         return `
-          <form id="transactionsForm" action="">
+          <h1 class="form-title">Ajouter une transaction</h1>
+          <hr class="form-separator"/>
+          <form class="modal-form" id="transactionsForm" action="">
             <input type="hidden" name="id" id="budgetId">
-            <label for="type">Type de transaction</label>
-            <select name="type" id="type" required>
-              <option value="" disabled selected>Choisir un type</option>
-              <option value="credit">Crédit</option>
-              <option value="debit">Débit</option>
+            <label class="label label-text" for="type">Type de transaction</label>
+            <select class="input input-text" name="type" id="type" required>
+              <option class="input input-select" value="" disabled selected>Choisir un type</option>
+              <option class="select-option" value="credit">Crédit</option>
+              <option class="select-option" value="debit">Débit</option>
             </select>
-            <label for="name">Libellé</label>
-            <input type="text" name="name" id="name" required>
-            <label for="name">Description</label>
-            <textarea name="description" id="description"></textarea>
-            <label for="amount">Montant</label>
-            <input type="number" name="amount" id="amount" step="0.01" required>
-            <label for="transactionCategorySelect">Catégorie</label>
-            <select name="category" id="transactionCategorySelect" class="categorySelect" required>
-            </select>
-            <label for="date">Date</label>
-            <input type="date" name="date" id="date" required>
+            <label class="label label-text" for="name">Libellé</label>
+            <input placeholder="Achat compulsif sur amazon .." class="input input-text" type="text" name="name" id="name" required>
+            <label class="label label-text" for="name">Description</label>
+            <textarea class="input input-text" name="description" id="description"></textarea>
+            <label class="label label-number" for="amount">Montant</label>
+            <input class="label label-number" type="number" name="amount" id="amount" step="0.01" required>
+            <label class="label label-select" for="transactionCategorySelect">Catégorie</label>
+            <select name="category" id="transactionCategorySelect" class="input input-select categorySelect" required></select>
+            <label class="label label-date" for="date">Date</label>
+            <input class="input input-date" type="date" name="date" id="date" required>
+            </form>
           `;
       default:
         console.error("Unknown form type");
