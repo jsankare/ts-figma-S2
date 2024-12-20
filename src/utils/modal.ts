@@ -14,11 +14,14 @@ function getCategoryIcons(): void {
   iconsContainer.innerHTML = "";
 
   icons.forEach((icon) => {
+    const imgwrapper = document.createElement("div");
     const img = document.createElement("img");
+    imgwrapper.className = "wrapper-icon";
     img.src = icon.icon; // Set the icon source
     img.alt = icon.name; // Set the alt text
     img.title = icon.name;
     img.className = "category-icon";
+    imgwrapper.appendChild(img);
 
     // Optional: Add a click handler to select an icon
     img.addEventListener("click", () => {
@@ -31,7 +34,7 @@ function getCategoryIcons(): void {
       }
     });
 
-    iconsContainer.appendChild(img);
+    iconsContainer.appendChild(imgwrapper);
   });
 }
 
@@ -82,8 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="modal-content">
                   ${formContent}
                   <div class="form-buttons">
-                    <input id="close" class="button button-secondary" type="button" value="Annuler">
-                    <input class="button button-primary" type="submit" value="Ajouter">
+                    <input id="close" class="button button-secondary" type="button" value="Annuler"/>
+                    <input class="button button-primary" type="submit" value="Ajouter"/>
                   </div>
               </form>
               </section>
@@ -150,10 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <input class="input input-text" type="text" name="name" id="category" required>
             <label class="label label-icons" for="icon">Choisir une icône</label>
             <img id="iconPreview" style="display: none; max-width: 100px;" alt="Aperçu de l'icône" />
-                      <div id="iconsContainer" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                      <div id="iconsContainer"></div>
             <button type="button" id="deleteIconButton" style="display: none;">Supprimer l'image</button>
             <input type="file" name="icon" id="categoryIcon" accept="image/*">
-            </form>
         `;
       case "budget":
         return `
@@ -197,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <select name="category" id="transactionCategorySelect" class="input input-select categorySelect" required></select>
             <label class="label label-date" for="date">Date</label>
             <input class="input input-date" type="date" name="date" id="date" required>
-            </form>
           `;
       default:
         console.error("Unknown form type");

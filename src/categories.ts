@@ -3,7 +3,7 @@ import { handleFormSubmit, updateListing } from "./utils/form.js";
 export interface Category {
   id: number;
   name: string;
-  icon?: object;
+  icon?: string;
   amount?: number;
 }
 
