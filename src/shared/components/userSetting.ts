@@ -1,5 +1,28 @@
 import { toastAlert } from "./alert.js";
 import { openDatabase } from "../../core/database/openDatabase.js";
+import { API_KEY_GOOGLE } from '../../config.js';
+
+// Fonction pour charger dynamiquement le script de Google Maps
+function loadGoogleMapsAPI(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.getElementById('google-maps-script')) {
+      resolve(); // Le script est déjà chargé
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-maps-script';
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY_GOOGLE}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Impossible de charger l'API Google Maps"));
+
+    document.head.appendChild(script);
+  });
+}
+
 
 export function displayAccountSettingsForm(user) {
   const formContainer = document.getElementById('profile--wrapper') as HTMLElement;
@@ -40,8 +63,14 @@ export function displayAccountSettingsForm(user) {
     </form>
   `;
 
-  // Initialise l'autocomplétion
-  initAutocomplete();
+  loadGoogleMapsAPI()
+    .then(() => {
+      initAutocomplete();
+    })
+    .catch((error) => {
+      console.error("Erreur lors du chargement de l'API Google Maps :", error);
+      toastAlert("error", "Erreur lors du chargement de l'API Google Maps.");
+    });
 
   // Gestion du bouton de géolocalisation
   const getLocationBtn = document.getElementById("get-location-btn") as HTMLButtonElement;
@@ -106,10 +135,9 @@ async function fillAddressWithGeolocation() {
 }
 
 async function getAddressAndCountryFromCoordinates(lat: number, lon: number): Promise<{ address: string, countryCode: string }> {
-  const GOOGLE_API_KEY = '';
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${GOOGLE_API_KEY}`
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${API_KEY_GOOGLE}`
     );
     const data = await response.json();
 
@@ -234,11 +262,10 @@ function initAutocomplete() {
 }
 
 async function getCountryCodeFromAddress(address: string): Promise<{ countryCode: string }> {
-  const GOOGLE_API_KEY = '';
   
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}`
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY_GOOGLE}`
     );
     const data = await response.json();
 
