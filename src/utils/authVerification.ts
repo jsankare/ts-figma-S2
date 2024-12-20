@@ -43,4 +43,4 @@ async function checkAuthentication() {
 }
 
 // Call Auth function at page load
-checkAuthentication().then(() => console.log("success"));
+checkAuthentication().then(() => console.log("success authverification"));
