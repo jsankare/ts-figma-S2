@@ -16,7 +16,8 @@ export function getCurrentUser(
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readonly");
     const store = transaction.objectStore("users");
-    const request = store.get(email);
+    const index = store.index("email");
+    const request = index.get(email);
 
     request.onsuccess = () => resolve(request.result);
     request.onerror = (event) => {

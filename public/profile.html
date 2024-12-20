@@ -21,6 +21,15 @@
                     <p id="file-size"></p>
                     <form id="button--addProfilePicture" class="button" style="display: none;" action="">
                         <label id="label--image" for="myfile">Choisissez une photo de profil :</label>
+                        <video id="video" width="640" height="480" autoplay></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+
+                        <!-- Bouton pour démarrer la caméra -->
+                        <button id="start-camera-button">Démarrer la caméra</button>
+
+                        <!-- Bouton pour prendre la photo -->
+                        <button id="take-photo-button" style="display: none;">Prendre une photo</button>
+
                         <input type="file" accept="image/*" id="myfile" name="myfile">
                         <input id="submit--image" type="submit">
                     </form>
@@ -41,5 +50,11 @@
         <script type="module" src="dist/core/auth/authVerification.js"></script>
         <script type="module" src="dist/utils/battery-status.js"></script>
         <script type="module" src="dist/utils/fullscreen.js"></script>
+        <script 
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8&libraries=places" 
+  async 
+  defer>
+</script>
+
     </body>
 </html>

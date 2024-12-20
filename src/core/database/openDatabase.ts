@@ -5,7 +5,6 @@ import { Transaction } from "../../pages/transactions.js";
 export function openDatabase(
   dbName: string,
   dataName: string,
-  keyPath: string,
 ): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request: IDBOpenDBRequest = indexedDB.open(dbName, 1);
@@ -25,15 +24,17 @@ export function openDatabase(
       const db = request.result;
 
       if (!db.objectStoreNames.contains(dataName)) {
-        const dataStore = db.createObjectStore(dataName, { keyPath: keyPath });
+        const dataStore = db.createObjectStore(dataName, { keyPath: 'id', autoIncrement: true });
         if (dataName === "users") {
           dataStore.createIndex("token", "token", { unique: false });
+          dataStore.createIndex("email", "email", { unique: true });
         }
       } else {
         if (dataName === "users") {
           const transaction = db.transaction(dataName, "versionchange");
           const dataStore = transaction.objectStore(dataName);
-
+          dataStore.createIndex("email", "email", { unique: true });
+          
           if (!dataStore.indexNames.contains("token")) {
             dataStore.createIndex("token", "token", { unique: false });
             console.log(
@@ -50,22 +51,21 @@ export function openDatabase(
 export async function addItemToDatabase(
   dbName: string,
   storeName: string,
-  keyPath: string,
   item: { [key: string]: any },
   formData: FormData,
 ): Promise<void> {
-  const db = await openDatabase(dbName, storeName, keyPath);
+  const db = await openDatabase(dbName, storeName);
   console.log("Database opened:", db);
   const transaction = db.transaction(storeName, "readwrite");
   const store = transaction.objectStore(storeName);
 
   // Gérer l'ID de l'élément
   if (formData.get("id")) {
-    item[keyPath] = parseInt(formData.get("id") as string, 10);
-    console.log("Updating item with ID:", item[keyPath]);
+    item['id'] = parseInt(formData.get("id") as string, 10);
+    console.log("Updating item with ID:", item['id']);
   } else {
-    const newId = await generateUniqueId(store, keyPath);
-    item[keyPath] = newId;
+    const newId = await generateUniqueId(store);
+    item['id'] = newId;
     console.log("Generated new ID:", newId);
   }
 
@@ -96,7 +96,6 @@ export async function addItemToDatabase(
 // Générer un ID unique pour les nouveaux éléments
 async function generateUniqueId(
   store: IDBObjectStore,
-  keyPath: string,
 ): Promise<number> {
   console.log("Generating unique ID...");
   const cursorRequest = store.openCursor(null, "prev");
@@ -105,7 +104,7 @@ async function generateUniqueId(
       const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
       if (cursor) {
         console.log("Found cursor:", cursor);
-        resolve(cursor.value[keyPath] + 1);
+        resolve(cursor.value['id'] + 1);
       } else {
         console.log("No previous cursor found, starting from ID 1");
         resolve(1);
@@ -126,9 +125,8 @@ async function generateUniqueId(
 export async function getAllItems(
   dbName: string,
   storeName: string,
-  keyPath: string,
 ): Promise<(Category | Transaction | Budget)[]> {
-  const db = await openDatabase(dbName, storeName, keyPath);
+  const db = await openDatabase(dbName, storeName);
   const transaction = db.transaction(storeName, "readonly");
   const store = transaction.objectStore(storeName);
   const request = store.getAll();
@@ -265,10 +263,9 @@ async function updateRelatedStore(
 export async function getItemById(
   dbName: string,
   storeName: string,
-  keyPath: string,
   id: number,
 ): Promise<Category | Transaction | Budget> {
-  const db = await openDatabase(dbName, storeName, keyPath);
+  const db = await openDatabase(dbName, storeName);
   const transaction = db.transaction(storeName, "readonly");
   const store = transaction.objectStore(storeName);
   const request = store.get(id);

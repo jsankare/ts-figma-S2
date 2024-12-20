@@ -7,15 +7,23 @@
         <link href="styles.css" rel="stylesheet">
         <link href="styles/global.css" rel="stylesheet">
         <link href="styles/navbar.css" rel="stylesheet">
+        <link href="styles/listing.css" rel="stylesheet">
     </head>
     <body id="body" class="bg-dark-50 text-center">
-        <main id="main">
-            <h1 class="text-4xl font-bold text-green-600">Page principale</h1>
-            <p class="mt-4 text-lg text-gray-700">Bienvenue sur la page principale de votre application TypeScript et Tailwind CSS.</p>
-            <a href="about.html" class="mt-6 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">Accéder à la page À propos</a>
-            <a href="login.html">Login</a>
-            <a href="register.html">Register</a>
-        </main>
+        <div id="total"></div>
+        <div id="charts">
+            <h3>Graphique des dépenses mensuelles</h3>
+            <canvas id="monthlyExpensesChart"></canvas>
+
+            <h3>Graphique des dépenses par catégorie</h3>
+            <canvas id="categoryExpensesChart"></canvas>
+        </div>
+        <div id="transactions"></div>
+
+<!-- Inclure Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        
         <script type="module" src="dist/index.js"></script>
         <script type="module" src="dist/utils/preferredTheme.js"></script>
         <script type="module" src="dist/shared/components/navbar.js"></script>
