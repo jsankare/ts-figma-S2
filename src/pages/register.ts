@@ -10,6 +10,8 @@ function addUser(
     firstname: string;
     lastname: string;
     picture: string;
+    createdAt: Date;
+    updatedAt: Date;
   },
 ): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -43,6 +45,8 @@ async function handleRegister(event: Event) {
     document.getElementById("confirm-password") as HTMLInputElement
   ).value;
   const picture = "";
+  const createdAt = new Date();
+  const updatedAt = new Date();
 
   if (password !== confirmPassword) {
     alert("Les mots de passe ne correspondent pas !");
@@ -64,6 +68,8 @@ async function handleRegister(event: Event) {
     lastname,
     firstname,
     picture,
+    createdAt,
+    updatedAt,
   };
 
   try {

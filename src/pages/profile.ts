@@ -149,6 +149,7 @@ async function updateUserProfilePicture(
       const user = userRequest.result;
       if (user) {
         user.picture = pictureDataUrl;
+        user.updatedAt = new Date();
         const updateRequest = store.put(user);
         updateRequest.onsuccess = () => {
           resolve();
