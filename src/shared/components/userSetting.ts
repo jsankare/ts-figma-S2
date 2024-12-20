@@ -234,7 +234,7 @@ function initAutocomplete() {
 }
 
 async function getCountryCodeFromAddress(address: string): Promise<{ countryCode: string }> {
-  const GOOGLE_API_KEY = 'AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8';
+  const GOOGLE_API_KEY = '';
   
   try {
     const response = await fetch(
