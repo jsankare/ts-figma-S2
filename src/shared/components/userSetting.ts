@@ -105,11 +105,8 @@ async function fillAddressWithGeolocation() {
   }
 }
 
-
-
 async function getAddressAndCountryFromCoordinates(lat: number, lon: number): Promise<{ address: string, countryCode: string }> {
-  const GOOGLE_API_KEY = 'AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8';
-
+  const GOOGLE_API_KEY = '';
   try {
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${GOOGLE_API_KEY}`
