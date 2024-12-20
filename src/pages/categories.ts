@@ -1,4 +1,4 @@
-import { handleFormSubmit, updateListing } from "./utils/form.js";
+import { handleFormSubmit, updateListing } from "../shared/components/form.js";
 
 export interface Category {
   id: number;

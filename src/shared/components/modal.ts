@@ -1,6 +1,6 @@
-import { getAllItems } from "./openDatabase.js";
-import { Category } from "../categories.js";
-import { getIcons } from "./get-icons.js";
+import { getAllItems } from "../../core/database/openDatabase.js";
+import { Category } from "../../pages/categories.js";
+import { getIcons } from "../../utils/get-icons.js";
 
 const icons = getIcons();
 

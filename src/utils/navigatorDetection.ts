@@ -3,6 +3,7 @@ export const detectBrowser = (): string => {
 
   // Table des correspondances pour détecter les navigateurs
   const browsers: Map<string, () => boolean> = new Map([
+    // Fonctionne, Brave renvoie un objet navigator.brave
     ["Brave", () => Boolean(navigator.brave)],
     [
       "Google Chrome",
