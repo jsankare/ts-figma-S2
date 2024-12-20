@@ -42,3 +42,6 @@ Thumbs.db
 *.tsbuildinfo
 
 pnpm-lock.yaml
+
+src/config.ts
+public/dist/config.js

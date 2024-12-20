@@ -3,12 +3,44 @@ import {
   deleteItem,
   getAllItems,
   getItemById,
+  openDatabase
 } from "../../core/database/openDatabase.js";
 import { toastAlert } from "./alert.js";
 import { uploadImage } from "../../core/database/uploadImage.js";
 import { Budget, isBudget } from "../../pages/budgets.js";
 import { Category, isCategory } from "../../pages/categories.js";
 import { isTransaction, Transaction } from "../../pages/transactions.js";
+import { getCurrentUser } from "../../core/auth/getCurrentUser.js";
+
+async function getUser() {
+  const db = await openDatabase("UserDatabase", "users");
+  const userEmail = localStorage.getItem("userMail");
+
+  if (!userEmail) {
+    console.error("Aucun email trouvé dans localStorage.");
+    return null;
+  }
+  
+  try {
+    // Attendez la résolution de la promesse retournée par `getCurrentUser`
+    const token = await getCurrentUser(db, userEmail);
+    console.log(token);
+
+    // Vérifiez si l'objet `token` existe et contient un `id`
+    if (token && token.id) {
+      const userId = token.id;
+      console.log(userId);
+      return userId;
+    } else {
+      console.error("Le token ou l'ID utilisateur est introuvable.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
+    return null;
+  }
+}
+>>>>>>> e241337 (correction):src/utils/form.ts
 
 // Gérer la soumission du formulaire
 export async function handleFormSubmit(
@@ -16,7 +48,6 @@ export async function handleFormSubmit(
   listingId: string,
   dbName: string,
   storeName: string,
-  keyPath: string,
   requiredFields: string[],
   optionalFields: string[] = [],
 ) {
@@ -42,6 +73,9 @@ export async function handleFormSubmit(
         item[field] = value;
       }
     });
+
+    let userId = await getUser();
+    item.userId = userId;
 
     // Gérer la case à cocher d'alerte
     const alertCheckbox = form.querySelector(
@@ -129,7 +163,7 @@ export async function handleFormSubmit(
       const isUpdate = hiddenIdInput && hiddenIdInput.value.trim() !== "";
       console.log(isUpdate);
       // Ajouter l'élément dans la base de données
-      await addItemToDatabase(dbName, storeName, keyPath, item, formData);
+      await addItemToDatabase(dbName, storeName, item, formData);
       form.reset();
 
       // Réinitialiser les champs cachés
@@ -148,7 +182,6 @@ export async function handleFormSubmit(
       await updateListing(
         dbName,
         storeName,
-        keyPath,
         requiredFields.concat(optionalFields),
       );
       console.log("Item added log successfully:", item);
@@ -159,11 +192,6 @@ export async function handleFormSubmit(
         // Afficher un message de succès avant de mettre à jour la liste
         toastAlert("success", "Item added successfully!");
       }
-
-      // Vibration pour confirmer
-      if (navigator.vibrate) {
-        navigator.vibrate(200);
-      }
     } catch (error) {
       console.error("Error saving item:", error);
       toastAlert("error", "An error occurred while saving the item.");
@@ -172,18 +200,22 @@ export async function handleFormSubmit(
 }
 
 // Afficher les éléments dans le listage
-async function displayItems(
+export async function displayItems(
   items: (Category | Transaction | Budget)[],
   storeName: string,
   dbName: string,
-  keyPath: string,
   fields: string[],
 ) {
   const listing = document.getElementById(`${storeName}Listing`);
   if (listing) {
     listing.innerHTML = ""; // Réinitialise le contenu de la liste
 
-    if (items.length === 0) {
+    let userId = await getUser();
+    console.log(userId);
+    const userItems = items.filter((item) => item.userId === userId);
+    console.log(userItems);
+
+    if (userItems.length === 0) {
       // Afficher un message si la liste est vide
       const emptyMessage = document.createElement("p");
       emptyMessage.textContent = "Aucun élément à afficher.";
@@ -196,7 +228,7 @@ async function displayItems(
     // Initialisation des variables pour le drag and drop
     let draggedItem: HTMLElement | null = null;
 
-    for (const item of items) {
+    for (const item of userItems) {
       const listItem = document.createElement("li");
       console.log("Processing item:", item);
 
@@ -238,7 +270,6 @@ async function displayItems(
             const category = await getItemById(
               "CategoryDatabase",
               "categories",
-              "id",
               categoryId,
             );
             if (isCategory(category)) {
@@ -326,117 +357,107 @@ async function displayItems(
 
         listItem.appendChild(categoryDiv);
       } else if (isBudget(item)) {
-        try {
-          let categoryName = "";
-          let categoryId = null; // Déclarer `categoryId` dans la portée générale
-
-          if (item.category) {
-            categoryId = Number(item.category);
-            const category = await getItemById(
-              "CategoryDatabase",
-              "categories",
-              "id",
-              categoryId,
-            );
-            if (isCategory(category)) {
-              categoryName = category.name;
-            }
-          } else {
-            categoryName = "Non défini";
-          }
-
-          // Calculer la somme des transactions pour la catégorie et le mois actuel
-          const currentMonth = new Date().getMonth(); // Mois actuel (0-11)
-          const transactions = await getAllItems(
-            "TransactionDatabase",
-            "transactions",
-            "id",
-          );
-
-          // Vérifier si `categoryId` est défini avant de filtrer
-          const filteredTransactions = transactions.filter((transaction) => {
-            if (!isTransaction(transaction)) return false;
-            if (!transaction.category || !transaction.date) return false;
-            const transactionDate = new Date(transaction.date);
-            return (
-              categoryId !== null &&
-              Number(transaction.category) === categoryId &&
-              transactionDate.getMonth() === currentMonth
-            );
-          });
-
-          const totalTransactionAmount = filteredTransactions.reduce(
-            (sum, transaction) => {
-              if (isTransaction(transaction)) {
-                return sum + (transaction.amount || 0);
+          try {
+            let categoryName = "";
+            let categoryId = null;
+        
+            // Vérifier si une catégorie est liée au budget
+            if (item.category) {
+              categoryId = Number(item.category);
+              const category = await getItemById("CategoryDatabase", "categories", categoryId);
+              if (isCategory(category)) {
+                categoryName = category.name;
               }
-              return sum;
-            },
-            0,
-          );
-
-          // Calculer le pourcentage de progression et vérifier si le budget est dépassé
-          const isOverBudget = totalTransactionAmount > item.budget;
-          const progressPercentage = Math.min(
-            (totalTransactionAmount / item.budget) * 100,
-            100,
-          );
-          const overBudgetAmount = totalTransactionAmount - item.budget;
-
-          // Créer les éléments DOM
-          const budgetDiv = document.createElement("div");
-          budgetDiv.classList.add("budget");
-
-          const categoryDiv = document.createElement("div");
-          categoryDiv.classList.add("category");
-          categoryDiv.textContent = `${categoryName}`;
-          budgetDiv.appendChild(categoryDiv);
-
-          const budgetAmountDiv = document.createElement("div");
-          budgetAmountDiv.classList.add("budget-amount");
-          budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget}`;
-          budgetDiv.appendChild(budgetAmountDiv);
-
-          if (isOverBudget) {
-            const overBudgetDiv = document.createElement("div");
-            overBudgetDiv.classList.add("over-budget");
-            overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)}`;
-            budgetDiv.appendChild(overBudgetDiv);
+            } else {
+              categoryName = "Non défini";
+            }
+        
+            // Récupérer le mois actuel
+            const currentMonth = new Date().getMonth(); // Mois actuel (0-11)
+            const currentYear = new Date().getFullYear(); // Année actuelle
+        
+            // Récupérer toutes les transactions de la base de données
+            const transactions = await getAllItems("TransactionDatabase", "transactions");
+        
+            // Filtrer les transactions pour la catégorie et le mois/année en cours
+            const filteredTransactions = transactions.filter((transaction) => {
+              if (!isTransaction(transaction)) return false;
+              if (!transaction.category || !transaction.date) return false;
+              const transactionDate = new Date(transaction.date);
+              return (
+                categoryId !== null &&
+                Number(transaction.category) === categoryId &&
+                transactionDate.getMonth() === currentMonth &&
+                transactionDate.getFullYear() === currentYear
+              );
+            });
+        
+            // Calculer le total des transactions pour la catégorie et le mois
+            const totalTransactionAmount = filteredTransactions.reduce((sum, transaction) => {
+              return sum + (Number(transaction.amount) || 0);
+            }, 0);
+        
+            // Calculer le pourcentage de progression et vérifier si le budget est dépassé
+            const isOverBudget = totalTransactionAmount > item.budget;
+            const progressPercentage = Math.min((totalTransactionAmount / item.budget) * 100, 100);
+            const overBudgetAmount = totalTransactionAmount - item.budget;
+        
+            // Créer l'élément DOM pour afficher le budget
+            const budgetDiv = document.createElement("div");
+            budgetDiv.classList.add("budget");
+        
+            const categoryDiv = document.createElement("div");
+            categoryDiv.classList.add("category");
+            categoryDiv.textContent = `${categoryName}`;
+            budgetDiv.appendChild(categoryDiv);
+        
+            const budgetAmountDiv = document.createElement("div");
+            budgetAmountDiv.classList.add("budget-amount");
+            budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget} €`;
+            budgetDiv.appendChild(budgetAmountDiv);
+        
+            if (isOverBudget) {
+              const overBudgetDiv = document.createElement("div");
+              overBudgetDiv.classList.add("over-budget");
+              overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)} €`;
+              budgetDiv.appendChild(overBudgetDiv);
+            }
+        
+            // Créer la barre de progression
+            const progressContainer = document.createElement("div");
+            progressContainer.classList.add("progress-container");
+        
+            const progressBar = document.createElement("div");
+            progressBar.classList.add("progress-bar");
+            progressBar.style.width = `${progressPercentage}%`;
+        
+            // Changer la couleur de la barre de progression si le budget est dépassé
+            if (isOverBudget) {
+              progressBar.style.backgroundColor = "#ff4d4d"; // Rouge si dépassé
+            }
+        
+            const progressLabel = document.createElement("span");
+            progressLabel.classList.add("progress-label");
+            progressLabel.textContent = isOverBudget
+              ? `Over Budget (${progressPercentage.toFixed(1)}%)`
+              : `${progressPercentage.toFixed(1)}%`;
+        
+            progressContainer.appendChild(progressBar);
+            progressContainer.appendChild(progressLabel);
+            budgetDiv.appendChild(progressContainer);
+        
+            const alertDiv = document.createElement("div");
+            alertDiv.classList.add("alert");
+            alertDiv.textContent = item.alert ? "Alert enabled" : "";
+            budgetDiv.appendChild(alertDiv);
+        
+            listItem.appendChild(budgetDiv);
+        
+          } catch (error) {
+            console.error("Error fetching category for budget:", error);
           }
-
-          // Ajouter la barre de progression
-          const progressContainer = document.createElement("div");
-          progressContainer.classList.add("progress-container");
-
-          const progressBar = document.createElement("div");
-          progressBar.classList.add("progress-bar");
-          progressBar.style.width = `${progressPercentage}%`;
-
-          // Changer la couleur si le budget est dépassé
-          if (isOverBudget) {
-            progressBar.style.backgroundColor = "#ff4d4d"; // Rouge
-          }
-
-          const progressLabel = document.createElement("span");
-          progressLabel.classList.add("progress-label");
-          progressLabel.textContent = isOverBudget
-            ? `Over Budget (${progressPercentage.toFixed(1)}%)`
-            : `${progressPercentage.toFixed(1)}%`;
-
-          progressContainer.appendChild(progressBar);
-          progressContainer.appendChild(progressLabel);
-          budgetDiv.appendChild(progressContainer);
-
-          const alertDiv = document.createElement("div");
-          alertDiv.classList.add("alert");
-          alertDiv.textContent = item.alert ? "Alert enabled" : "";
-          budgetDiv.appendChild(alertDiv);
-
-          listItem.appendChild(budgetDiv);
-        } catch (error) {
-          console.error("Error fetching category for budget:", error);
         }
-      }
+     
 
       // Ajout des boutons d'édition et de suppression
       const buttonContainer = document.createElement("div");
@@ -447,7 +468,6 @@ async function displayItems(
         item,
         dbName,
         storeName,
-        keyPath,
         fields,
       );
 
@@ -466,18 +486,39 @@ async function displayItems(
 export async function updateListing(
   dbName: string,
   storeName: string,
-  keyPath: string,
   fields: string[],
 ) {
   try {
     console.log(`Updating listing for ${storeName}`);
-    const items = await getAllItems(dbName, storeName, keyPath);
-    console.log(`Items fetched for ${storeName}:`, items);
-    await displayItems(items, storeName, dbName, keyPath, fields);
+    const items = await getAllItems(dbName, storeName);
+    console.log('Items retrieved:', items); // Ajouter un log pour voir ce qui est récupéré
+
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth(); // Mois actuel (0-11)
+    const currentYear = currentDate.getFullYear(); // Année actuelle
+    
+    // Filtrer les éléments pour ne garder que ceux du mois et de l'année actuels et de type "budget"
+    let filteredItems = items.filter(item => {
+      if (isBudget(item)) { // Vérifier si l'élément est un budget
+        console.log(`Budget Item: ${item.budget}, Month: ${item.month}, Current Month: ${currentMonth}`);
+        return item.month == currentMonth && item.year == currentYear;
+      } else {
+        return items;
+      }
+    });
+
+    console.log('Filtered Items:', filteredItems); // Affiche les éléments filtrés
+
+    if (filteredItems.length === 0) {
+      console.log("No items to display for the current month/year.");
+    }
+
+    await displayItems(filteredItems, storeName, dbName, fields);
   } catch (error) {
     console.error(`Error updating listing:`, error);
   }
 }
+
 
 // Créer un bouton d'édition pour un élément
 function createEditButton(
@@ -511,7 +552,6 @@ function createDeleteButton(
   item: Category | Transaction | Budget,
   dbName: string,
   storeName: string,
-  keyPath: string,
   fields: string[],
 ): HTMLButtonElement {
   const deleteButton = document.createElement("button");
@@ -526,7 +566,7 @@ function createDeleteButton(
 
   deleteButton.addEventListener("click", () => {
     deleteItem(dbName, storeName, item.id, fields);
-    updateListing(dbName, storeName, keyPath, fields);
+    updateListing(dbName, storeName, fields);
   });
 
   return deleteButton;
