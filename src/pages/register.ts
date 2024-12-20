@@ -1,5 +1,5 @@
-import { hashPassword } from "./utils/hashPassword.js";
-import { openDatabase } from "./utils/openDatabase.js";
+import { hashPassword } from "../core/auth/hashPassword.js";
+import { openDatabase } from "../core/database/openDatabase.js";
 
 // Add user in database
 function addUser(

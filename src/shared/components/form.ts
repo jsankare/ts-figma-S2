@@ -3,12 +3,12 @@ import {
   deleteItem,
   getAllItems,
   getItemById,
-} from "./openDatabase.js";
+} from "../../core/database/openDatabase.js";
 import { displayMessage } from "./alert.js";
-import { uploadImage } from "./uploadImage.js";
-import { Budget, isBudget } from "../budgets.js";
-import { Category, isCategory } from "../categories.js";
-import { isTransaction, Transaction } from "../transactions.js";
+import { uploadImage } from "../../core/database/uploadImage.js";
+import { Budget, isBudget } from "../../pages/budgets.js";
+import { Category, isCategory } from "../../pages/categories.js";
+import { isTransaction, Transaction } from "../../pages/transactions.js";
 
 // Gérer la soumission du formulaire
 export async function handleFormSubmit(

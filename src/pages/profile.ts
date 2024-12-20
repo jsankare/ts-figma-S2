@@ -1,10 +1,10 @@
-import { getCurrentUser } from "./utils/getCurrentUser.js";
-import { openDatabase } from "./utils/openDatabase.js";
-import { logoutLogic } from "./utils/logout.js";
-import { uploadImage } from "./utils/uploadImage.js";
+import { getCurrentUser } from "../core/auth/getCurrentUser.js";
+import { openDatabase } from "../core/database/openDatabase.js";
+import { logoutLogic } from "../core/auth/logout.js";
+import { uploadImage } from "../core/database/uploadImage.js";
 // import { displayLoading } from "./utils/displayLoading.js";
-import { toastAlert } from "./utils/alert.js";
-import { showNotification } from "./utils/notification.js";
+import { toastAlert } from "../shared/components/alert.js";
+import { showNotification } from "../utils/notification.js";
 
 async function displayUserProfile() {
   console.time("profile");

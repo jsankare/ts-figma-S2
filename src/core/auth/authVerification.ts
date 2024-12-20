@@ -1,4 +1,4 @@
-import { openDatabase } from "./openDatabase.js";
+import { openDatabase } from "../database/openDatabase.js";
 import { logoutLogic } from "./logout.js";
 
 function getCookie(name: string): string | null {
