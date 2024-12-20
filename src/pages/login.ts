@@ -1,6 +1,6 @@
-import { hashPassword } from "./utils/hashPassword.js";
-import { getCurrentUser } from "./utils/getCurrentUser.js";
-import { openDatabase } from "./utils/openDatabase.js";
+import { hashPassword } from "../core/auth/hashPassword.js";
+import { getCurrentUser } from "../core/auth/getCurrentUser.js";
+import { openDatabase } from "../core/database/openDatabase.js";
 
 // Generate a random token
 function generateToken(length: number = 32): string {

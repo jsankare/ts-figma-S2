@@ -1,4 +1,4 @@
-import { logoutLogic } from "./logout.js";
+import { logoutLogic } from "../../core/auth/logout.js";
 
 const body = document.getElementById("body");
 
