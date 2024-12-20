@@ -1,7 +1,6 @@
 import { logoutLogic } from "../../core/auth/logout.js";
 
 const body = document.getElementById("body");
-console.log('test');
 if (body) {
   const links = [
     {

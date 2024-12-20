@@ -1,7 +1,5 @@
-<<<<<<< HEAD:src/pages/budgets.ts
 import { handleFormSubmit, updateListing, displayItems } from "../shared/components/form.js"
 import { getAllItems } from "../core/database/openDatabase.js";
->>>>>>> e241337 (correction):src/budgets.ts
 
 export interface Budget {
   id: number;
