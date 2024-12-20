@@ -2,9 +2,9 @@ import { getCurrentUser } from "../core/auth/getCurrentUser.js";
 import { openDatabase } from "../core/database/openDatabase.js";
 import { logoutLogic } from "../core/auth/logout.js";
 import { uploadImage } from "../core/database/uploadImage.js";
-// import { displayLoading } from "./utils/displayLoading.js";
 import { toastAlert } from "../shared/components/alert.js";
 import { showNotification } from "../utils/notification.js";
+// import { displayLoading } from "./utils/displayLoading.js";
 
 async function displayUserProfile() {
   console.time("profile");
@@ -179,10 +179,10 @@ buttons.settingsButton?.addEventListener("click", () => {
 });
 
 buttons.passwordResetButton?.addEventListener("click", () => {
-  toastAlert(
-    "success",
-    "Vous avez cliqué sur 'Reinitialiser mon mot de passe'",
-  );
+  toastAlert("success", "test de toast Success");
+  toastAlert("info", "test de toast Info");
+  toastAlert("warning", "test de toast Warning");
+  toastAlert("error", "test de toast Error");
 });
 
 buttons.logoutButton?.addEventListener("click", () => {

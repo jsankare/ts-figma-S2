@@ -4,7 +4,7 @@ import {
   getAllItems,
   getItemById,
 } from "../../core/database/openDatabase.js";
-import { displayMessage } from "./alert.js";
+import { toastAlert } from "./alert.js";
 import { uploadImage } from "../../core/database/uploadImage.js";
 import { Budget, isBudget } from "../../pages/budgets.js";
 import { Category, isCategory } from "../../pages/categories.js";
@@ -53,7 +53,7 @@ export async function handleFormSubmit(
     for (const field of requiredFields) {
       if (!item[field]) {
         console.error(`Required field missing: ${field}`);
-        displayMessage(`Field "${field}" is required.`, true, `#${formId}`);
+        toastAlert("error", `Field "${field}" is required.`);
         return;
       }
     }
@@ -80,11 +80,7 @@ export async function handleFormSubmit(
         item.icon = svgIconInput.src;
       } catch (error) {
         console.error("Error uploading image:", error);
-        displayMessage(
-          "Error uploading the image. Please try again.",
-          true,
-          `#${formId}`,
-        );
+        toastAlert("error", "Error uploading the image. Please try again.");
         return;
       }
     } else {
@@ -96,20 +92,18 @@ export async function handleFormSubmit(
         // Vérification de la taille et du type de fichier
         if (file.size > maxSize) {
           console.error("File is too large.");
-          displayMessage(
+          toastAlert(
+            "error",
             "The selected file is too large. Please select a file smaller than 5 MB.",
-            true,
-            `#${formId}`,
           );
           return;
         }
 
         if (!allowedTypes.includes(file.type)) {
           console.error("File type is not allowed.");
-          displayMessage(
+          toastAlert(
+            "error",
             "Invalid file type. Please upload a JPEG, PNG, or GIF image.",
-            true,
-            `#${formId}`,
           );
           return;
         }
@@ -120,11 +114,7 @@ export async function handleFormSubmit(
           item.icon = await uploadImage(file);
         } catch (error) {
           console.error("Error uploading image:", error);
-          displayMessage(
-            "Error uploading the image. Please try again.",
-            true,
-            `#${formId}`,
-          );
+          toastAlert("error", "Error uploading the image. Please try again.");
           return;
         }
       }
@@ -161,13 +151,13 @@ export async function handleFormSubmit(
         keyPath,
         requiredFields.concat(optionalFields),
       );
-      console.log("Item added successfully:", item);
+      console.log("Item added log successfully:", item);
 
       if (isUpdate) {
-        displayMessage("Item updated succesfully !", false, `#${listingId}`);
+        toastAlert("success", "Item updated succesfully !");
       } else {
         // Afficher un message de succès avant de mettre à jour la liste
-        displayMessage("Item added successfully!", false, `#${listingId}`);
+        toastAlert("success", "Item added successfully!");
       }
 
       // Vibration pour confirmer
@@ -176,11 +166,7 @@ export async function handleFormSubmit(
       }
     } catch (error) {
       console.error("Error saving item:", error);
-      displayMessage(
-        "An error occurred while saving the item.",
-        true,
-        `#${formId}`,
-      );
+      toastAlert("error", "An error occurred while saving the item.");
     }
   });
 }
