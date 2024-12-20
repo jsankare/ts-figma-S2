@@ -1,4 +1,7 @@
-export function toastAlert(type: "success" | "error", content: string): void {
+export function toastAlert(
+    type: "success" | "error" | "info" | "warning",
+    content: string
+): void {
   const body = document.getElementsByTagName("body")[0];
 
   let container = document.getElementById("toast-container") as HTMLDivElement;
@@ -10,61 +13,45 @@ export function toastAlert(type: "success" | "error", content: string): void {
 
   const toast = document.createElement("div");
   toast.classList.add("toast", type);
-  toast.textContent = content;
 
+  // Add content
+  const contentContainer = document.createElement("div");
+  contentContainer.classList.add("toast-content");
+  contentContainer.textContent = content;
+
+  // Add dismiss button
+  const dismissButton = document.createElement("button");
+  dismissButton.classList.add("dismiss-button");
+  dismissButton.innerHTML = "&times;";
+  dismissButton.onclick = () => {
+    container.removeChild(toast);
+  };
+
+  // Add time indicator
+  const timeIndicator = document.createElement("div");
+  timeIndicator.classList.add("time-indicator");
+
+  toast.appendChild(timeIndicator);
+  toast.appendChild(contentContainer);
+  toast.appendChild(dismissButton);
   container.appendChild(toast);
 
+  // Trigger appearance
   setTimeout(() => {
     toast.classList.add("show");
+    timeIndicator.style.width = "100%";
   }, 100);
 
+  // Auto-remove after 5 seconds
+  const timeoutDuration = 5000;
   setTimeout(() => {
     toast.classList.remove("show");
     setTimeout(() => container.removeChild(toast), 500);
-  }, 5000);
-}
+  }, timeoutDuration);
 
-export function displayMessage(
-  message: string,
-  isError: boolean = true,
-  container: string,
-) {
-  console.log(
-    `Displaying message: ${message} (Error: ${isError}) in container: ${container}`,
-  );
-
-  const messageElement = document.createElement("p");
-  messageElement.textContent = message;
-  messageElement.style.color = isError ? "red" : "green";
-
-  const targetContainer = document.querySelector(container);
-  if (targetContainer) {
-    console.log(`Container found: ${container}`);
-    let messageContainer = targetContainer.querySelector(
-      isError ? ".error" : ".success",
-    ) as HTMLParagraphElement;
-
-    if (!messageContainer) {
-      // Créer un nouvel élément si nécessaire
-      messageContainer = document.createElement("p");
-      messageContainer.className = isError ? "error" : "success";
-      targetContainer.insertBefore(
-        messageContainer,
-        targetContainer.firstChild,
-      ); // Ajouter au début
-    }
-
-    messageContainer.textContent = message;
-
-    // Ajouter un gestionnaire d'événement pour effacer le message lorsqu'un champ est modifié
-    targetContainer
-      .querySelectorAll("input, textarea, select")
-      .forEach((input) => {
-        input.addEventListener("input", () => {
-          if (messageContainer) messageContainer.remove();
-        });
-      });
-  } else {
-    console.error(`Container not found: ${container}`);
-  }
+  // Animate time indicator
+  setTimeout(() => {
+    timeIndicator.style.transition = `width ${timeoutDuration}ms linear`;
+    timeIndicator.style.width = "0";
+  }, 100);
 }
