@@ -18,8 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "categoriesListing",
     "CategoryDatabase",
     "categories",
+    "id",
     ["name", "icon"],
     ["existingIcon"],
   );
-  updateListing("CategoryDatabase", "categories", ["name", "icon"]);
+  updateListing("CategoryDatabase", "categories", "id", ["name", "icon"]);
 });

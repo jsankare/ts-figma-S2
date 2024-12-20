@@ -23,8 +23,7 @@ function updateUserToken(
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readwrite");
     const store = transaction.objectStore("users");
-    const index = store.index("email");
-    const request = index.get(email);
+    const request = store.get(email);
 
     request.onsuccess = () => {
       const userData = request.result;
@@ -61,7 +60,7 @@ async function handleLogin(event: Event) {
   const password = (document.getElementById("password") as HTMLInputElement)
     .value;
 
-  const db = await openDatabase("UserDatabase", "users");
+  const db = await openDatabase("UserDatabase", "users", "email");
   const user = await getCurrentUser(db, email);
   if (!user) {
     alert("L'utilisateur n'existe pas !");

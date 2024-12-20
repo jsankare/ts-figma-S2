@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const categories = await getAllItems(
         "CategoryDatabase",
         "categories",
+        "id",
       );
       console.log("Categories:", categories);
       return categories as Category[];
@@ -162,8 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <hr class="form-separator"/>
           <form class="modal-form" id="budgetsForm" action="">
             <input type="hidden" name="id" id="budgetId">
-            <input type="hidden" id="month" name="month"> 
-            <input type="hidden" id="year" name="year">
             <label class="label label-select" for="budgetCategorySelect">Catégorie</label>
             <select name="category" id="budgetCategorySelect" class="categorySelect input input-select" required>
             </select>
@@ -183,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h1 class="form-title">Ajouter une transaction</h1>
           <hr class="form-separator"/>
           <form class="modal-form" id="transactionsForm" action="">
-            <input type="hidden" name="id" id="transactionId">
+            <input type="hidden" name="id" id="budgetId">
             <label class="label label-text" for="type">Type de transaction</label>
             <select class="input input-text" name="type" id="type" required>
               <option class="input input-select" value="" disabled selected>Choisir un type</option>

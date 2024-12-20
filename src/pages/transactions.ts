@@ -21,10 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
     "transactionsListing",
     "TransactionDatabase",
     "transactions",
-    ["type", "name", "amount", "date"],
-    ["description", "category"],
+    "id",
+    ["type", "name", "amount", "category", "date"],
+    ["description"],
   );
-  updateListing("TransactionDatabase", "transactions",[
+  updateListing("TransactionDatabase", "transactions", "id", [
     "type",
     "name",
     "amount",
