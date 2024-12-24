@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   icon?: string;
   amount?: number;
+  userId: number;
 }
 
 // Gardes de type

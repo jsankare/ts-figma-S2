@@ -3,6 +3,7 @@ export function getCurrentUser(
   email: string,
 ): Promise<
   | {
+      id: number;
       email: string;
       password: string;
       firstname: string;

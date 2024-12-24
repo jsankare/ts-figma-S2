@@ -3,9 +3,9 @@ import {
   deleteItem,
   getAllItems,
   getItemById,
-  openDatabase
+  openDatabase,
 } from "../../core/database/openDatabase.js";
-import { displayMessage } from "./alert.js";
+import { toastAlert } from "./alert.js";
 import { uploadImage } from "../../core/database/uploadImage.js";
 import { Budget, isBudget } from "../../pages/budgets.js";
 import { Category, isCategory } from "../../pages/categories.js";
@@ -20,7 +20,7 @@ async function getUser() {
     console.error("Aucun email trouvé dans localStorage.");
     return null;
   }
-  
+
   try {
     // Attendez la résolution de la promesse retournée par `getCurrentUser`
     const token = await getCurrentUser(db, userEmail);
@@ -40,7 +40,6 @@ async function getUser() {
     return null;
   }
 }
->>>>>>> e241337 (correction):src/utils/form.ts
 
 // Gérer la soumission du formulaire
 export async function handleFormSubmit(
@@ -87,7 +86,7 @@ export async function handleFormSubmit(
     for (const field of requiredFields) {
       if (!item[field]) {
         console.error(`Required field missing: ${field}`);
-        displayMessage(`Field "${field}" is required.`, true, `#${formId}`);
+        toastAlert("error", `Field "${field}" is required.`);
         return;
       }
     }
@@ -114,11 +113,7 @@ export async function handleFormSubmit(
         item.icon = svgIconInput.src;
       } catch (error) {
         console.error("Error uploading image:", error);
-        displayMessage(
-          "Error uploading the image. Please try again.",
-          true,
-          `#${formId}`,
-        );
+        toastAlert("error", "Error uploading the image. Please try again.");
         return;
       }
     } else {
@@ -130,20 +125,17 @@ export async function handleFormSubmit(
         // Vérification de la taille et du type de fichier
         if (file.size > maxSize) {
           console.error("File is too large.");
-          displayMessage(
+          toastAlert(
+            "error",
             "The selected file is too large. Please select a file smaller than 5 MB.",
-            true,
-            `#${formId}`,
           );
           return;
         }
 
         if (!allowedTypes.includes(file.type)) {
-          console.error("File type is not allowed.");
-          displayMessage(
+          toastAlert(
+            "error",
             "Invalid file type. Please upload a JPEG, PNG, or GIF image.",
-            true,
-            `#${formId}`,
           );
           return;
         }
@@ -153,12 +145,7 @@ export async function handleFormSubmit(
         try {
           item.icon = await uploadImage(file);
         } catch (error) {
-          console.error("Error uploading image:", error);
-          displayMessage(
-            "Error uploading the image. Please try again.",
-            true,
-            `#${formId}`,
-          );
+          toastAlert("error", "Error uploading the image. Please try again.");
           return;
         }
       }
@@ -197,18 +184,12 @@ export async function handleFormSubmit(
       console.log("Item added successfully:", item);
 
       if (isUpdate) {
-        displayMessage("Item updated succesfully !", false, `#${listingId}`);
+        toastAlert("info", "Item updated succesfully !");
       } else {
-        // Afficher un message de succès avant de mettre à jour la liste
-        displayMessage("Item added successfully!", false, `#${listingId}`);
+        toastAlert("success", "Item added successfully!");
       }
     } catch (error) {
-      console.error("Error saving item:", error);
-      displayMessage(
-        "An error occurred while saving the item.",
-        true,
-        `#${formId}`,
-      );
+      toastAlert("error", "An error occurred while saving the item.");
     }
   });
 }
@@ -371,119 +352,125 @@ export async function displayItems(
 
         listItem.appendChild(categoryDiv);
       } else if (isBudget(item)) {
-          try {
-            let categoryName = "";
-            let categoryId = null;
-        
-            // Vérifier si une catégorie est liée au budget
-            if (item.category) {
-              categoryId = Number(item.category);
-              const category = await getItemById("CategoryDatabase", "categories", categoryId);
-              if (isCategory(category)) {
-                categoryName = category.name;
-              }
-            } else {
-              categoryName = "Non défini";
+        try {
+          let categoryName = "";
+          let categoryId = null;
+
+          // Vérifier si une catégorie est liée au budget
+          if (item.category) {
+            categoryId = Number(item.category);
+            const category = await getItemById(
+              "CategoryDatabase",
+              "categories",
+              categoryId,
+            );
+            if (isCategory(category)) {
+              categoryName = category.name;
             }
-        
-            // Récupérer le mois actuel
-            const currentMonth = new Date().getMonth(); // Mois actuel (0-11)
-            const currentYear = new Date().getFullYear(); // Année actuelle
-        
-            // Récupérer toutes les transactions de la base de données
-            const transactions = await getAllItems("TransactionDatabase", "transactions");
-        
-            // Filtrer les transactions pour la catégorie et le mois/année en cours
-            const filteredTransactions = transactions.filter((transaction) => {
-              if (!isTransaction(transaction)) return false;
-              if (!transaction.category || !transaction.date) return false;
-              const transactionDate = new Date(transaction.date);
-              return (
-                categoryId !== null &&
-                Number(transaction.category) === categoryId &&
-                transactionDate.getMonth() === currentMonth &&
-                transactionDate.getFullYear() === currentYear
-              );
-            });
-        
-            // Calculer le total des transactions pour la catégorie et le mois
-            const totalTransactionAmount = filteredTransactions.reduce((sum, transaction) => {
-              return sum + (Number(transaction.amount) || 0);
-            }, 0);
-        
-            // Calculer le pourcentage de progression et vérifier si le budget est dépassé
-            const isOverBudget = totalTransactionAmount > item.budget;
-            const progressPercentage = Math.min((totalTransactionAmount / item.budget) * 100, 100);
-            const overBudgetAmount = totalTransactionAmount - item.budget;
-        
-            // Créer l'élément DOM pour afficher le budget
-            const budgetDiv = document.createElement("div");
-            budgetDiv.classList.add("budget");
-        
-            const categoryDiv = document.createElement("div");
-            categoryDiv.classList.add("category");
-            categoryDiv.textContent = `${categoryName}`;
-            budgetDiv.appendChild(categoryDiv);
-        
-            const budgetAmountDiv = document.createElement("div");
-            budgetAmountDiv.classList.add("budget-amount");
-            budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget} €`;
-            budgetDiv.appendChild(budgetAmountDiv);
-        
-            if (isOverBudget) {
-              const overBudgetDiv = document.createElement("div");
-              overBudgetDiv.classList.add("over-budget");
-              overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)} €`;
-              budgetDiv.appendChild(overBudgetDiv);
-            }
-        
-            // Créer la barre de progression
-            const progressContainer = document.createElement("div");
-            progressContainer.classList.add("progress-container");
-        
-            const progressBar = document.createElement("div");
-            progressBar.classList.add("progress-bar");
-            progressBar.style.width = `${progressPercentage}%`;
-        
-            // Changer la couleur de la barre de progression si le budget est dépassé
-            if (isOverBudget) {
-              progressBar.style.backgroundColor = "#ff4d4d"; // Rouge si dépassé
-            }
-        
-            const progressLabel = document.createElement("span");
-            progressLabel.classList.add("progress-label");
-            progressLabel.textContent = isOverBudget
-              ? `Over Budget (${progressPercentage.toFixed(1)}%)`
-              : `${progressPercentage.toFixed(1)}%`;
-        
-            progressContainer.appendChild(progressBar);
-            progressContainer.appendChild(progressLabel);
-            budgetDiv.appendChild(progressContainer);
-        
-            const alertDiv = document.createElement("div");
-            alertDiv.classList.add("alert");
-            alertDiv.textContent = item.alert ? "Alert enabled" : "";
-            budgetDiv.appendChild(alertDiv);
-        
-            listItem.appendChild(budgetDiv);
-        
-          } catch (error) {
-            console.error("Error fetching category for budget:", error);
+          } else {
+            categoryName = "Non défini";
           }
+
+          // Récupérer le mois actuel
+          const currentMonth = new Date().getMonth(); // Mois actuel (0-11)
+          const currentYear = new Date().getFullYear(); // Année actuelle
+
+          // Récupérer toutes les transactions de la base de données
+          const transactions = await getAllItems(
+            "TransactionDatabase",
+            "transactions",
+          );
+
+          // Filtrer les transactions pour la catégorie et le mois/année en cours
+          const filteredTransactions = transactions.filter((transaction) => {
+            if (!isTransaction(transaction)) return false;
+            if (!transaction.category || !transaction.date) return false;
+            const transactionDate = new Date(transaction.date);
+            return (
+              categoryId !== null &&
+              Number(transaction.category) === categoryId &&
+              transactionDate.getMonth() === currentMonth &&
+              transactionDate.getFullYear() === currentYear
+            );
+          });
+
+          // Calculer le total des transactions pour la catégorie et le mois
+          const totalTransactionAmount = filteredTransactions.reduce(
+            (sum, transaction) => {
+              return sum + (Number(transaction.amount) || 0);
+            },
+            0,
+          );
+
+          // Calculer le pourcentage de progression et vérifier si le budget est dépassé
+          const isOverBudget = totalTransactionAmount > item.budget;
+          const progressPercentage = Math.min(
+            (totalTransactionAmount / item.budget) * 100,
+            100,
+          );
+          const overBudgetAmount = totalTransactionAmount - item.budget;
+
+          // Créer l'élément DOM pour afficher le budget
+          const budgetDiv = document.createElement("div");
+          budgetDiv.classList.add("budget");
+
+          const categoryDiv = document.createElement("div");
+          categoryDiv.classList.add("category");
+          categoryDiv.textContent = `${categoryName}`;
+          budgetDiv.appendChild(categoryDiv);
+
+          const budgetAmountDiv = document.createElement("div");
+          budgetAmountDiv.classList.add("budget-amount");
+          budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget} €`;
+          budgetDiv.appendChild(budgetAmountDiv);
+
+          if (isOverBudget) {
+            const overBudgetDiv = document.createElement("div");
+            overBudgetDiv.classList.add("over-budget");
+            overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)} €`;
+            budgetDiv.appendChild(overBudgetDiv);
+          }
+
+          // Créer la barre de progression
+          const progressContainer = document.createElement("div");
+          progressContainer.classList.add("progress-container");
+
+          const progressBar = document.createElement("div");
+          progressBar.classList.add("progress-bar");
+          progressBar.style.width = `${progressPercentage}%`;
+
+          // Changer la couleur de la barre de progression si le budget est dépassé
+          if (isOverBudget) {
+            progressBar.style.backgroundColor = "#ff4d4d"; // Rouge si dépassé
+          }
+
+          const progressLabel = document.createElement("span");
+          progressLabel.classList.add("progress-label");
+          progressLabel.textContent = isOverBudget
+            ? `Over Budget (${progressPercentage.toFixed(1)}%)`
+            : `${progressPercentage.toFixed(1)}%`;
+
+          progressContainer.appendChild(progressBar);
+          progressContainer.appendChild(progressLabel);
+          budgetDiv.appendChild(progressContainer);
+
+          const alertDiv = document.createElement("div");
+          alertDiv.classList.add("alert");
+          alertDiv.textContent = item.alert ? "Alert enabled" : "";
+          budgetDiv.appendChild(alertDiv);
+
+          listItem.appendChild(budgetDiv);
+        } catch (error) {
+          console.error("Error fetching category for budget:", error);
         }
-     
+      }
 
       // Ajout des boutons d'édition et de suppression
       const buttonContainer = document.createElement("div");
       buttonContainer.classList.add("action");
       const editButton = createEditButton(item, storeName);
       const copyButton = createCopyButton(item, storeName);
-      const deleteButton = createDeleteButton(
-        item,
-        dbName,
-        storeName,
-        fields,
-      );
+      const deleteButton = createDeleteButton(item, dbName, storeName, fields);
 
       buttonContainer.appendChild(editButton);
       buttonContainer.appendChild(copyButton);
@@ -505,23 +492,26 @@ export async function updateListing(
   try {
     console.log(`Updating listing for ${storeName}`);
     const items = await getAllItems(dbName, storeName);
-    console.log('Items retrieved:', items); // Ajouter un log pour voir ce qui est récupéré
+    console.log("Items retrieved:", items); // Ajouter un log pour voir ce qui est récupéré
 
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth(); // Mois actuel (0-11)
     const currentYear = currentDate.getFullYear(); // Année actuelle
-    
+
     // Filtrer les éléments pour ne garder que ceux du mois et de l'année actuels et de type "budget"
-    let filteredItems = items.filter(item => {
-      if (isBudget(item)) { // Vérifier si l'élément est un budget
-        console.log(`Budget Item: ${item.budget}, Month: ${item.month}, Current Month: ${currentMonth}`);
-        return item.month == currentMonth && item.year == currentYear;
+    let filteredItems = items.filter((item) => {
+      if (isBudget(item)) {
+        // Vérifier si l'élément est un budget
+        console.log(
+          `Budget Item: ${item.budget}, Month: ${item.month}, Current Month: ${currentMonth}`,
+        );
+        return item.month === currentMonth && item.year === currentYear;
       } else {
         return items;
       }
     });
 
-    console.log('Filtered Items:', filteredItems); // Affiche les éléments filtrés
+    console.log("Filtered Items:", filteredItems); // Affiche les éléments filtrés
 
     if (filteredItems.length === 0) {
       console.log("No items to display for the current month/year.");
@@ -532,7 +522,6 @@ export async function updateListing(
     console.error(`Error updating listing:`, error);
   }
 }
-
 
 // Créer un bouton d'édition pour un élément
 function createEditButton(
