@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-        <link href="styles/global.css" rel="stylesheet">
-        <link href="styles.css" rel="stylesheet">
-    </head>
-    <body>
-        <form action="">
-            <label for="mail">Mail</label>
-            <input type="email" name="mail" id="mail" required>
-            <label for="password">Mot de passe</label>
-            <input type="password" name="password" id="password" required>
-            <input type="submit" value="Se connecter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker - login</title>
+    <link href="styles.css" rel="stylesheet">
+    <link href="styles/auth.css" rel="stylesheet">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="assets/logo_no_bg.svg" alt="Expense Tracker Logo" class="logo">
+            <h1 class="auth-title">Bienvenue !</h1>
+            <p class="auth-subtitle">connectez-vous pour gérer vos dépenses</p>
+        </div>
+
+        <img src="assets/man-with-hand-on-chin-svgrepo-com.svg" alt="Login Illustration" class="auth-illustration">
+
+        <form class="form">
+            <div class="form-group">
+                <label class="label" for="mail">Email</label>
+                <input class="input" type="email" name="mail" id="mail" required placeholder="Votre adresse email">
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="password">Mot de passe</label>
+                <input class="input" type="password" name="password" id="password" required placeholder="Votre mot de passe">
+            </div>
+
+            <button type="submit" class="submit-button">Me connecter</button>
         </form>
-        <p>Pas de compte ? <a href="/register.html" >Créer un compte</a></p>
-        <script type="module" src="dist/pages/login.js"></script>
-    </body>
+
+        <div class="auth-footer">
+            Pas encore de compte ? <a href="/register.html" class="auth-link">en créer un</a>
+        </div>
+    </div>
+</div>
+<script type="module" src="dist/pages/login.js"></script>
+</body>
 </html>

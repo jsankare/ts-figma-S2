@@ -1,8 +1,5 @@
 body {
     min-height: 100vh;
-    #main {
-        padding: 1rem 2.5rem;
-    }
 }
 
 .form {
@@ -12,4 +9,73 @@ body {
     justify-content: center;
     gap: 1rem;
     width: 100%;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+    gap: 3rem;
+}
+
+.page-header {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+    min-height: 7.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 2rem;
+    border-radius: 1rem;
+
+    h1 {
+        font-weight: 800;
+        font-size: 2.25rem;
+    }
+
+    button {
+        font-size: 1rem;
+        padding: 1.5rem 4rem;
+        background-color: #4299E1;
+        border-radius: 1.5rem;
+        color: white;
+        font-weight: 700;
+    }
+}
+
+.empty-data {
+    width: 100%;
+    background-color: white;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 0.5rem;
+    h2 {
+        font-size: 3rem;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    h3 {
+        color: #C1C1C1;
+    }
+}
+
+.empty-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    svg {
+        height: 5rem;
+        width: 5rem;
+    }
 }

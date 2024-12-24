@@ -3,26 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Expense Tracker - Creation de compte</title>
     <link href="styles.css" rel="stylesheet">
-    <link href="styles/global.css" rel="stylesheet">
-    <link href="styles/register.css" rel="stylesheet">
+    <link href="styles/auth.css" rel="stylesheet">
 </head>
 <body>
-    <form class="form form--register" action="">
-        <label class="label" for="firstname">Votre nom</label>
-        <input class="input" type="text" name="firstname" id="firstname" required>
-        <label class="label" for="lastname">Votre prénom</label>
-        <input class="input" type="text" name="lastname" id="lastname" required>
-        <label class="label" for="mail">Mail</label>
-        <input class="input" type="email" name="mail" id="mail" required>
-        <label class="label" for="password">Mot de passe</label>
-        <input class="input" type="password" name="password" id="password" required>
-        <label class="label" for="confirm-password">Confirmation du mot de passe</label>
-        <input class="input" type="password" name="confirm-password" id="confirm-password" required>
-        <button class="submit" type="submit">S'inscrire</button>
-    </form>
-    <p>Déjà un compte ? <a href="/login.html" >Me connecter</a></p>
-    <script type="module" src="dist/pages/register.js"></script>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="assets/logo_no_bg.svg" alt="Expense Tracker Logo" class="logo">
+            <h1 class="auth-title">Création de compte</h1>
+            <p class="auth-subtitle">Gérez vos dépenses aujourd'hui !</p>
+        </div>
+
+        <img src="assets/man-voting-svgrepo-com.svg" alt="Register Illustration" class="auth-illustration">
+
+        <form class="form">
+            <div class="form-group">
+                <label class="label" for="firstname">Prénom</label>
+                <input class="input" type="text" name="firstname" id="firstname" required placeholder="John">
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="lastname">Nom</label>
+                <input class="input" type="text" name="lastname" id="lastname" required placeholder="Malkovich">
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="mail">Email</label>
+                <input class="input" type="email" name="mail" id="mail" required placeholder="john.malkovich@mail.fr">
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="password">Mot de passe</label>
+                <input class="input" type="password" name="password" id="password" required placeholder="Mot de passe">
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="confirm-password">Confirmation de mot de passe</label>
+                <input class="input" type="password" name="confirm-password" id="confirm-password" required placeholder="Confirmez votre mot de passe">
+            </div>
+
+            <button type="submit" class="submit-button">Créer mon compte</button>
+        </form>
+
+        <div class="auth-footer">
+            Déjà un compte ? <a href="/login.html" class="auth-link">Se connecter</a>
+        </div>
+    </div>
+</div>
+<script type="module" src="dist/pages/register.js"></script>
 </body>
 </html>
