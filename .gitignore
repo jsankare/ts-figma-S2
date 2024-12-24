@@ -45,3 +45,5 @@ pnpm-lock.yaml
 
 src/config.ts
 public/dist/config.js
+
+.env

@@ -9,6 +9,7 @@ export interface Transaction {
   category: string;
   date: string;
   description: string;
+  userId: number;
 }
 
 export function isTransaction(item: any): item is Transaction {
@@ -24,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ["type", "name", "amount", "date"],
     ["description", "category"],
   );
-  updateListing("TransactionDatabase", "transactions",[
+  updateListing("TransactionDatabase", "transactions", [
     "type",
     "name",
     "amount",

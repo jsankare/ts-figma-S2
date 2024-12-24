@@ -1,4 +1,8 @@
-import { handleFormSubmit, updateListing, displayItems } from "../shared/components/form.js"
+import {
+  handleFormSubmit,
+  updateListing,
+  displayItems,
+} from "../shared/components/form.js";
 import { getAllItems } from "../core/database/openDatabase.js";
 
 export interface Budget {
@@ -8,6 +12,7 @@ export interface Budget {
   alert?: boolean;
   month: number; // Mois entre 1 et 12 (base de données)
   year: number;
+  userId: number;
 }
 
 export function isBudget(item: any): item is Budget {
@@ -22,14 +27,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const yearInput = document.getElementById("year");
 
   let currentDate = new Date(); // Mois et année actuels
-  
+
   // Afficher le mois et l'année actuels (en utilisant les mois 0-11 pour les calculs)
   function updateMonthLabel() {
     const month = currentDate.getMonth(); // Mois (0-11)
     const year = currentDate.getFullYear(); // Année
     const monthNames = [
-      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Août",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre",
     ];
     if (currentMonthLabel && monthInput && yearInput) {
       currentMonthLabel.textContent = `${monthNames[month]} ${year}`; // Affichage avec 0-11 pour les calculs
@@ -39,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Passer au mois précédent
-  if(prevMonthButton){
+  if (prevMonthButton) {
     prevMonthButton.addEventListener("click", () => {
       currentDate.setMonth(currentDate.getMonth() - 1); // Réduction du mois
       updateMonthLabel();
@@ -47,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Passer au mois suivant
-  if (nextMonthButton){
+  if (nextMonthButton) {
     nextMonthButton.addEventListener("click", () => {
       currentDate.setMonth(currentDate.getMonth() + 1); // Augmenter le mois
       updateMonthLabel();
@@ -64,11 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
     "BudgetDatabase",
     "budgets",
     ["category", "budget", "year", "month"],
-    ["alert"]
+    ["alert"],
   );
 
   // Mettre à jour le listing des budgets
-  updateListing("BudgetDatabase", "budgets", ["category", "budget", "alert", "year", "month"]);
+  updateListing("BudgetDatabase", "budgets", [
+    "category",
+    "budget",
+    "alert",
+    "year",
+    "month",
+  ]);
 });
 
 // Variables pour suivre le mois actuel (0-11)
@@ -78,8 +99,18 @@ let currentYear = new Date().getFullYear(); // Année actuelle
 // Fonction pour formater et afficher le mois/année dans le label
 function updateMonthLabel() {
   const months = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
   ];
   const monthLabel = document.getElementById("currentMonthLabel");
   if (monthLabel) {
@@ -111,17 +142,25 @@ function changeMonth(offset: number) {
 }
 
 // Écoute des clics sur les boutons "Mois Précédent" et "Mois Suivant"
-document.getElementById("prevMonth")?.addEventListener("click", () => changeMonth(-1));
-document.getElementById("nextMonth")?.addEventListener("click", () => changeMonth(1));
+document
+  .getElementById("prevMonth")
+  ?.addEventListener("click", () => changeMonth(-1));
+document
+  .getElementById("nextMonth")
+  ?.addEventListener("click", () => changeMonth(1));
 
 // Fonction pour mettre à jour le listing pour le mois actuel
 async function updateListingForMonth() {
   try {
     console.log(`Updating listing for ${currentMonth}/${currentYear}`);
     const items = await getAllItems("BudgetDatabase", "budgets");
-    const filteredItems = items.filter(item => {
+    const filteredItems = items.filter((item) => {
       // On vérifie ici que le mois en base de données (1-12) correspond au mois interne (0-11)
-      return isBudget(item) && item.month == currentMonth && item.year == currentYear; // Mois 1-12 pour la base de données
+      return (
+        isBudget(item) &&
+        item.month === currentMonth &&
+        item.year === currentYear
+      ); // Mois 1-12 pour la base de données
     });
     console.log(filteredItems);
     await displayItems(filteredItems, "budgets", "BudgetDatabase", []);

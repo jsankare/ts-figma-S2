@@ -1,35 +1,52 @@
-import { toastAlert } from "./alert.js"; 
-import { openDatabase } from "../../core/database/openDatabase.js"; 
-import { hashPassword } from "../../core/auth/hashPassword.js"; 
+import { toastAlert } from "./alert.js";
+import { openDatabase } from "../../core/database/openDatabase.js";
+import { hashPassword } from "../../core/auth/hashPassword.js";
 
 export function displayPasswordResetForm() {
-  const formContainer = document.getElementById("profile--wrapper") as HTMLElement;
+  const formContainer = document.getElementById(
+    "profile--wrapper",
+  ) as HTMLElement;
 
   formContainer.innerHTML = `
-    <form id="password-reset-form">
-      <label for="current-password">Mot de passe actuel</label>
-      <input type="password" id="current-password" name="current-password" required>
+    <form class="form" id="password-reset-form">
+    
+      <div class="form-group">
+        <label class="label" for="current-password">Mot de passe actuel</label>
+        <input class="input" type="password" id="current-password" name="current-password" required>
+      </div>
+        
+      <div class="form-group">
+        <label class="label" for="new-password">Nouveau mot de passe</label>
+        <input class="input" type="password" id="new-password" name="new-password" required>
+      </div>
       
-      <label for="new-password">Nouveau mot de passe</label>
-      <input type="password" id="new-password" name="new-password" required>
-      
-      <label for="confirm-password">Confirmer le mot de passe</label>
-      <input type="password" id="confirm-password" name="confirm-password" required>
-      
-      <button type="submit">Réinitialiser le mot de passe</button>
+      <div class="form-group">
+        <label class="label" for="confirm-password">Confirmer le mot de passe</label>
+        <input class="input" type="password" id="confirm-password" name="confirm-password" required>
+      </div>
+
+      <button class="submit-button" type="submit">Réinitialiser le mot de passe</button>
     </form>
   `;
 
-  const form = document.getElementById("password-reset-form") as HTMLFormElement;
+  const form = document.getElementById(
+    "password-reset-form",
+  ) as HTMLFormElement;
   form.addEventListener("submit", handlePasswordFormSubmit);
 }
 
 async function handlePasswordFormSubmit(event: Event) {
   event.preventDefault();
 
-  const currentPassword = (document.getElementById("current-password") as HTMLInputElement).value.trim();
-  const newPassword = (document.getElementById("new-password") as HTMLInputElement).value.trim();
-  const confirmPassword = (document.getElementById("confirm-password") as HTMLInputElement).value.trim();
+  const currentPassword = (
+    document.getElementById("current-password") as HTMLInputElement
+  ).value.trim();
+  const newPassword = (
+    document.getElementById("new-password") as HTMLInputElement
+  ).value.trim();
+  const confirmPassword = (
+    document.getElementById("confirm-password") as HTMLInputElement
+  ).value.trim();
 
   if (newPassword !== confirmPassword) {
     toastAlert("error", "Les mots de passe ne correspondent pas.");
@@ -44,12 +61,18 @@ async function handlePasswordFormSubmit(event: Event) {
     await updatePassword(hashedCurrentPassword, hashedNewPassword);
     toastAlert("success", "Mot de passe réinitialisé avec succès.");
   } catch (error) {
-    toastAlert("error", error instanceof Error ? error.message : "Erreur inconnue.");
+    toastAlert(
+      "error",
+      error instanceof Error ? error.message : "Erreur inconnue.",
+    );
   }
 }
 
 // Fonction pour mettre à jour le mot de passe de l'utilisateur
-async function updatePassword(currentPassword: string, newPassword: string): Promise<void> {
+async function updatePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
   const db = await openDatabase("UserDatabase", "users");
 
   console.log("Début de la mise à jour du mot de passe");
@@ -65,7 +88,10 @@ async function updatePassword(currentPassword: string, newPassword: string): Pro
     throw new Error("Utilisateur non connecté.");
   }
 
-  console.log("Recherche de l'utilisateur dans la base de données pour l'email :", userEmail);
+  console.log(
+    "Recherche de l'utilisateur dans la base de données pour l'email :",
+    userEmail,
+  );
 
   // Recherche de l'utilisateur dans la base de données
   const userRequest = index.get(userEmail);
@@ -86,7 +112,9 @@ async function updatePassword(currentPassword: string, newPassword: string): Pro
       throw new Error("Mot de passe actuel incorrect.");
     }
 
-    console.log("Mot de passe actuel vérifié, mise à jour du nouveau mot de passe");
+    console.log(
+      "Mot de passe actuel vérifié, mise à jour du nouveau mot de passe",
+    );
 
     // Mise à jour du mot de passe de l'utilisateur
     user.password = newPassword;
