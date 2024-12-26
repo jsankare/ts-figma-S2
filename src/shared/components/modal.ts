@@ -56,10 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchCategories(): Promise<Category[]> {
     console.log("Fetching categories...");
     try {
-      const categories = await getAllItems(
-        "CategoryDatabase",
-        "categories",
-      );
+      const categories = await getAllItems("CategoryDatabase", "categories");
       console.log("Categories:", categories);
       return categories as Category[];
     } catch (error) {

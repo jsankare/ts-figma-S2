@@ -24,7 +24,10 @@ export function openDatabase(
       const db = request.result;
 
       if (!db.objectStoreNames.contains(dataName)) {
-        const dataStore = db.createObjectStore(dataName, { keyPath: 'id', autoIncrement: true });
+        const dataStore = db.createObjectStore(dataName, {
+          keyPath: "id",
+          autoIncrement: true,
+        });
         if (dataName === "users") {
           dataStore.createIndex("token", "token", { unique: false });
           dataStore.createIndex("email", "email", { unique: true });
@@ -34,7 +37,7 @@ export function openDatabase(
           const transaction = db.transaction(dataName, "versionchange");
           const dataStore = transaction.objectStore(dataName);
           dataStore.createIndex("email", "email", { unique: true });
-          
+
           if (!dataStore.indexNames.contains("token")) {
             dataStore.createIndex("token", "token", { unique: false });
             console.log(
@@ -61,11 +64,11 @@ export async function addItemToDatabase(
 
   // Gérer l'ID de l'élément
   if (formData.get("id")) {
-    item['id'] = parseInt(formData.get("id") as string, 10);
-    console.log("Updating item with ID:", item['id']);
+    item.id = parseInt(formData.get("id") as string, 10);
+    console.log("Updating item with ID:", item.id);
   } else {
     const newId = await generateUniqueId(store);
-    item['id'] = newId;
+    item.id = newId;
     console.log("Generated new ID:", newId);
   }
 
@@ -94,9 +97,7 @@ export async function addItemToDatabase(
 }
 
 // Générer un ID unique pour les nouveaux éléments
-async function generateUniqueId(
-  store: IDBObjectStore,
-): Promise<number> {
+async function generateUniqueId(store: IDBObjectStore): Promise<number> {
   console.log("Generating unique ID...");
   const cursorRequest = store.openCursor(null, "prev");
   return new Promise<number>((resolve, reject) => {
@@ -104,7 +105,7 @@ async function generateUniqueId(
       const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
       if (cursor) {
         console.log("Found cursor:", cursor);
-        resolve(cursor.value['id'] + 1);
+        resolve(cursor.value.id + 1);
       } else {
         console.log("No previous cursor found, starting from ID 1");
         resolve(1);
