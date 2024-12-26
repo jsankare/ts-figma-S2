@@ -7,10 +7,12 @@ import { toastAlert } from "../shared/components/alert.js";
 import { showNotification } from "../utils/notification.js";
 import { displayPasswordResetForm } from "../shared/components/passwordReset.js";
 import { displayAccountSettingsForm } from "../shared/components/userSetting.js";
+import isVisible from "../utils/visibility.js"
 
 displayUserProfile();
 async function displayUserProfile() {
   console.time("profile");
+  isVisible();
   try {
     const db = await openDatabase("UserDatabase", "users");
     const userEmail = localStorage.getItem("userMail");
