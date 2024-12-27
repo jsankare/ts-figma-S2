@@ -181,12 +181,11 @@ export async function handleFormSubmit(
         storeName,
         requiredFields.concat(optionalFields),
       );
-      console.log("Item added successfully:", item);
 
       if (isUpdate) {
-        toastAlert("info", "Item updated succesfully !");
+        toastAlert("info", `${storeName} updated successfully !`);
       } else {
-        toastAlert("success", "Item added successfully!");
+        toastAlert("success", `${storeName} added successfully!`);
       }
     } catch (error) {
       toastAlert("error", "An error occurred while saving the item.");
@@ -202,21 +201,59 @@ export async function displayItems(
   fields: string[],
 ) {
   const listing = document.getElementById(`${storeName}Listing`);
+  console.log("this log", storeName)
   if (listing) {
     listing.innerHTML = ""; // Réinitialise le contenu de la liste
 
     let userId = await getUser();
     console.log(userId);
     const userItems = items.filter((item) => item.userId === userId);
-    console.log(userItems);
+    console.log("Filtered user items:", userItems);
 
     if (userItems.length === 0) {
       // Afficher un message si la liste est vide
-      const emptyMessage = document.createElement("p");
-      emptyMessage.textContent = "Aucun élément à afficher.";
-      emptyMessage.style.color = "gray";
-      emptyMessage.style.textAlign = "center";
-      listing.appendChild(emptyMessage);
+      const emptySection = document.createElement("section");
+      emptySection.className = "empty-data";
+      
+      const emptyIcon = document.createElement("div");
+      emptyIcon.className = "empty-icon";
+      
+      const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      svgElement.setAttribute("viewBox", "0 0 576 512");
+      svgElement.innerHTML = `
+        <path d="M88.7 223.8L0 375.8 0 96C0 60.7 28.7 32 64 32l117.5 0c17 0 33.3 6.7 45.3 18.7l26.5 26.5c12 12 28.3 18.7 45.3 18.7L416 96c35.3 0 64 28.7 64 64l0 32-336 0c-22.8 0-43.8 12.1-55.3 31.8zm27.6 16.1C122.1 230 132.6 224 144 224l400 0c11.5 0 22 6.1 27.7 16.1s5.7 22.2-.1 32.1l-112 192C453.9 474 443.4 480 432 480L32 480c-11.5 0-22-6.1-27.7-16.1s-5.7-22.2 .1-32.1l112-192z"/>
+      `;
+      
+      emptyIcon.appendChild(svgElement);
+      
+      const emptySubtitle = document.createElement("h2");
+      emptySubtitle.className = "empty-subtitle";
+      if (storeName === "budgets") {
+        emptySubtitle.textContent = "Aucun budget";
+      } else if (storeName === "categories") {
+        emptySubtitle.textContent = "Aucune catégorie";
+      } else {
+        emptySubtitle.textContent = "Aucune transaction";
+      }
+      
+      const emptyLowercase = document.createElement("h3");
+      emptyLowercase.className = "empty-lowercase";
+      if (storeName === "budgets") {
+        emptyLowercase.textContent = "Commencez par créer un budget";
+      } else if (storeName === "categories") {
+        emptyLowercase.textContent = "Commencez par créer une catégorie";
+      } else {
+        emptyLowercase.textContent = "Commencez par créer une transaction";
+      }
+      
+      
+      emptySection.appendChild(emptyIcon);
+      emptySection.appendChild(emptySubtitle);
+      emptySection.appendChild(emptyLowercase);
+      
+      listing.appendChild(emptySection);
+      
       return; // Arrêter l'exécution si aucun élément à afficher
     }
 
@@ -499,17 +536,18 @@ export async function updateListing(
     const currentYear = currentDate.getFullYear(); // Année actuelle
 
     // Filtrer les éléments pour ne garder que ceux du mois et de l'année actuels et de type "budget"
-    let filteredItems = items.filter((item) => {
-      if (isBudget(item)) {
-        // Vérifier si l'élément est un budget
-        console.log(
-          `Budget Item: ${item.budget}, Month: ${item.month}, Current Month: ${currentMonth}`,
-        );
-        return item.month === currentMonth && item.year === currentYear;
-      } else {
-        return items;
-      }
-    });
+    let filteredItems = items;
+    if (storeName === "budgets") {
+      filteredItems = items.filter((item) => {
+        if (isBudget(item)) {
+          return (
+            Number(item.month) === currentMonth &&
+            Number(item.year) === currentYear
+          );
+        }
+        return false;
+      });
+    }
 
     console.log("Filtered Items:", filteredItems); // Affiche les éléments filtrés
 

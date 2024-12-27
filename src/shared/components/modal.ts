@@ -4,6 +4,8 @@ import { getIcons } from "../../utils/get-icons.js";
 
 const icons = getIcons();
 
+const today = new Date().toISOString().split('T')[0];
+
 function getCategoryIcons(): void {
   const iconsContainer = document.getElementById("iconsContainer");
   if (!iconsContainer) {
@@ -196,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <label class="label label-select" for="transactionCategorySelect">Catégorie</label>
             <select name="category" id="transactionCategorySelect" class="input input-select categorySelect" required></select>
             <label class="label label-date" for="date">Date</label>
-            <input class="input input-date" type="date" name="date" id="date" required>
+            <input class="input input-date" type="date" name="date" id="date" value="${today}" required>
           `;
       default:
         console.error("Unknown form type");
