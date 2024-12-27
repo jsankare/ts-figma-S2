@@ -62,9 +62,6 @@ export function displayAccountSettingsForm(user) {
         </div>
       </div>
       
-      <label class="label label-text" for="notifications">Notifications</label>
-      <input class="input-checkbox" type="checkbox" id="notifications" name="notifications" ${user.notifications ? "checked" : ""}>
-      
       <label class="label label-text" for="language">Langue</label>
       <select id="language" name="language" required>
         <option value="fr" ${user.language === "fr" ? "selected" : ""}>Français</option>

@@ -15,14 +15,14 @@
     </head>
     <body id="body">
         <main id="main">
-            <h1>Catégories</h1>
-            <button id="openModal">Ajouter une catégorie</button>
-            <div id="modal" class="modal" data-type="category">
-            </div>
 
-            <div id="categoriesListing" class="list">
+            <section class="page-header">
+                <h1 class="transactions-title">Gérer les catégories</h1>
+                <button class="cta-transaction" id="openModal">+ Nouvelle catégorie</button>
+            </section>
 
-            </div>
+            <div id="modal" class="modal" data-type="category"></div>
+            <div id="categoriesListing" class="list"></div>
         </main>
         <script type="module" src="dist/shared/components/navbar.js"></script>
         <script type="module" src="dist/core/auth/authVerification.js"></script>
