@@ -4,6 +4,16 @@ import { openDatabase } from "../../core/database/openDatabase.js";
 
 const API_KEY_GOOGLE = "AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8";
 
+interface UserSettings {
+  email: string;
+  firstname: string;
+  lastname: string;
+  address?: string;
+  currency?: string;
+  notifications?: boolean;
+  language?: string;
+}
+
 // Fonction pour charger dynamiquement le script de Google Maps
 function loadGoogleMapsAPI(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -26,7 +36,7 @@ function loadGoogleMapsAPI(): Promise<void> {
   });
 }
 
-export function displayAccountSettingsForm(user) {
+export function displayAccountSettingsForm(user: UserSettings) {
   const formContainer = document.getElementById(
     "profile--wrapper",
   ) as HTMLElement;

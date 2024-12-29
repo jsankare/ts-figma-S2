@@ -432,12 +432,12 @@ export async function displayItems(
           });
 
           // Calculer le total des transactions pour la catégorie et le mois
-          const totalTransactionAmount = filteredTransactions.reduce(
-            (sum, transaction) => {
+          const totalTransactionAmount = filteredTransactions.reduce((sum, transaction) => {
+            if (isTransaction(transaction)) {
               return sum + (Number(transaction.amount) || 0);
-            },
-            0,
-          );
+            }
+            return sum;
+          }, 0);
 
           // Calculer le pourcentage de progression et vérifier si le budget est dépassé
           const isOverBudget = totalTransactionAmount > item.budget;

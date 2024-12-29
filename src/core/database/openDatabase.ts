@@ -5,6 +5,7 @@ import { Transaction } from "../../pages/transactions.js";
 export function openDatabase(
   dbName: string,
   dataName: string,
+  indexField?: string
 ): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request: IDBOpenDBRequest = indexedDB.open(dbName, 1);
