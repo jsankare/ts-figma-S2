@@ -5,21 +5,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Page principale</title>
         <link href="styles.css" rel="stylesheet">
+        <link href="styles/dashboard.css" rel="stylesheet">
         <link href="styles/global.css" rel="stylesheet">
         <link href="styles/navbar.css" rel="stylesheet">
         <link href="styles/listing.css" rel="stylesheet">
         <link href="styles/alert.css" rel="stylesheet">
+        <link href="styles/graph.css" rel="stylesheet">
     </head>
     <body id="body" class="bg-dark-50 text-center">
-        <div id="total"></div>
-        <div id="charts">
-            <h3>Graphique des dépenses mensuelles</h3>
-            <canvas id="monthlyExpensesChart"></canvas>
-
-            <h3>Graphique des dépenses par catégorie</h3>
-            <canvas id="categoryExpensesChart"></canvas>
-        </div>
-        <div id="transactions"></div>
+        <main id=""main>
+            <section id="dashboard_header">
+                <div class="dashboard_header_wrapper">
+                    <img class="dashboard_pic" src="https://picsum.photos/200" />
+                    <div class="dashboard_intro">
+                        <h2 class="dashboard_welcome">Bienvenue, John !</h2>
+                        <small class="dashboard_small">petite phrase supplémentaire</small>
+                    </div>
+                </div>
+            </section>
+            <div id="dashboard_cards"></div>
+            <div id="charts">
+                <h3>Graphique des dépenses mensuelles</h3>
+                <canvas id="monthlyExpensesChart"></canvas>
+    
+                <h3>Graphique des dépenses par catégorie</h3>
+                <canvas id="categoryExpensesChart"></canvas>
+            </div>
+            <div id="transactions"></div>
+        </main>
 
         <!-- Inclure Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

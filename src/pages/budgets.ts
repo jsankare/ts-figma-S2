@@ -10,7 +10,7 @@ export interface Budget {
   category: string;
   budget: number;
   alert?: boolean;
-  month: number; // Mois entre 1 et 12 (base de données)
+  month: number;
   year: number;
   userId: number;
 }
@@ -23,15 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevMonthButton = document.getElementById("prevMonth");
   const nextMonthButton = document.getElementById("nextMonth");
   const currentMonthLabel = document.getElementById("currentMonthLabel");
-  const monthInput = document.getElementById("month");
-  const yearInput = document.getElementById("year");
+  const monthInput = document.getElementById("month") as HTMLInputElement;
+  const yearInput = document.getElementById("year") as HTMLInputElement;
 
-  let currentDate = new Date(); // Mois et année actuels
+  let currentDate = new Date();
 
-  // Afficher le mois et l'année actuels (en utilisant les mois 0-11 pour les calculs)
-  function updateMonthLabel() {
-    const month = currentDate.getMonth(); // Mois (0-11)
-    const year = currentDate.getFullYear(); // Année
+  async function updateMonthLabel() {
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
     const monthNames = [
       "Janvier",
       "Février",
@@ -47,32 +46,30 @@ document.addEventListener("DOMContentLoaded", () => {
       "Décembre",
     ];
     if (currentMonthLabel && monthInput && yearInput) {
-      currentMonthLabel.textContent = `${monthNames[month]} ${year}`; // Affichage avec 0-11 pour les calculs
-      monthInput.value = month; // Mois affiché (1-12 pour l'utilisateur)
-      yearInput.value = year; // Année sélectionnée
+      currentMonthLabel.textContent = `${monthNames[month]} ${year}`;
+      monthInput.value = month.toString();
+      yearInput.value = year.toString();
     }
+
+    await updateListingForMonth(month, year);
   }
 
-  // Passer au mois précédent
   if (prevMonthButton) {
     prevMonthButton.addEventListener("click", () => {
-      currentDate.setMonth(currentDate.getMonth() - 1); // Réduction du mois
+      currentDate.setMonth(currentDate.getMonth() - 1);
       updateMonthLabel();
     });
   }
 
-  // Passer au mois suivant
   if (nextMonthButton) {
     nextMonthButton.addEventListener("click", () => {
-      currentDate.setMonth(currentDate.getMonth() + 1); // Augmenter le mois
+      currentDate.setMonth(currentDate.getMonth() + 1);
       updateMonthLabel();
     });
   }
 
-  // Initialiser le mois et l'année
   updateMonthLabel();
 
-  // Soumettre le formulaire
   handleFormSubmit(
     "budgetsForm",
     "budgetsListing",
@@ -81,93 +78,26 @@ document.addEventListener("DOMContentLoaded", () => {
     ["category", "budget", "year", "month"],
     ["alert"],
   );
-
-  // Mettre à jour le listing des budgets
-  updateListing("BudgetDatabase", "budgets", [
-    "category",
-    "budget",
-    "alert",
-    "year",
-    "month",
-  ]);
 });
 
-// Variables pour suivre le mois actuel (0-11)
-let currentMonth = new Date().getMonth(); // Mois actuel (0-11)
-let currentYear = new Date().getFullYear(); // Année actuelle
-
-// Fonction pour formater et afficher le mois/année dans le label
-function updateMonthLabel() {
-  const months = [
-    "Janvier",
-    "Février",
-    "Mars",
-    "Avril",
-    "Mai",
-    "Juin",
-    "Juillet",
-    "Août",
-    "Septembre",
-    "Octobre",
-    "Novembre",
-    "Décembre",
-  ];
-  const monthLabel = document.getElementById("currentMonthLabel");
-  if (monthLabel) {
-    monthLabel.textContent = `${months[currentMonth]} ${currentYear}`; // Affiche le mois correct
-  }
-}
-
-// Fonction pour changer de mois et mettre à jour l'affichage
-function changeMonth(offset: number) {
-  currentMonth += offset; // Décale le mois par rapport à l'offset (précédent ou suivant)
-
-  // Si le mois dépasse décembre (11), on revient à janvier (0) et change d'année
-  if (currentMonth < 0) {
-    currentMonth = 11;
-    currentYear--;
-  }
-
-  // Si le mois dépasse décembre (11), on revient à janvier (0) et change d'année
-  if (currentMonth > 11) {
-    currentMonth = 0;
-    currentYear++;
-  }
-
-  // Mettre à jour le label du mois affiché
-  updateMonthLabel();
-
-  // Mettre à jour le listing des éléments pour ce mois
-  updateListingForMonth();
-}
-
-// Écoute des clics sur les boutons "Mois Précédent" et "Mois Suivant"
-document
-  .getElementById("prevMonth")
-  ?.addEventListener("click", () => changeMonth(-1));
-document
-  .getElementById("nextMonth")
-  ?.addEventListener("click", () => changeMonth(1));
-
-// Fonction pour mettre à jour le listing pour le mois actuel
-async function updateListingForMonth() {
+async function updateListingForMonth(selectedMonth: number, selectedYear: number) {
   try {
-    console.log(`Updating listing for ${currentMonth}/${currentYear}`);
+    console.log(`Updating listing for ${selectedMonth}/${selectedYear}`);
     const items = await getAllItems("BudgetDatabase", "budgets");
+
     const filteredItems = items.filter((item) => {
-      // On vérifie ici que le mois en base de données (1-12) correspond au mois interne (0-11)
-      return (
-        isBudget(item) &&
-        item.month === currentMonth &&
-        item.year === currentYear
-      ); // Mois 1-12 pour la base de données
+      if (isBudget(item)) {
+        return (
+          Number(item.month) === selectedMonth && 
+          Number(item.year) === selectedYear
+        );
+      }
+      return false;
     });
-    console.log(filteredItems);
+
+    console.log("Filtered items for selected month:", filteredItems);
     await displayItems(filteredItems, "budgets", "BudgetDatabase", []);
   } catch (error) {
     console.error("Error updating listing:", error);
   }
 }
-
-// Initialisation du label du mois et du listing au chargement de la page
-updateMonthLabel();

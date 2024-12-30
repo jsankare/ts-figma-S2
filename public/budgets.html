@@ -19,13 +19,14 @@
                 <span id="currentMonthLabel">Janvier 2024</span>
                 <button id="nextMonth">Mois Suivant ▶️</button>
             </div>
-            <h1>Budgets</h1>
-            <button id="openModal">Ajouter un budget</button>
-            <div id="modal" class="modal" data-type="budget">
-            </div>
-            <div id="budgetsListing" class="list">
 
-            </div>
+            <section class="page-header">
+                <h1 class="transactions-title">Gérer les budgets</h1>
+                <button class="cta-transaction" id="openModal">+ Nouveau budget</button>
+            </section>
+
+            <div id="modal" class="modal" data-type="budget"></div>
+            <div id="budgetsListing" class="list"></div>
         </main>
         <script type="module" src="dist/shared/components/navbar.js"></script>
         <script type="module" src="dist/core/auth/authVerification.js"></script>

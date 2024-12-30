@@ -1,6 +1,9 @@
 import { monitorUserInteraction } from "./utils/userInteraction.js";
 import { openDatabase } from "./core/database/openDatabase.js";
 import { getCurrentUser } from "./core/auth/getCurrentUser.js";
+import { Transaction, isTransaction } from "./pages/transactions.js";
+import { Category, isCategory } from "./pages/categories.js";
+import { Budget, isBudget } from "./pages/budgets.js";
 
 function onUserInteraction(eventType: string) {
   console.log(`User interaction detected: ${eventType}`);
@@ -19,33 +22,40 @@ const DB_NAMES = {
   categories: "CategoryDatabase",
   transactions: "TransactionDatabase",
   budgets: "BudgetDatabase",
-};
+} as const;
+
+type StoreItem = Transaction | Category | Budget;
 
 // Fonction pour récupérer tous les éléments d'un store avec filtrage par userId
-function getAllFromStore(db, storeName, userId) {
+function getAllFromStore<T extends StoreItem>(
+  db: any, 
+  storeName: string, 
+  userId: number
+): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, "readonly");
     const store = transaction.objectStore(storeName);
     const request = store.getAll();
 
-    request.onsuccess = () => {
-      const filteredData = request.result.filter(
-        (item) => item.userId === userId,
+    request.onsuccess = (event: Event) => {
+      const target = event.target as IDBRequest<T[]>;
+      const filteredData = target.result.filter(
+        (item) => item.userId === userId
       );
       resolve(filteredData);
     };
     request.onerror = () =>
       reject(
         new Error(
-          `Erreur lors de la récupération des données dans ${storeName}`,
-        ),
+          `Erreur lors de la récupération des données dans ${storeName}`
+        )
       );
   });
 }
 
 // Fonction pour générer une liste complète de jours pour le mois en cours
-function getDaysInMonth(year, month) {
-  const days = [];
+function getDaysInMonth(year: number, month: number): string[] {
+  const days: string[] = [];
   const date = new Date(year, month, 1);
   while (date.getMonth() === month) {
     days.push(date.toISOString().split("T")[0]); // Format YYYY-MM-DD
@@ -54,8 +64,16 @@ function getDaysInMonth(year, month) {
   return days;
 }
 
+interface CategoryExpenses {
+  [key: string]: number;
+}
+
+interface DailyExpenses {
+  [date: string]: number;
+}
+
 // Fonction principale pour générer les statistiques
-async function generateStatistics(userId) {
+async function generateStatistics(userId: number): Promise<void> {
   try {
     if (!userId) {
       console.error("Aucun utilisateur trouvé.");
@@ -71,9 +89,9 @@ async function generateStatistics(userId) {
 
     // Récupérer les données filtrées par userId
     const [categories, transactions, budgets] = await Promise.all([
-      getAllFromStore(categoriesDB, "categories", userId),
-      getAllFromStore(transactionsDB, "transactions", userId),
-      getAllFromStore(budgetsDB, "budgets", userId),
+      getAllFromStore<Category>(categoriesDB, "categories", userId),
+      getAllFromStore<Transaction>(transactionsDB, "transactions", userId),
+      getAllFromStore<Budget>(budgetsDB, "budgets", userId),
     ]);
 
     // Convertir les montants en nombres
@@ -91,16 +109,15 @@ async function generateStatistics(userId) {
 
     const balance = totalIncome - totalExpenses;
 
-    const currentMonth = new Date().getMonth(); // Les mois commencent à 0, donc ajouter 1
+    const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
     const activeBudgets = budgets.filter(
       (b) =>
         Number(b.month) === currentMonth &&
         Number(b.year) === currentYear &&
-        b.budget > 0,
+        b.budget > 0
     );
-    console.log(activeBudgets);
 
     const recentTransactions = transactions
       .filter((t) => {
@@ -111,8 +128,6 @@ async function generateStatistics(userId) {
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
-
-    console.log(recentTransactions);
 
     // Filtrer les transactions du mois actuel
     const currentMonthTransactions = transactions.filter((t) => {
@@ -127,18 +142,15 @@ async function generateStatistics(userId) {
     // Calculer la somme des débits par catégorie
     const debitSumsByCategory = currentMonthTransactions
       .filter((t) => {
-        // Ensure `t.category` exists and matches an active budget
         return (
           t.type === "debit" &&
           activeBudgets.some((b) => b.category === t.category)
         );
       })
-      .reduce((acc, t) => {
-        // Check if `categories` is available and ensure proper lookup
+      .reduce<CategoryExpenses>((acc, t) => {
         const categoryName =
-          categories.find((c) => c.id === t.category)?.name || "Inconnu";
+          categories.find((c) => c.id.toString() === t.category)?.name || "Inconnu";
 
-        // Check if `t.amount` is a valid number (e.g., not NaN)
         if (typeof t.amount === "number" && !isNaN(t.amount)) {
           acc[categoryName] = (acc[categoryName] || 0) + t.amount;
         } else {
@@ -149,8 +161,8 @@ async function generateStatistics(userId) {
       }, {});
 
     // Regrouper les dépenses par jour
-    const dailyExpenses = currentMonthTransactions.reduce((acc, t) => {
-      const date = new Date(t.date).toISOString().split("T")[0]; // Obtenir la date sous format YYYY-MM-DD
+    const dailyExpenses = currentMonthTransactions.reduce<DailyExpenses>((acc, t) => {
+      const date = new Date(t.date).toISOString().split("T")[0];
       acc[date] = (acc[date] || 0) + t.amount;
       return acc;
     }, {});
@@ -162,9 +174,9 @@ async function generateStatistics(userId) {
     const dailyAmounts = daysInMonth.map((day) => dailyExpenses[day] || 0);
 
     // Regrouper les dépenses par catégorie
-    const categoryExpenses = currentMonthTransactions.reduce((acc, t) => {
+    const categoryExpenses = currentMonthTransactions.reduce<CategoryExpenses>((acc, t) => {
       const categoryName =
-        categories.find((c) => c.id === t.category)?.name || "Inconnu";
+        categories.find((c) => c.id.toString() === t.category)?.name || "Inconnu";
       acc[categoryName] = (acc[categoryName] || 0) + t.amount;
       return acc;
     }, {});
@@ -181,11 +193,11 @@ async function generateStatistics(userId) {
     const statsContainer = document.getElementById("stats");
     if (statsContainer) {
       statsContainer.innerHTML = `
-                <h2>Statistiques Financières</h2>
-                <p><strong>Total des Dépenses :</strong> ${Math.abs(totalExpenses.toFixed(2))} €</p>
-                <p><strong>Total des Revenus :</strong> ${totalIncome.toFixed(2)} €</p>
-                <p><strong>Balance :</strong> ${balance.toFixed(2)} €</p>
-            `;
+        <h2>Statistiques Financières</h2>
+        <p><strong>Total des Dépenses :</strong> ${Math.abs(totalExpenses).toFixed(2)} €</p>
+        <p><strong>Total des Revenus :</strong> ${totalIncome.toFixed(2)} €</p>
+        <p><strong>Balance :</strong> ${balance.toFixed(2)} €</p>
+      `;
     }
 
     // Afficher les résultats dans la page
@@ -194,57 +206,99 @@ async function generateStatistics(userId) {
       recentTransactionsContainer.innerHTML = `
         <h3>Budgets Actifs</h3>
         <ul>
-            ${activeBudgets
-              .map((b) => {
-                const category =
-                  categories.find((c) => c.id === b.category)?.name ||
-                  "Inconnu";
-                const debitSum = debitSumsByCategory[category] || 0;
-                let progress = (debitSum / b.budget) * 100;
-                progress = progress > 100 ? 100 : progress;
-                const isOverBudget = debitSum > b.budget;
-                const overBudgetAmount = debitSum - b.budget;
-                // Barre de progression
-                const progressBar = `<div class="progress-container">
-                                        <div class="progress-bar" style="width: ${progress}%; background-color: ${isOverBudget ? "#ff4d4d" : "#4caf50"};"></div>
-                                      </div>`;
-                const progressText = isOverBudget
-                  ? `Dépassement : ${overBudgetAmount.toFixed(2)} €`
-                  : `${progress.toFixed(2)}% du budget atteint`;
-                return `
-                    <li>
-                        ${category} : ${b.budget.toFixed(2)} € - Dépenses : ${debitSum.toFixed(2)} € 
-                        <div>${progressText}</div>
-                        ${progressBar}
-                    </li>`;
-              })
-              .join("")}
+          ${activeBudgets
+            .map((b) => {
+              const category =
+                categories.find((c) => c.id.toString() === b.category)?.name ||
+                "Inconnu";
+              const debitSum = debitSumsByCategory[category] || 0;
+              let progress = (debitSum / b.budget) * 100;
+              progress = progress > 100 ? 100 : progress;
+              const isOverBudget = debitSum > b.budget;
+              const overBudgetAmount = debitSum - b.budget;
+              const progressBar = `<div class="progress-container">
+                <div class="progress-bar" style="width: ${progress}%; background-color: ${
+                isOverBudget ? "#ff4d4d" : "#4caf50"
+              };"></div>
+              </div>`;
+              const progressText = isOverBudget
+                ? `Dépassement : ${overBudgetAmount.toFixed(2)} €`
+                : `${progress.toFixed(2)}% du budget atteint`;
+              return `
+                <li>
+                  ${category} : ${b.budget.toFixed(2)} € - Dépenses : ${debitSum.toFixed(2)} € 
+                  <div>${progressText}</div>
+                  ${progressBar}
+                </li>`;
+            })
+            .join("")}
         </ul>
         <h3>Transactions Récentes</h3>
         <ul>
-            ${recentTransactions
-              .map((t) => {
-                const category =
-                  categories.find((c) => c.id === t.category)?.name ||
-                  "Non défini";
-                const color = t.type === "debit" ? "red" : "green";
-                return `<li style="color: ${color}"><h4>${t.name}</h4> 
-                            <div class="transactionPrice">${t.amount.toFixed(2)}</div> 
-                            <div class="transactionInfo">${t.date} - ${category}</div>
-                        </li>`;
-              })
-              .join("")}
+          ${recentTransactions
+            .map((t) => {
+              const category =
+                categories.find((c) => c.id.toString() === t.category)?.name ||
+                "Non défini";
+              const color = t.type === "debit" ? "red" : "green";
+              return `<li style="color: ${color}"><h4>${t.name}</h4> 
+                <div class="transactionPrice">${t.amount.toFixed(2)}</div> 
+                <div class="transactionInfo">${t.date} - ${category}</div>
+              </li>`;
+            })
+            .join("")}
         </ul>
-    `;
+      `;
     }
   } catch (error) {
     console.error("Erreur lors de la génération des statistiques :", error);
   }
 }
 
+interface ChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor: string | string[];
+  borderColor: string | string[];
+  borderWidth?: number;
+  tension?: number;
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: ChartDataset[];
+}
+
+interface ChartOptions {
+  responsive: boolean;
+  plugins: {
+    legend: { display: boolean };
+    tooltip: { enabled: boolean };
+  };
+  scales?: {
+    x?: { title: { display: boolean; text: string } };
+    y?: { title: { display: boolean; text: string } };
+  };
+}
+
+interface ChartConfiguration {
+  type: string;
+  data: ChartData;
+  options: ChartOptions;
+}
+
+declare class Chart {
+  constructor(ctx: CanvasRenderingContext2D, config: ChartConfiguration);
+}
+
 // Fonction pour afficher le graphique des dépenses mensuelles
-function renderMonthlyExpensesChart(labels, data) {
-  const ctx = document.getElementById("monthlyExpensesChart").getContext("2d");
+function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
+  const canvas = document.getElementById("monthlyExpensesChart") as HTMLCanvasElement | null;
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
   new Chart(ctx, {
     type: "line",
     data: {
@@ -275,8 +329,13 @@ function renderMonthlyExpensesChart(labels, data) {
 }
 
 // Fonction pour afficher le graphique des dépenses par catégorie
-function renderCategoryExpensesChart(labels, data) {
-  const ctx = document.getElementById("categoryExpensesChart").getContext("2d");
+function renderCategoryExpensesChart(labels: string[], data: number[]): void {
+  const canvas = document.getElementById("categoryExpensesChart") as HTMLCanvasElement | null;
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
   new Chart(ctx, {
     type: "doughnut",
     data: {
@@ -318,10 +377,10 @@ function renderCategoryExpensesChart(labels, data) {
 // Charger les statistiques après le chargement de la page
 document.addEventListener("DOMContentLoaded", async () => {
   const userId = await getUser();
-  generateStatistics(userId);
+  if (userId) generateStatistics(userId);
 });
 
-async function getUser() {
+async function getUser(): Promise<number | null> {
   const db = await openDatabase("UserDatabase", "users");
   const userEmail = localStorage.getItem("userMail");
 
