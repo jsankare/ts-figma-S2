@@ -119,9 +119,10 @@ async function handleDeletePicture(
     if (deletePicture) deletePicture.style.display = "none";
     showNotification("Votre site vous informe", {
       body: "Votre image de profil a bien été supprimée",
-      icon: "/assets/logo_no_bg.svg",
+      icon: "/assets/logo-ts.svg",
       requireInteraction: false,
     });
+    console.log("deleted")
   } catch (error) {
     toastAlert("error", "Erreur lors de la suppression de la photo de profil");
   }
@@ -156,7 +157,7 @@ async function handleUploadPicture(
       addProfileButton.style.display = "none";
       showNotification("Votre site vous informe", {
         body: "Votre image de profil a bien été mise à jour",
-        icon: "/assets/logo_no_bg.svg",
+        icon: "/assets/logo-ts.svg",
         requireInteraction: false,
       });
     } catch (error) {

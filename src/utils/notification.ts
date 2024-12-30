@@ -9,6 +9,7 @@ export function showNotification(
   }
 
   const createNotification = () => {
+    console.log("in function notification")
     const notification = new Notification(title, options);
     notification.onclick = () => {
       console.log("Notification cliquée !");
@@ -26,6 +27,7 @@ export function showNotification(
   } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
+        console.log("granted")
         createNotification();
       } else {
         console.warn("Permission de notification refusée.");

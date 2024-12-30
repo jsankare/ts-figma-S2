@@ -276,6 +276,7 @@ function getCurrencyAndLanguageByCountry(countryCode: string): {
   return countryMap[countryCode] || { currency: "", language: "" };
 }
 
+declare const google: any;
 function initAutocomplete() {
   const addressInput = document.getElementById("address") as HTMLInputElement;
   const currencySelect = document.getElementById(
