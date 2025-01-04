@@ -4,7 +4,6 @@ import { getCurrentUser } from "./core/auth/getCurrentUser.js";
 import { Transaction, isTransaction } from "./pages/transactions.js";
 import { Category, isCategory } from "./pages/categories.js";
 import { Budget, isBudget } from "./pages/budgets.js";
-import { log } from "console";
 
 function onUserInteraction(eventType: string) {
   console.log(`User interaction detected: ${eventType}`);
@@ -54,6 +53,70 @@ function getAllFromStore<T extends StoreItem>(
   });
 }
 
+// Function to create a dashboard card
+function createDashboardCard(title: string, value: string, trend: string = '', color: string = 'blue'): string {
+  return `
+    <div class="dashboard-card bg-white p-6 rounded-lg shadow-lg">
+      <h3 class="text-lg font-semibold text-gray-600">${title}</h3>
+      <div class="flex items-center mt-2">
+        <span class="text-2xl font-bold text-${color}-600">${value}</span>
+        ${trend ? `<span class="ml-2 text-sm ${trend.startsWith('+') ? 'text-green-500' : 'text-red-500'}">${trend}</span>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// Function to update dashboard cards
+async function updateDashboardCards(userId: number): Promise<void> {
+  const cardsContainer = document.getElementById('dashboard_cards');
+  if (!cardsContainer) return;
+
+  try {
+    // Get all transactions and budgets
+    const [transactionsDB, budgetsDB] = await Promise.all([
+      openDatabase(DB_NAMES.transactions, "transactions"),
+      openDatabase(DB_NAMES.budgets, "budgets"),
+    ]);
+
+    const [transactions, budgets] = await Promise.all([
+      getAllFromStore<Transaction>(transactionsDB, "transactions", userId),
+      getAllFromStore<Budget>(budgetsDB, "budgets", userId),
+    ]);
+
+    // Calculate total balance
+    const totalIncome = transactions
+      .filter(t => t.type === 'credit')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+    
+    const totalExpenses = transactions
+      .filter(t => t.type === 'debit')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+    
+    const balance = totalIncome - totalExpenses;
+
+    // Calculate total budgets
+    const totalBudgets = budgets.reduce((sum, b) => sum + Number(b.budget), 0);
+
+    // Calculate budget usage percentage
+    const budgetUsagePercentage = totalBudgets > 0 
+      ? Math.round((totalExpenses / totalBudgets) * 100) 
+      : 0;
+
+    // Create the cards HTML
+    console.log(balance)
+    cardsContainer.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        ${createDashboardCard('Balance Totale', `${balance.toFixed(2)} €`, balance >= 0 ? `+${balance.toFixed(2)}` : `${balance.toFixed(2)}`, balance >= 0 ? 'green' : 'red')}
+        ${createDashboardCard('Dépenses Totales', `${totalExpenses.toFixed(2)} €`)}
+        ${createDashboardCard('Utilisation Budget', `${budgetUsagePercentage}%`, '', budgetUsagePercentage > 90 ? 'red' : 'blue')}
+      </div>
+    `;
+  } catch (error) {
+    console.error('Error updating dashboard cards:', error);
+    cardsContainer.innerHTML = '<p class="text-red-500">Error loading dashboard cards</p>';
+  }
+}
+
 // Fonction pour générer une liste complète de jours pour le mois en cours
 function getDaysInMonth(year: number, month: number): string[] {
   const days: string[] = [];
@@ -80,6 +143,9 @@ async function generateStatistics(userId: number): Promise<void> {
       console.error("Aucun utilisateur trouvé.");
       return;
     }
+
+    // Update dashboard cards first
+    await updateDashboardCards(userId);
 
     // Ouvrir les bases de données
     const [categoriesDB, transactionsDB, budgetsDB] = await Promise.all([

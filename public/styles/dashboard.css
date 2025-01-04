@@ -13,3 +13,17 @@
     align-items: center;
     gap: 1rem;
 }
+
+#dashboard_cards {
+    width: 100%;
+    max-width: 1200px;
+    margin: 2rem auto;
+}
+
+.dashboard-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
