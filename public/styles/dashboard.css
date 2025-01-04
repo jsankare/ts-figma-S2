@@ -1,0 +1,15 @@
+#dashboard-pic {
+    border-radius: 100rem;
+    width: 6rem;
+}
+
+.dashboard_intro {
+    text-align: left;
+}
+
+.dashboard_header_wrapper {
+    display: grid;
+    grid-template-columns: 2fr 5fr;
+    align-items: center;
+    gap: 1rem;
+}
