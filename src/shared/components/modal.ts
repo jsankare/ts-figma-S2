@@ -4,7 +4,7 @@ import { getIcons } from "../../utils/get-icons.js";
 
 const icons = getIcons();
 
-const today = new Date().toISOString().split('T')[0];
+const today = new Date().toISOString().split("T")[0];
 
 function getCategoryIcons(): void {
   const iconsContainer = document.getElementById("iconsContainer");
