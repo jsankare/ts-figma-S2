@@ -80,7 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 });
 
-async function updateListingForMonth(selectedMonth: number, selectedYear: number) {
+async function updateListingForMonth(
+  selectedMonth: number,
+  selectedYear: number,
+) {
   try {
     console.log(`Updating listing for ${selectedMonth}/${selectedYear}`);
     const items = await getAllItems("BudgetDatabase", "budgets");
@@ -88,7 +91,7 @@ async function updateListingForMonth(selectedMonth: number, selectedYear: number
     const filteredItems = items.filter((item) => {
       if (isBudget(item)) {
         return (
-          Number(item.month) === selectedMonth && 
+          Number(item.month) === selectedMonth &&
           Number(item.year) === selectedYear
         );
       }
