@@ -7,7 +7,7 @@ import { toastAlert } from "../shared/components/alert.js";
 import { showNotification } from "../utils/notification.js";
 import { displayPasswordResetForm } from "../shared/components/passwordReset.js";
 import { displayAccountSettingsForm } from "../shared/components/userSetting.js";
-import isVisible from "../utils/visibility.js"
+import isVisible from "../utils/visibility.js";
 
 displayUserProfile();
 async function displayUserProfile() {

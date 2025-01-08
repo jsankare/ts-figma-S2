@@ -28,9 +28,9 @@ type StoreItem = Transaction | Category | Budget;
 
 // Fonction pour récupérer tous les éléments d'un store avec filtrage par userId
 function getAllFromStore<T extends StoreItem>(
-  db: any, 
-  storeName: string, 
-  userId: number
+  db: any,
+  storeName: string,
+  userId: number,
 ): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, "readonly");
@@ -40,27 +40,32 @@ function getAllFromStore<T extends StoreItem>(
     request.onsuccess = (event: Event) => {
       const target = event.target as IDBRequest<T[]>;
       const filteredData = target.result.filter(
-        (item) => item.userId === userId
+        (item) => item.userId === userId,
       );
       resolve(filteredData);
     };
     request.onerror = () =>
       reject(
         new Error(
-          `Erreur lors de la récupération des données dans ${storeName}`
-        )
+          `Erreur lors de la récupération des données dans ${storeName}`,
+        ),
       );
   });
 }
 
 // Function to create a dashboard card
-function createDashboardCard(title: string, value: string, trend: string = '', color: string = 'blue'): string {
+function createDashboardCard(
+  title: string,
+  value: string,
+  trend: string = "",
+  color: string = "blue",
+): string {
   return `
     <div class="dashboard-card bg-white p-6 rounded-lg shadow-lg">
       <h3 class="text-lg font-semibold text-gray-600">${title}</h3>
       <div class="flex items-center mt-2">
         <span class="text-2xl font-bold text-${color}-600">${value}</span>
-        ${trend ? `<span class="ml-2 text-sm ${trend.startsWith('+') ? 'text-green-500' : 'text-red-500'}">${trend}</span>` : ''}
+        ${trend ? `<span class="ml-2 text-sm ${trend.startsWith("+") ? "text-green-500" : "text-red-500"}">${trend}</span>` : ""}
       </div>
     </div>
   `;
@@ -68,7 +73,7 @@ function createDashboardCard(title: string, value: string, trend: string = '', c
 
 // Function to update dashboard cards
 async function updateDashboardCards(userId: number): Promise<void> {
-  const cardsContainer = document.getElementById('dashboard_cards');
+  const cardsContainer = document.getElementById("dashboard_cards");
   if (!cardsContainer) return;
 
   try {
@@ -85,35 +90,35 @@ async function updateDashboardCards(userId: number): Promise<void> {
 
     // Calculate total balance
     const totalIncome = transactions
-      .filter(t => t.type === 'credit')
+      .filter((t) => t.type === "credit")
       .reduce((sum, t) => sum + Number(t.amount), 0);
-    
+
     const totalExpenses = transactions
-      .filter(t => t.type === 'debit')
+      .filter((t) => t.type === "debit")
       .reduce((sum, t) => sum + Number(t.amount), 0);
-    
+
     const balance = totalIncome - totalExpenses;
 
     // Calculate total budgets
     const totalBudgets = budgets.reduce((sum, b) => sum + Number(b.budget), 0);
 
     // Calculate budget usage percentage
-    const budgetUsagePercentage = totalBudgets > 0 
-      ? Math.round((totalExpenses / totalBudgets) * 100) 
-      : 0;
+    const budgetUsagePercentage =
+      totalBudgets > 0 ? Math.round((totalExpenses / totalBudgets) * 100) : 0;
 
     // Create the cards HTML
-    console.log(balance)
+    console.log(balance);
     cardsContainer.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        ${createDashboardCard('Balance Totale', `${balance.toFixed(2)} €`, balance >= 0 ? `+${balance.toFixed(2)}` : `${balance.toFixed(2)}`, balance >= 0 ? 'green' : 'red')}
-        ${createDashboardCard('Dépenses Totales', `${totalExpenses.toFixed(2)} €`)}
-        ${createDashboardCard('Utilisation Budget', `${budgetUsagePercentage}%`, '', budgetUsagePercentage > 90 ? 'red' : 'blue')}
+        ${createDashboardCard("Balance Totale", `${balance.toFixed(2)} €`, balance >= 0 ? `+${balance.toFixed(2)}` : `${balance.toFixed(2)}`, balance >= 0 ? "green" : "red")}
+        ${createDashboardCard("Dépenses Totales", `${totalExpenses.toFixed(2)} €`)}
+        ${createDashboardCard("Utilisation Budget", `${budgetUsagePercentage}%`, "", budgetUsagePercentage > 90 ? "red" : "blue")}
       </div>
     `;
   } catch (error) {
-    console.error('Error updating dashboard cards:', error);
-    cardsContainer.innerHTML = '<p class="text-red-500">Error loading dashboard cards</p>';
+    console.error("Error updating dashboard cards:", error);
+    cardsContainer.innerHTML =
+      '<p class="text-red-500">Error loading dashboard cards</p>';
   }
 }
 
@@ -183,7 +188,7 @@ async function generateStatistics(userId: number): Promise<void> {
       (b) =>
         Number(b.month) === currentMonth &&
         Number(b.year) === currentYear &&
-        b.budget > 0
+        b.budget > 0,
     );
 
     const recentTransactions = transactions
@@ -216,7 +221,8 @@ async function generateStatistics(userId: number): Promise<void> {
       })
       .reduce<CategoryExpenses>((acc, t) => {
         const categoryName =
-          categories.find((c) => c.id.toString() === t.category)?.name || "Inconnu";
+          categories.find((c) => c.id.toString() === t.category)?.name ||
+          "Inconnu";
 
         if (typeof t.amount === "number" && !isNaN(t.amount)) {
           acc[categoryName] = (acc[categoryName] || 0) + t.amount;
@@ -228,11 +234,14 @@ async function generateStatistics(userId: number): Promise<void> {
       }, {});
 
     // Regrouper les dépenses par jour
-    const dailyExpenses = currentMonthTransactions.reduce<DailyExpenses>((acc, t) => {
-      const date = new Date(t.date).toISOString().split("T")[0];
-      acc[date] = (acc[date] || 0) + t.amount;
-      return acc;
-    }, {});
+    const dailyExpenses = currentMonthTransactions.reduce<DailyExpenses>(
+      (acc, t) => {
+        const date = new Date(t.date).toISOString().split("T")[0];
+        acc[date] = (acc[date] || 0) + t.amount;
+        return acc;
+      },
+      {},
+    );
 
     // Générer la liste complète de jours pour le mois en cours
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
@@ -241,12 +250,16 @@ async function generateStatistics(userId: number): Promise<void> {
     const dailyAmounts = daysInMonth.map((day) => dailyExpenses[day] || 0);
 
     // Regrouper les dépenses par catégorie
-    const categoryExpenses = currentMonthTransactions.reduce<CategoryExpenses>((acc, t) => {
-      const categoryName =
-        categories.find((c) => c.id.toString() === t.category)?.name || "Inconnu";
-      acc[categoryName] = (acc[categoryName] || 0) + t.amount;
-      return acc;
-    }, {});
+    const categoryExpenses = currentMonthTransactions.reduce<CategoryExpenses>(
+      (acc, t) => {
+        const categoryName =
+          categories.find((c) => c.id.toString() === t.category)?.name ||
+          "Inconnu";
+        acc[categoryName] = (acc[categoryName] || 0) + t.amount;
+        return acc;
+      },
+      {},
+    );
 
     // Préparer les données pour le graphique des dépenses par catégorie
     const categoryNames = Object.keys(categoryExpenses);
@@ -285,8 +298,8 @@ async function generateStatistics(userId: number): Promise<void> {
               const overBudgetAmount = debitSum - b.budget;
               const progressBar = `<div class="progress-container">
                 <div class="progress-bar" style="width: ${progress}%; background-color: ${
-                isOverBudget ? "#ff4d4d" : "#4caf50"
-              };"></div>
+                  isOverBudget ? "#ff4d4d" : "#4caf50"
+                };"></div>
               </div>`;
               const progressText = isOverBudget
                 ? `Dépassement : ${overBudgetAmount.toFixed(2)} €`
@@ -360,9 +373,11 @@ declare class Chart {
 
 // Fonction pour afficher le graphique des dépenses mensuelles
 function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
-  const canvas = document.getElementById("monthlyExpensesChart") as HTMLCanvasElement | null;
+  const canvas = document.getElementById(
+    "monthlyExpensesChart",
+  ) as HTMLCanvasElement | null;
   if (!canvas) return;
-  
+
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -397,9 +412,11 @@ function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
 
 // Fonction pour afficher le graphique des dépenses par catégorie
 function renderCategoryExpensesChart(labels: string[], data: number[]): void {
-  const canvas = document.getElementById("categoryExpensesChart") as HTMLCanvasElement | null;
+  const canvas = document.getElementById(
+    "categoryExpensesChart",
+  ) as HTMLCanvasElement | null;
   if (!canvas) return;
-  
+
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -446,8 +463,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userId = await getUser();
   if (userId) {
     generateStatistics(userId);
-    const userImgMarkup = document.getElementById("dashboard-pic") as HTMLImageElement;
-    const userNameMarkup = document.getElementById("dashboard-name") as HTMLImageElement;
+    const userImgMarkup = document.getElementById(
+      "dashboard-pic",
+    ) as HTMLImageElement;
+    const userNameMarkup = document.getElementById(
+      "dashboard-name",
+    ) as HTMLImageElement;
     if (userImgMarkup) {
       const db = await openDatabase("UserDatabase", "users");
       const userEmail = localStorage.getItem("userMail");
@@ -458,15 +479,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (user) {
             if (user.picture) {
               userImgMarkup.src = user.picture; // Set the image path to user's picture
-              } else {
-                userImgMarkup.src = "https://picsum.photos/200?grayscale";
-              }
-              if (user.firstname) {
-                userNameMarkup.innerHTML = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1);;
-              } else {
-                userNameMarkup.innerHTML = "Inconnu"
-              }
+            } else {
+              userImgMarkup.src = "https://picsum.photos/200?grayscale";
             }
+            if (user.firstname) {
+              userNameMarkup.innerHTML =
+                user.firstname.charAt(0).toUpperCase() +
+                user.firstname.slice(1);
+            } else {
+              userNameMarkup.innerHTML = "Inconnu";
+            }
+          }
         } catch (error) {
           console.error("Error retrieving user information:", error);
         }
@@ -476,8 +499,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
-
 
 async function getUser(): Promise<number | null> {
   const db = await openDatabase("UserDatabase", "users");

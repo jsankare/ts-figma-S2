@@ -16,8 +16,12 @@
 
 #dashboard_cards {
     width: 100%;
-    max-width: 1200px;
     margin: 2rem auto;
+    max-width: 90vh;
+    @media (max-width: 1024px) {
+        max-width: 75vh;
+        margin: 0 auto;
+    }
 }
 
 .dashboard-card {
