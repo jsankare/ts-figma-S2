@@ -4,43 +4,38 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Page principale</title>
-        <link href="styles.css" rel="stylesheet">
-        <link href="styles/dashboard.css" rel="stylesheet">
-        <link href="styles/global.css" rel="stylesheet">
-        <link href="styles/navbar.css" rel="stylesheet">
-        <link href="styles/listing.css" rel="stylesheet">
-        <link href="styles/alert.css" rel="stylesheet">
-        <link href="styles/graph.css" rel="stylesheet">
+        <link href="styles/main.css" rel="stylesheet">
     </head>
-    <body id="body" class="bg-dark-50 text-center">
-        <main id=""main>
-            <section id="dashboard_header">
-                <div class="dashboard_header_wrapper">
-                    <img class="dashboard_pic" id="dashboard-pic" src="" />
-                    <div class="dashboard_intro">
-                        <h2 class="dashboard_welcome">Bienvenue, <span id="dashboard-name"></span> !</h2>
-                        <small class="dashboard_small">petite phrase supplémentaire</small>
-                    </div>
+    <body id="body">
+        <main id="main" class="homeContainer">
+
+            <section>
+
+                <div class="row">
+                    <div id="dashboard_cards"></div>
+                    <div id="monthlyExpensesChart"></div>
                 </div>
+
+                <div class="row">
+                    <div id="categoryExpensesChart"></div>
+                    <div id="debitVSCreditChart"></div>
+                </div>
+
             </section>
-            <div id="dashboard_cards"></div>
-            <div id="charts">
-                <h3>Graphique des dépenses mensuelles</h3>
-                <canvas id="monthlyExpensesChart"></canvas>
-    
-                <h3>Graphique des dépenses par catégorie</h3>
-                <canvas id="categoryExpensesChart"></canvas>
-            </div>
-            <div id="transactions"></div>
+            
+            <section>
+                <div id="cta"></div>
+                <div id="lastTransactions"></div>
+                <div id="activeBudget"></div>
+            </section>
         </main>
 
         <!-- Inclure Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script type="module" src="dist/index.js"></script>
+        <script type="module" src="dist/shared/components/alert.js"></script>
         <script type="module" src="dist/utils/preferredTheme.js"></script>
         <script type="module" src="dist/shared/components/navbar.js"></script>
         <script type="module" src="dist/core/auth/authVerification.js"></script>
-        <script type="module" src="dist/utils/battery-status.js"></script>
-        <script type="module" src="dist/utils/fullscreen.js"></script>
     </body>
 </html>

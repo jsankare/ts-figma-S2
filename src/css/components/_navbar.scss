@@ -1,0 +1,247 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: rem(90);
+  background-color: white;
+  box-shadow: rem(4) 0 rem(15) rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: rem(32);
+  padding: rem(32) 0;
+  transition: width 0.3s ease-in-out;
+  border-radius: 0 rem(16) rem(16) 0;
+  align-items: start;
+
+  &:hover {
+    width: rem(209);
+
+    .navlink span, .logout span, .logo span {
+      width: rem(145) !important;
+    }
+  }
+
+  .logo{
+    padding: 0 rem(32);
+    display: flex;
+    align-items: center;
+
+    span{
+      margin-left: rem(16);
+      width: 0;
+      overflow: hidden;
+      @include bigText;
+      font-weight: 700;
+      color: $blue;
+      transition: width 0.3s ease-in-out;
+    }
+  }
+  
+  .navigation--items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+
+    li {
+      position: relative;
+
+      &:first-of-type a{
+        margin-top: rem(64);
+  
+        &::before{
+          content: '';
+          position: absolute;
+          left: rem(32);
+          top: 0;
+          width: rem(24);
+          height: rem(1);
+          background-color: $light_grey;
+        }
+      }
+  
+      .navlink {
+        display: flex;
+        align-items: center;
+        color: $dark_grey;
+        text-decoration: none;
+        position: relative;
+        padding: rem(24) rem(32);
+
+        &.active{
+          border-left: 1px solid $blue;
+        }
+
+        svg {
+          width: 24px;
+          height: auto;
+        }
+
+        span {
+          margin-left: rem(16);
+          width: 0;
+          overflow: hidden;
+          transition: width 0.3s ease-in-out;
+          @include bigText;
+          font-weight: 700;
+          color: $dark_grey;
+        }
+      }
+    }
+  }
+  
+  .logout {
+    padding: 0 rem(32);
+    border: none;
+    background: none;
+    width: fit-content;
+    margin-top: auto;
+    cursor: pointer;
+    display: flex;
+    
+    svg{
+      width: rem(24);
+      height: auto;
+    }
+
+    span{
+      margin-left: rem(16);
+      width: 0;
+      text-align: start;
+      overflow: hidden;
+      @include bigText;
+      font-weight: 700;
+      color: $dark_grey;
+      transition: width 0.3s ease-in-out;
+    }
+  }
+}
+
+.top-bar{
+  display: flex;
+  align-items: center;
+  padding: rem(32) rem(48)rem(32) rem(40);
+  margin-left: rem(90);
+  position: relative;
+  justify-content: space-between;
+
+  &::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: rem(1);
+    background-color: $light_grey;
+  }
+
+  button{
+    width: fit-content;
+    padding: 0;
+    border: none;
+    background: none;
+    color: $dark_grey;
+  }
+
+  a{
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+    flex-direction: row-reverse;
+
+    img{
+      width: rem(24);
+      height: rem(24);
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    span{
+      font-weight: 700;
+      color: $dark_grey;
+    }
+
+  }
+  #batteryStatus, .top-bar--date{
+    @include smallText;
+    color: $dark_grey;
+    font-weight: 700;
+  }
+  .top-bar--date{
+    display: flex;
+    gap: rem(8);
+    align-items: baseline;
+  }
+
+  div{
+    display: flex;
+    gap: rem(64);
+  }
+}
+
+
+@media screen and (max-width: 1024px){
+  .header{
+    bottom: 0;
+    top: auto;
+    left: 0;
+    padding: rem(24) rem(40);
+    height: fit-content;
+    width: 100vw;
+    border-radius: rem(16) rem(16) 0 0;
+
+    &:hover{
+      width: 100vw;
+
+      .navlink span{
+        width: fit-content !important;
+      }
+    }
+  
+    .logo, .logout{
+      display: none;
+    }
+
+    .navigation--items{
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: space-between;
+      width: 100%;
+
+      li a{
+        padding: 0 !important;
+        margin-top: 0 !important;
+        flex-direction: column;
+
+        &.active{
+          border-left: none !important;
+        }
+
+        svg{
+          width: auto !important;
+          height: rem(16) !important;
+        }
+        span{
+          margin-left: 0 !important;
+          font-size: rem(10) !important;
+          width: fit-content !important;
+        }
+      }
+    }
+  }
+
+  .top-bar{
+    padding: rem(24) rem(32);
+    margin-left: 0;
+
+    #batteryStatus, #fullscreenButton{
+      display: none;
+    }
+  }
+
+  main{
+    margin-left: 0 !important;
+  }
+}

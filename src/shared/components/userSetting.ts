@@ -1,44 +1,13 @@
 import { toastAlert } from "./alert.js";
-import { openDatabase } from "../../core/database/openDatabase.js";
+import { updateUserInfo } from "../../core/database/openDatabase.js";
 // import { API_KEY_GOOGLE } from "../../config.js";
+import { getCountryCodeFromAddress, loadGoogleMapsAPI, fillAddressWithGeolocation } from "../../utils/geolocation.js";
 
-const API_KEY_GOOGLE = "AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8";
+loadGoogleMapsAPI();
 
-interface UserSettings {
-  email: string;
-  firstname: string;
-  lastname: string;
-  address?: string;
-  currency?: string;
-  notifications?: boolean;
-  language?: string;
-}
-
-// Fonction pour charger dynamiquement le script de Google Maps
-function loadGoogleMapsAPI(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.getElementById("google-maps-script")) {
-      resolve(); // Le script est déjà chargé
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.id = "google-maps-script";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY_GOOGLE}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-
-    script.onload = () => resolve();
-    script.onerror = () =>
-      reject(new Error("Impossible de charger l'API Google Maps"));
-
-    document.head.appendChild(script);
-  });
-}
-
-export function displayAccountSettingsForm(user: UserSettings) {
+export function displayAccountSettingsForm(user) {
   const formContainer = document.getElementById(
-    "profile--wrapper",
+    "profile_modification",
   ) as HTMLElement;
   formContainer.innerHTML = `
     <form class="form" id="account-settings-form">
@@ -53,15 +22,12 @@ export function displayAccountSettingsForm(user: UserSettings) {
       
       <label class="label label-text" for="address">Adresse</label>
       <div style="display: flex; gap: 8px;">
-        <input class="input input-text" type="text" id="address" name="address" value="${user.address || ""}" required>
+        <input class="input input-text" type="text" id="address" name="address" value="${user.adress || ""}" required>
         <button type="button" id="get-location-btn">📍 Remplir mon adresse</button>
       </div>
       
       <label class="label label-text" for="currency">Devise</label>
       <select id="currency" name="currency" required>
-        <option value="USD" ${user.currency === "USD" ? "selected" : ""}>USD</option>
-        <option value="EUR" ${user.currency === "EUR" ? "selected" : ""}>EUR</option>
-        <option value="GBP" ${user.currency === "GBP" ? "selected" : ""}>GBP</option>
       </select>
       
       <div class="checkbox-input-container">
@@ -72,15 +38,11 @@ export function displayAccountSettingsForm(user: UserSettings) {
         </div>
       </div>
       
-      <label class="label label-text" for="language">Langue</label>
-      <select id="language" name="language" required>
-        <option value="fr" ${user.language === "fr" ? "selected" : ""}>Français</option>
-        <option value="en" ${user.language === "en" ? "selected" : ""}>English</option>
-      </select>
-      
       <button type="submit">Sauvegarder les modifications</button>
     </form>
   `;
+
+  populateCurrencySelect();
 
   loadGoogleMapsAPI()
     .then(() => {
@@ -117,9 +79,6 @@ export function displayAccountSettingsForm(user: UserSettings) {
     const newNotifications = (
       document.getElementById("notifications") as HTMLInputElement
     ).checked;
-    const newLanguage = (
-      document.getElementById("language") as HTMLSelectElement
-    ).value;
 
     try {
       await updateUserInfo(
@@ -129,7 +88,6 @@ export function displayAccountSettingsForm(user: UserSettings) {
         newAddress,
         newCurrency,
         newNotifications,
-        newLanguage,
       );
       toastAlert("success", "Informations mises à jour avec succès.");
     } catch (error) {
@@ -138,151 +96,59 @@ export function displayAccountSettingsForm(user: UserSettings) {
   });
 }
 
-// Fonction pour remplir le champ adresse avec la géolocalisation
-async function fillAddressWithGeolocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
-        try {
-          const { address, countryCode } =
-            await getAddressAndCountryFromCoordinates(lat, lon);
-          const addressInput = document.getElementById(
-            "address",
-          ) as HTMLInputElement;
-          const currencySelect = document.getElementById(
-            "currency",
-          ) as HTMLSelectElement;
-          const languageSelect = document.getElementById(
-            "language",
-          ) as HTMLSelectElement;
-
-          // Mettre à jour les champs
-          if (address) {
-            addressInput.value = address;
-            toastAlert("success", "Adresse remplie avec succès !");
-          }
-
-          // Adapter la devise et la langue en fonction du pays
-          if (countryCode) {
-            const { currency, language } =
-              getCurrencyAndLanguageByCountry(countryCode);
-            if (currency) currencySelect.value = currency;
-            if (language) languageSelect.value = language;
-          }
-        } catch (error) {
-          console.error("Erreur :", error);
-          toastAlert("error", "Erreur lors de la récupération de l'adresse.");
-        }
-      },
-      () => {
-        toastAlert("error", "Géolocalisation refusée par l'utilisateur.");
-      },
-    );
+export async function fetchAllCurrencies(countryCode): Promise<string[]> {
+  let apiUrl;
+  if(!countryCode){
+    apiUrl = `https://restcountries.com/v3.1/all`;
   } else {
-    toastAlert(
-      "error",
-      "La géolocalisation n'est pas supportée par ce navigateur.",
-    );
+    apiUrl = `https://restcountries.com/v3.1/alpha/${countryCode}`;
   }
-}
 
-async function getAddressAndCountryFromCoordinates(
-  lat: number,
-  lon: number,
-): Promise<{ address: string; countryCode: string }> {
   try {
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${API_KEY_GOOGLE}`,
-    );
-    const data = await response.json();
+    const response = await fetch(apiUrl);
+      if (!response.ok) {
+          throw new Error(`Erreur lors de la récupération des données : ${response.statusText}`);
+      }
 
-    if (data.status === "OK" && data.results.length > 0) {
-      const result = data.results[0];
-      const address = result.formatted_address;
+      const countries = await response.json();
+      const currenciesSet = new Set<string>();
 
-      // Extraire le code pays
-      const countryComponent = result.address_components.find(
-        (component: any) => component.types.includes("country"),
-      );
-      const countryCode = countryComponent?.short_name || "";
+      countries.forEach((country: any) => {
+          if (country.currencies) {
+              country.currencies.forEach((currency: any) => {
+                  currenciesSet.add(currency.code);
+              });
+          }
+      });
 
-      return { address, countryCode };
-    } else {
-      console.error(
-        "Erreur API Google Maps :",
-        data.status,
-        data.error_message,
-      );
-      return { address: "", countryCode: "" };
-    }
+      return Array.from{ currenciesSet };
   } catch (error) {
-    console.error("Erreur avec Google Maps API:", error);
-    return { address: "", countryCode: "" };
+      console.error(`Erreur pour le code pays ${countryCode}:`, error);
   }
 }
 
-async function updateUserInfo(
-  email: string,
-  firstname: string,
-  lastname: string,
-  address: string,
-  currency: string,
-  notifications: boolean,
-  language: string,
-) {
-  const db = await openDatabase("UserDatabase", "users");
-  const transaction = db.transaction("users", "readwrite");
-  const store = transaction.objectStore("users");
-  const index = store.index("email");
 
-  const userRequest = index.get(email);
-  userRequest.onsuccess = () => {
-    const user = userRequest.result;
-    if (user) {
-      user.firstname = firstname;
-      user.lastname = lastname;
-      user.address = address;
-      user.currency = currency;
-      user.notifications = notifications;
-      user.language = language;
-      store.put(user);
-    }
-  };
+export async function populateCurrencySelect(): Promise<void> {
+  const currencySelect = document.getElementById("currency") as HTMLSelectElement;
+  if (!currencySelect) return;
 
-  return new Promise((resolve, reject) => {
-    transaction.oncomplete = resolve;
-    transaction.onerror = reject;
-  });
-}
-
-function getCurrencyAndLanguageByCountry(countryCode: string): {
-  currency: string;
-  language: string;
-} {
-  const countryMap: { [key: string]: { currency: string; language: string } } =
-    {
-      US: { currency: "USD", language: "en" },
-      FR: { currency: "EUR", language: "fr" },
-      GB: { currency: "GBP", language: "en" },
-      DE: { currency: "EUR", language: "de" },
-      ES: { currency: "EUR", language: "es" },
-      IT: { currency: "EUR", language: "it" },
-      // Ajoute d'autres pays si nécessaire
-    };
-
-  return countryMap[countryCode] || { currency: "", language: "" };
+  try {
+    const currencies = await fetchAllCurrencies();
+    currencies.forEach((currency) => {
+      const option = document.createElement("option");
+      option.value = currency;
+      option.textContent = currency;
+      currencySelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erreur lors du remplissage du select des devises :", error);
+  }
 }
 
 function initAutocomplete() {
   const addressInput = document.getElementById("address") as HTMLInputElement;
   const currencySelect = document.getElementById(
     "currency",
-  ) as HTMLSelectElement;
-  const languageSelect = document.getElementById(
-    "language",
   ) as HTMLSelectElement;
 
   // Initialise l'autocomplétion Google Places
@@ -313,10 +179,10 @@ function initAutocomplete() {
       )?.short_name;
 
       if (countryCode) {
-        const { currency, language } =
-          getCurrencyAndLanguageByCountry(countryCode);
+        const { currency } =
+        fetchAllCurrencies(countryCode);
+          console.log(currency);
         if (currency) currencySelect.value = currency;
-        if (language) languageSelect.value = language;
       }
     }
   });
@@ -328,10 +194,9 @@ function initAutocomplete() {
       try {
         const { countryCode } = await getCountryCodeFromAddress(address);
         if (countryCode) {
-          const { currency, language } =
-            getCurrencyAndLanguageByCountry(countryCode);
+          const { currency } =
+            fetchAllCurrencies(countryCode);
           if (currency) currencySelect.value = currency;
-          if (language) languageSelect.value = language;
         }
       } catch (error) {
         console.error("Erreur lors de la récupération du pays :", error);
@@ -340,34 +205,3 @@ function initAutocomplete() {
   });
 }
 
-async function getCountryCodeFromAddress(
-  address: string,
-): Promise<{ countryCode: string }> {
-  try {
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY_GOOGLE}`,
-    );
-    const data = await response.json();
-
-    if (data.status === "OK" && data.results.length > 0) {
-      const result = data.results[0];
-
-      // Trouve le code pays dans les composants de l'adresse
-      const countryComponent = result.address_components.find(
-        (component: any) => component.types.includes("country"),
-      );
-
-      return { countryCode: countryComponent?.short_name || "" };
-    } else {
-      console.error(
-        "Erreur API Google Maps :",
-        data.status,
-        data.error_message,
-      );
-      return { countryCode: "" };
-    }
-  } catch (error) {
-    console.error("Erreur avec Google Maps API :", error);
-    return { countryCode: "" };
-  }
-}

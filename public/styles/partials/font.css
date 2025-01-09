@@ -1,0 +1,17 @@
+/* Error: 2 arguments required, but only 1 was passed.
+ *   ,
+ * 4 |     font-size: rem(32);
+ *   |                ^^^^^^^
+ *   '
+ *   src/css/partials/font.scss 4:16  root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: 2 arguments required, but only 1 was passed.\a   \2577 \a 4 \2502      font-size: rem(32);\d\a   \2502                 ^^^^^^^\a   \2575 \a   src/css/partials/font.scss 4:16  root stylesheet";
+}

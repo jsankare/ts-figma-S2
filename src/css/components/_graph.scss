@@ -1,0 +1,25 @@
+.homeContainer{
+   
+    #monthlyExpensesChart, #debitVSCreditChart, #categoryExpensesChart {
+        background-color: white;
+        border-radius: rem(16);  
+        padding: rem(32);
+        box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: rem(32);
+    }
+
+    #monthlyExpensesChart {
+        width: 70%;
+    }
+    
+    #debitVSCreditChart{
+        width: 50%;
+    }
+    
+    #categoryExpensesChart {
+        width: 50%;
+    }
+}
