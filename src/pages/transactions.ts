@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "TransactionDatabase",
     "transactions",
     ["type", "name", "amount", "date"],
-    ["description", "category"],
+    ["category"],
   );
   updateListing("TransactionDatabase", "transactions", [
     "type",
@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "amount",
     "category",
     "date",
-    "description",
   ]);
 });
 
@@ -46,7 +45,6 @@ document.getElementById("filterTransactions")?.addEventListener("click", (event)
     "amount",
     "category",
     "date",
-    "description",
   ]);
 });
 

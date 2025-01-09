@@ -1,6 +1,31 @@
 import { openDatabase } from "../database/openDatabase.js";
 import { User } from "../database/types.js";
 
+
+async function getUser(): Promise<number | null> {
+  const db = await openDatabase("UserDatabase", "users");
+  const userEmail = localStorage.getItem("userMail");
+
+  if (!userEmail) {
+    console.error("Aucun email trouvé dans localStorage.");
+    return null;
+  }
+
+  try {
+    const token = await getCurrentUser(db, userEmail);
+
+    if (token && token.id) {
+      return token.id;
+    } else {
+      console.error("Le token ou l'ID utilisateur est introuvable.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
+    return null;
+  }
+}
+
 export async function getCurrentUser(
   db?: IDBDatabase,
   email?: string

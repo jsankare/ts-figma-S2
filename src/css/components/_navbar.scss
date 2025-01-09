@@ -149,6 +149,7 @@
     display: flex;
     align-items: center;
     gap: rem(8);
+    flex-direction: row-reverse;
 
     img{
       width: rem(24);
@@ -186,8 +187,10 @@
     bottom: 0;
     top: auto;
     left: 0;
+    padding: rem(24) rem(40);
     height: fit-content;
     width: 100vw;
+    border-radius: rem(16) rem(16) 0 0;
 
     &:hover{
       width: 100vw;
@@ -204,20 +207,40 @@
     .navigation--items{
       flex-direction: row;
       align-items: baseline;
+      justify-content: space-between;
+      width: 100%;
 
       li a{
+        padding: 0 !important;
         margin-top: 0 !important;
         flex-direction: column;
 
+        &.active{
+          border-left: none !important;
+        }
+
+        svg{
+          width: auto !important;
+          height: rem(16) !important;
+        }
         span{
+          margin-left: 0 !important;
+          font-size: rem(10) !important;
           width: fit-content !important;
         }
       }
     }
   }
+
   .top-bar{
+    padding: rem(24) rem(32);
     margin-left: 0;
+
+    #batteryStatus, #fullscreenButton{
+      display: none;
+    }
   }
+
   main{
     margin-left: 0 !important;
   }

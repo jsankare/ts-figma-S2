@@ -2,6 +2,10 @@ import { hashPassword } from "../core/auth/hashPassword.js";
 import { getCurrentUser } from "../core/auth/getCurrentUser.js";
 import { openDatabase } from "../core/database/openDatabase.js";
 import { toastAlert } from "../shared/components/alert.js";
+import { displayPassword } from "./register.js";
+
+// Login
+// displayPassword('togglePassword', 'password');
 
 // Generate a random token
 function generateToken(length: number = 32): string {

@@ -116,8 +116,7 @@
 
         button, input[type="submit"]{
             background-color: white;
-            padding: rem(16);
-            width: 100%;
+            padding: rem(16) rem(32);
             color: $blue;
             font-weight: 400;
             font-size: rem(18);
@@ -337,6 +336,9 @@
         @include bigText;
         background-color: $blue;
         border-radius: rem(8);
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
         color: white;
         border: 1px solid $blue;
         width: fit-content;
@@ -461,6 +463,48 @@
                 width: 100%;
             }
 
+        }
+    }
+
+    .budgetContainer{
+        padding: rem(48) rem(32);
+
+        .list{
+            background: none;
+            box-shadow: none;
+            padding: 0;
+
+            .listingTitle{
+                display: none;
+            }
+
+            #budgetsListing{
+                display: flex;
+                flex-direction: column;
+                gap: rem(32);
+                padding-top: 0;
+
+                li{
+                    padding: rem(24);
+                    background-color: white;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: rem(24);
+                    border-radius: rem(16);
+
+                    &::before{
+                        content: none;
+                    }
+
+                    .category-info{
+                        gap: rem(16);
+                    }
+
+                    .progress-section{
+                        width: 100%;
+                    }
+                }
+            }
         }
     }
 }

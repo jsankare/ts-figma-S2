@@ -1,32 +1,7 @@
 import { hashPassword } from "../core/auth/hashPassword.js";
 import { openDatabase } from "../core/database/openDatabase.js";
 import { toastAlert } from "../shared/components/alert.js";
-
-// Add user in database
-function addUser(
-  db: IDBDatabase,
-  userData: {
-    email: string;
-    password: string;
-    firstname: string;
-    lastname: string;
-    picture: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction("users", "readwrite");
-    const store = transaction.objectStore("users");
-    const request = store.add(userData);
-
-    request.onsuccess = () => resolve();
-    request.onerror = (event) => {
-      console.error("Erreur lors de l'ajout de l'utilisateur", event);
-      reject("Échec de l'ajout de l'utilisateur");
-    };
-  });
-}
+import { addUser } from "../core/database/openDatabase.js";
 
 // Register
 async function handleRegister(event: Event): Promise<void> {
@@ -97,12 +72,22 @@ const form = document.querySelector("form");
 form?.addEventListener("submit", handleRegister);
 
 
-export function displayPassword(){
-  const togglePassword = document.getElementById("togglePassword");
+export function displayPassword(toggleId?: string, field?: string, icon?: string) {
+  console.log("displayPassword");
+  if( !toggleId){
+    toggleId = "togglePassword";
+  }
+  const togglePassword = document.getElementById(toggleId);
   if (togglePassword) {
     togglePassword.addEventListener("click", function () {
-                const passwordField = document.getElementById("password") as HTMLInputElement;
-                const passwordIcon = document.getElementById("passwordIcon") as HTMLElement;
+      if(!field){
+        field = "password";
+      }
+      const passwordField = document.getElementById(field) as HTMLInputElement;
+      if(!icon){
+        icon = "passwordIcon";
+      }
+                const passwordIcon = document.getElementById(icon) as HTMLElement;
 
                 if (passwordField.type === "password") {
                     passwordField.type = "text";

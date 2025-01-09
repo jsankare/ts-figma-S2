@@ -1,5 +1,5 @@
 import { getCurrentUser } from "../core/auth/getCurrentUser.js";
-import { openDatabase } from "../core/database/openDatabase.js";
+import { openDatabase, getAllItems } from "../core/database/openDatabase.js";
 import { logoutLogic } from "../core/auth/logout.js";
 import { uploadImage } from "../core/database/uploadImage.js";
 // import { displayLoading } from "./utils/displayLoading.js";
@@ -10,6 +10,7 @@ import { displayAccountSettingsForm } from "../shared/components/userSetting.js"
 import isVisible from "../utils/visibility.js";
 
 displayUserProfile();
+
 async function displayUserProfile() {
   console.time("profile");
   isVisible();
@@ -32,6 +33,7 @@ async function displayUserProfile() {
     }
 
     updateUserProfileUI(user, db, userEmail);
+    displayAccountSettingsForm(user);
     initializeButtons(user);
   } catch (error) {
     console.error(
@@ -42,107 +44,101 @@ async function displayUserProfile() {
   console.timeEnd("profile");
 }
 
-function updateUserProfileUI(user: any, db: IDBDatabase, userEmail: string) {
+async function updateUserProfileUI(user: any, db: IDBDatabase, userEmail: string) {
   const usernameElement = document.getElementById(
     "profile--username",
   ) as HTMLHeadingElement;
+  const totalTransactions = document.getElementById('profile_transactions') as HTMLParagraphElement;
+  const activeBudget = document.getElementById('profile_active_budget') as HTMLParagraphElement;
+  const totalCategories = document.getElementById('profile_categories') as HTMLParagraphElement;
+  const creationDateElement = document.getElementById('profile_date') as HTMLParagraphElement;
   const profilePicture = document.getElementById(
     "profile--picture",
   ) as HTMLImageElement;
   const addProfileButton = document.getElementById(
     "button--addProfilePicture",
   ) as HTMLFormElement;
-  const deletePicture = document.getElementById("delete-picture");
-  const fileNameElement = document.getElementById(
-    "file-name",
-  ) as HTMLParagraphElement;
-  const fileTypeElement = document.getElementById(
-    "file-type",
-  ) as HTMLParagraphElement;
-  const fileSizeElement = document.getElementById(
-    "file-size",
-  ) as HTMLParagraphElement;
+  const modal = document.querySelector(".fromProfilePicture.modal") as HTMLDivElement;
 
   if (usernameElement) {
     usernameElement.textContent = `${user.firstname} ${user.lastname}`;
   }
 
-  if (user.picture !== "") {
-    profilePicture.src = user.picture;
-    profilePicture.style.display = "block";
-    addProfileButton.style.display = "none";
-    if (deletePicture) {
-      deletePicture.addEventListener("click", async () => {
-        await handleDeletePicture(
-          db,
-          userEmail,
-          profilePicture,
-          addProfileButton,
-          deletePicture,
-        );
-      });
-    }
-  } else {
-    profilePicture.style.display = "none";
-    addProfileButton.style.display = "flex";
-    if (deletePicture) {
-      deletePicture.style.display = "none";
+  if (creationDateElement) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' }; // Exemple : 9 janvier 2025
+    const formattedDate = new Intl.DateTimeFormat('fr-FR', options).format(new Date(user.createdAt));
+    creationDateElement.textContent = `Membre depuis le ${formattedDate}`;
+  }
+
+addProfileButton.addEventListener("click", () => {
+  if (modal) {
+    modal.style.display = "block"; // Affiche la modale
+  }
+});
+
+addProfileButton.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await handleUploadPicture(
+    db,
+    userEmail,
+    profilePicture,
+    addProfileButton,
+  );
+});
+
+  try {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    const transactions = await getAllItems('TransactionDatabase', 'transactions');
+    const filteredTransactions = transactions.filter(transaction => transaction.userId === user.id);
+
+    if (totalTransactions) {
+      totalTransactions.textContent = `${filteredTransactions.length}`;
     }
 
-    addProfileButton.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      await handleUploadPicture(
-        db,
-        userEmail,
-        profilePicture,
-        addProfileButton,
-        fileNameElement,
-        fileTypeElement,
-        fileSizeElement,
+    const budgets = await getAllItems('BudgetDatabase', 'budgets');
+    const filteredBudgets = budgets.filter(budget => {
+      return (
+        budget.userId === user.id &&
+        budget.month == currentMonth &&
+        budget.year == currentYear
       );
     });
+
+    if (activeBudget) {
+      activeBudget.textContent = `${filteredBudgets.length}`;
+    }
+
+    const categories = await getAllItems('CategoryDatabase', 'categories');
+    const filteredCategories = categories.filter(category => category.userId === user.id);
+
+    if (totalCategories) {
+      totalCategories.textContent = `${filteredCategories.length}`;
+    }
+
+    if (user.picture !== "") {
+      profilePicture.src = user.picture;
+      profilePicture.style.display = "block";
+    } else {
+      profilePicture.style.display = "none";
+      addProfileButton.style.display = "flex";
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du profil :", error);
   }
 }
 
-async function handleDeletePicture(
-  db: IDBDatabase,
-  email: string,
-  profilePicture: HTMLImageElement,
-  addProfileButton: HTMLElement,
-  deletePicture: HTMLElement | null,
-) {
-  try {
-    await updateUserProfilePicture(db, email, "");
-    profilePicture.src = "";
-    profilePicture.style.display = "none";
-    addProfileButton.style.display = "flex";
-    if (deletePicture) deletePicture.style.display = "none";
-    showNotification("Votre site vous informe", {
-      body: "Votre image de profil a bien été supprimée",
-      icon: "/assets/logo_no_bg.svg",
-      requireInteraction: false,
-    });
-  } catch (error) {
-    toastAlert("error", "Erreur lors de la suppression de la photo de profil");
-  }
-}
 
 async function handleUploadPicture(
   db: IDBDatabase,
   email: string,
   profilePicture: HTMLImageElement,
   addProfileButton: HTMLElement,
-  fileNameElement: HTMLParagraphElement,
-  fileTypeElement: HTMLParagraphElement,
-  fileSizeElement: HTMLParagraphElement,
 ) {
   const fileInput = document.getElementById("myfile") as HTMLInputElement;
   if (fileInput.files?.length) {
     const file = fileInput.files[0];
-
-    const fileName = file.name.split(".")[0];
-    const fileType = file.type.split("/")[1];
-    const fileSize = file.size / 1024;
 
     try {
       const pictureDataUrl = await uploadImage(file);
@@ -207,6 +203,7 @@ function initializeButtons(user: any) {
   });
 
   buttons.settingsButton?.addEventListener("click", () => {
+    console.log("test");
     displayAccountSettingsForm(user);
   });
 

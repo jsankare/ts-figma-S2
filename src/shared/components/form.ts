@@ -7,12 +7,13 @@ import {
 } from "../../core/database/openDatabase.js";
 import { toastAlert } from "./alert.js";
 import { uploadImage } from "../../core/database/uploadImage.js";
-import { Budget, isBudget } from "../../pages/budgets.js";
+import { isBudget } from "../../pages/budgets.js";
+import { Budget } from "../../core/database/types.js";
 import { Category, isCategory } from "../../pages/categories.js";
 import { isTransaction, Transaction } from "../../pages/transactions.js";
 import { getCurrentUser } from "../../core/auth/getCurrentUser.js";
 
-async function getUser() {
+export async function getUser() {
   const db = await openDatabase("UserDatabase", "users");
   const userEmail = localStorage.getItem("userMail");
 
@@ -380,28 +381,7 @@ export async function displayItems(
           console.error("Error fetching category for transaction:", error);
         }
       }
-       else if (isCategory(item)) {
-        const categoryDiv = document.createElement("div");
-        categoryDiv.classList.add("category-item");
-
-        if (typeof item.icon === "string" && item.icon.trim() !== "") {
-          // Si item.icon est une chaîne non vide, l'afficher directement
-          const iconImg = document.createElement("img");
-          iconImg.src = item.icon; // Utilise l'URL de l'icône dans le cas d'une chaîne
-          iconImg.alt = `${item.name} icon`;
-          iconImg.classList.add("item-icon");
-          categoryDiv.appendChild(iconImg);
-        } else {
-          console.log("L'icône est vide ou invalide");
-        }
-
-        const nameSpan = document.createElement("p");
-        nameSpan.classList.add("category-name");
-        nameSpan.textContent = item.name;
-        categoryDiv.appendChild(nameSpan);
-
-        listItem.appendChild(categoryDiv);
-      } else if (isBudget(item)) {
+      else if (isBudget(item)) {
         try {
           let categoryName = "";
           let categoryIcon = "";
@@ -519,6 +499,28 @@ export async function displayItems(
         } catch (error) {
           console.error("Error fetching category for budget:", error);
         }
+      }
+       else if (isCategory(item)) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.classList.add("category-item");
+
+        if (typeof item.icon === "string" && item.icon.trim() !== "") {
+          // Si item.icon est une chaîne non vide, l'afficher directement
+          const iconImg = document.createElement("img");
+          iconImg.src = item.icon; // Utilise l'URL de l'icône dans le cas d'une chaîne
+          iconImg.alt = `${item.name} icon`;
+          iconImg.classList.add("item-icon");
+          categoryDiv.appendChild(iconImg);
+        } else {
+          console.log("L'icône est vide ou invalide");
+        }
+
+        const nameSpan = document.createElement("p");
+        nameSpan.classList.add("category-name");
+        nameSpan.textContent = item.name;
+        categoryDiv.appendChild(nameSpan);
+
+        listItem.appendChild(categoryDiv);
       }
 
       // Ajout des boutons d'édition et de suppression

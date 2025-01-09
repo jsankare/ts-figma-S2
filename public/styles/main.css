@@ -566,8 +566,7 @@ p, a, span, input, textarea, select, label {
 }
 .transactionsContainer .filters button, .transactionsContainer .filters input[type=submit], .budgetContainer .filters button, .budgetContainer .filters input[type=submit] {
   background-color: white;
-  padding: 1rem;
-  width: 100%;
+  padding: 1rem 2rem;
   color: #4299E1;
   font-weight: 400;
   font-size: 1.125rem;
@@ -773,6 +772,9 @@ p, a, span, input, textarea, select, label {
   line-height: 1.5625rem;
   background-color: #4299E1;
   border-radius: 0.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   color: white;
   border: 1px solid #4299E1;
   width: fit-content;
@@ -877,6 +879,40 @@ p, a, span, input, textarea, select, label {
 
 @media screen and (max-width: 1024px) {
   .categoriesContainer #categoriesListing li {
+    width: 100%;
+  }
+  .budgetContainer {
+    padding: 3rem 2rem;
+  }
+  .budgetContainer .list {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  .budgetContainer .list .listingTitle {
+    display: none;
+  }
+  .budgetContainer .list #budgetsListing {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-top: 0;
+  }
+  .budgetContainer .list #budgetsListing li {
+    padding: 1.5rem;
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    border-radius: 1rem;
+  }
+  .budgetContainer .list #budgetsListing li::before {
+    content: none;
+  }
+  .budgetContainer .list #budgetsListing li .category-info {
+    gap: 1rem;
+  }
+  .budgetContainer .list #budgetsListing li .progress-section {
     width: 100%;
   }
 }
@@ -1124,6 +1160,7 @@ p, a, span, input, textarea, select, label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-direction: row-reverse;
 }
 .top-bar a img {
   width: 1.5rem;
@@ -1157,8 +1194,10 @@ p, a, span, input, textarea, select, label {
     bottom: 0;
     top: auto;
     left: 0;
+    padding: 1.5rem 2.5rem;
     height: fit-content;
     width: 100vw;
+    border-radius: 1rem 1rem 0 0;
   }
   .header:hover {
     width: 100vw;
@@ -1172,16 +1211,32 @@ p, a, span, input, textarea, select, label {
   .header .navigation--items {
     flex-direction: row;
     align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
   }
   .header .navigation--items li a {
+    padding: 0 !important;
     margin-top: 0 !important;
     flex-direction: column;
   }
+  .header .navigation--items li a.active {
+    border-left: none !important;
+  }
+  .header .navigation--items li a svg {
+    width: auto !important;
+    height: 1rem !important;
+  }
   .header .navigation--items li a span {
+    margin-left: 0 !important;
+    font-size: 0.625rem !important;
     width: fit-content !important;
   }
   .top-bar {
+    padding: 1.5rem 2rem;
     margin-left: 0;
+  }
+  .top-bar #batteryStatus, .top-bar #fullscreenButton {
+    display: none;
   }
   main {
     margin-left: 0 !important;

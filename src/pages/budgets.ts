@@ -1,20 +1,9 @@
 import {
   handleFormSubmit,
-  updateListing,
   displayItems,
 } from "../shared/components/form.js";
 import { getAllItems } from "../core/database/openDatabase.js";
-
-export interface Budget {
-  id: number;
-  name: string;
-  category: string;
-  budget: number;
-  alert?: boolean;
-  month: number;
-  year: number;
-  userId: number;
-}
+import { Budget } from "../core/database/types.js";
 
 export function isBudget(item: any): item is Budget {
   return (item as Budget).budget !== undefined;
