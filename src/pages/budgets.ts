@@ -7,6 +7,7 @@ import { getAllItems } from "../core/database/openDatabase.js";
 
 export interface Budget {
   id: number;
+  name: string;
   category: string;
   budget: number;
   alert?: boolean;
@@ -75,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "budgetsListing",
     "BudgetDatabase",
     "budgets",
-    ["category", "budget", "year", "month"],
+    ["name", "category", "budget", "year", "month"],
     ["alert"],
   );
 });

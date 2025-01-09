@@ -1,4 +1,5 @@
 import { handleFormSubmit, updateListing } from "../shared/components/form.js";
+import { getAllItems } from "../core/database/openDatabase.js";
 
 export interface Transaction {
   id: number;
@@ -34,3 +35,50 @@ document.addEventListener("DOMContentLoaded", () => {
     "description",
   ]);
 });
+
+document.getElementById("filterTransactions")?.addEventListener("click", (event) => {
+  event.preventDefault();
+
+  console.log("Filtering transactions");
+  updateListing("TransactionDatabase","transactions", [
+    "type",
+    "name",
+    "amount",
+    "category",
+    "date",
+    "description",
+  ]);
+});
+
+async function populateTransactionCategorySelect() {
+  try {
+    const categories = await getAllItems("CategoryDatabase", "categories");
+    const transactionCategorySelect = document.getElementById(
+      "transactionCategory"
+    ) as HTMLSelectElement;
+
+    if (!transactionCategorySelect) {
+      console.error("#transactionCategorySelect not found");
+      return;
+    }
+
+    const optionsHTML = categories
+      .map((category: Category) =>
+        category.id && category.name
+          ? `<option value="${category.id}">${category.name}</option>`
+          : "",
+      )
+      .join("");
+
+    transactionCategorySelect.innerHTML = `
+      <option value="" selected disabled>Sélectionnez une catégorie</option>
+                        <option value="">Toutes</option>
+      ${optionsHTML}
+    `;
+    console.log("Transaction category select populated successfully.");
+  } catch (error) {
+    console.error("Failed to populate transaction categories:", error);
+  }
+}
+
+populateTransactionCategorySelect();

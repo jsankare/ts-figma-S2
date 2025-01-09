@@ -4,24 +4,52 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Transaction</title>
-        <link href="styles.css" rel="stylesheet">
-        <link href="styles/navbar.css" rel="stylesheet">
-        <link href="styles/global.css" rel="stylesheet">
-        <link href="styles/modal.css" rel="stylesheet">
-        <link href="styles/alert.css" rel="stylesheet">
-        <link rel="stylesheet" href="styles/listing.css">
+        <link href="styles/main.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     </head>
     <body id="body">
-        <main id="main">
+        <main id="main" class="transactionsContainer">
             
             <section class="page-header">
-                <h1 class="transactions-title">Gérer les transactions</h1>
-                <button class="cta-transaction" id="openModal">+ Nouvelle transaction</button>
+                <h1 class="transactions-title">Transactions</h1>
+                <button class="cta-transaction" id="openModal"><span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 7H9V1C9 0.447719 8.55228 0 8 0C7.44772 0 7 0.447719 7 1V7H1C0.447719 7 0 7.44772 0 8C0 8.55228 0.447719 9 1 9H7V15C7 15.5523 7.44772 16 8 16C8.55228 16 9 15.5523 9 15V9H15C15.5523 9 16 8.55228 16 8C16 7.44772 15.5523 7 15 7Z" fill="#F6F6F6"/>
+                    </svg>
+                    </span> Ajouter</button>
             </section>
 
+            <div class="filters">
+                <div class="select-container">
+                    <select id="transactionType">
+                      <option value="" selected disabled>Sélectionnez un type</option>
+                        <option value="">Tous</option>
+                      <option value="credit">Crédit</option>
+                      <option value="debit">Débit</option>
+                    </select>
+                </div>
+                <div class="select-container">
+                    <select id="transactionCategory">
+                    </select>
+                </div>
+
+                <div class="select-container">
+                    <input type="date" id="transactionDate" placeholder="jj/mm/aaaa"/>
+                </div>
+
+                <button type="submit" id="filterTransactions">Filtrer</button>
+            </div>
+
             <div id="modal" class="modal" data-type="transaction"></div>
-            <div id="transactionsListing" class="list"></div>
+            <div class="list">
+                <div class="listingTitle">
+                    <p>Nom</p>
+                    <p>Date</p>
+                    <p>Catégorie</p>
+                    <p>Montant</p>
+                    <p>Actions</p>
+                </div>
+                <div id="transactionsListing"></div>
+            </div>
         </main>
         <script type="module" src="dist/shared/components/navbar.js"></script>
         <script type="module" src="dist/core/auth/authVerification.js"></script>

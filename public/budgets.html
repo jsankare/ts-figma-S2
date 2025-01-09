@@ -4,29 +4,47 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Budget</title>
-        <link href="styles.css" rel="stylesheet">
-        <link href="styles/navbar.css" rel="stylesheet">
-        <link href="styles/global.css" rel="stylesheet">
-        <link href="styles/modal.css" rel="stylesheet">
-        <link href="styles/alert.css" rel="stylesheet">
-        <link rel="stylesheet" href="styles/listing.css">
+        <link href="styles/main.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     </head>
     <body id="body">
-        <main id="main">
+
+        <main id="main" class="budgetContainer">
+           
+            <section class="page-header"> 
+                <h1 class="budgets-title">Budgets</h1>
+                <button class="cta-budget" id="openModal"><span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 7H9V1C9 0.447719 8.55228 0 8 0C7.44772 0 7 0.447719 7 1V7H1C0.447719 7 0 7.44772 0 8C0 8.55228 0.447719 9 1 9H7V15C7 15.5523 7.44772 16 8 16C8.55228 16 9 15.5523 9 15V9H15C15.5523 9 16 8.55228 16 8C16 7.44772 15.5523 7 15 7Z" fill="#F6F6F6"/>
+                    </svg>
+                    </span>Ajouter</button>
+            </section>
+            
             <div id="month-navigation">
-                <button id="prevMonth">◀️ Mois Précédent</button>
+                <a id="prevMonth">
+                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 12.5L0.999999 6.5L7 0.5" stroke="#6D6D6D" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Mois Précédent</a>
                 <span id="currentMonthLabel">Janvier 2024</span>
-                <button id="nextMonth">Mois Suivant ▶️</button>
+                <a id="nextMonth">Mois Suivant <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0.999999 0.5L7 6.5L1 12.5" stroke="#6D6D6D" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    </a>
             </div>
 
-            <section class="page-header">
-                <h1 class="transactions-title">Gérer les budgets</h1>
-                <button class="cta-transaction" id="openModal">+ Nouveau budget</button>
-            </section>
-
             <div id="modal" class="modal" data-type="budget"></div>
-            <div id="budgetsListing" class="list"></div>
+            <div class="list">
+                <div class="listingTitle">
+                    <p>Nom</p>
+                    <p>Progression</p>
+                    <p>Restant</p>
+                    <p>Catégorie</p>
+                    <p>Actions</p>
+                </div>
+                <div id="budgetsListing">
+            </div>
+            </table>
+            
         </main>
         <script type="module" src="dist/shared/components/navbar.js"></script>
         <script type="module" src="dist/core/auth/authVerification.js"></script>

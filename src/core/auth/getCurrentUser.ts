@@ -1,29 +1,42 @@
-export function getCurrentUser(
-  db: IDBDatabase,
-  email: string,
-): Promise<
-  | {
-      id: number;
-      email: string;
-      password: string;
-      firstname: string;
-      lastname: string;
-      picture: string;
-      token?: string;
-      tokenExpiry?: Date;
+import { openDatabase } from "../database/openDatabase.js";
+import { User } from "../database/types.js";
+
+export async function getCurrentUser(
+  db?: IDBDatabase,
+  email?: string
+): Promise<User | undefined> {
+  try {
+    // Initialiser db si non fourni
+    if (!db) {
+      db = await openDatabase('UserDatabase', 'users');
     }
-  | undefined
-> {
-  return new Promise((resolve, reject) => {
+
+    // Récupérer l'email depuis localStorage si non fourni
+    if (!email) {
+      email = localStorage.getItem('userMail') || undefined;
+    }
+
+    if (!email) {
+      console.error("L'email n'est pas défini.");
+      return undefined;
+    }
+
+    // Effectuer une transaction pour récupérer l'utilisateur
     const transaction = db.transaction("users", "readonly");
     const store = transaction.objectStore("users");
     const index = store.index("email");
     const request = index.get(email);
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = (event) => {
-      console.error("Erreur lors de la récupération de l'utilisateur", event);
-      reject("Erreur lors de la récupération de l'utilisateur");
-    };
-  });
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = (event) => {
+        console.error("Erreur lors de la récupération de l'utilisateur", event);
+        reject("Erreur lors de la récupération de l'utilisateur");
+      };
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur", error);
+    return undefined;
+  }
 }
+

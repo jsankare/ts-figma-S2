@@ -1,0 +1,186 @@
+.authContainer{
+
+    .authForm{    
+        p{
+            color: $dark_grey;
+        }
+    }
+
+    .authContent{
+        padding: rem(104) rem(32) rem(80) rem(64);
+        min-height: 100vh;
+        display: flex;
+        width: 60%;
+        flex-direction: column;
+        justify-content: space-between;
+    
+        .loginLogo{
+            width: rem(117);
+            height: auto;
+            position: relative;
+        }
+    
+        .text-content{
+            display: flex;
+            gap: rem(16);
+    
+            .content{
+                display: flex;
+                flex-direction: column;
+                gap: rem(24);
+    
+                h1{
+                    font-size: rem(52);
+                    line-height: rem(36);
+                    color: $blue;
+                }
+                h3{
+                    width: 60%;
+                }
+            }
+        }
+        .loginIllustration{
+            width: rem(740);
+            height: auto;
+        }
+    }
+}
+
+@media screen and (max-width: 1024px){
+
+    main{
+        margin-bottom: 0 !important;
+    }
+
+    .authContainer{
+        flex-direction: column;
+        gap: rem(24);
+        display: none;
+        width: 100%;
+        height: auto;
+
+        .authContent{
+            width: 100%;
+            height: auto;
+            gap: rem(16); 
+            min-height: fit-content;
+            padding: rem(32) rem(32) rem(24) rem(32);
+            min-height: auto !important;
+
+            .text-content{
+                img{
+                    width: rem(80);
+                    height: fit-content;
+                }
+
+                .content{
+                    gap: rem(8);
+                    h3{
+                        font-size: rem(14);
+                        width: 100%;
+                    }
+                }
+
+                
+            }
+            .loginIllustration{
+                width: 100%;
+            }
+        }
+
+        .authForm{
+            width: 100%;
+            height: auto;
+            padding: rem(48) rem(40);
+
+            form{
+                width: 100%;
+                padding: 0 rem(16);
+
+                .form-group{
+                    width: 100%;
+    
+                    input{
+                        width: 100%;
+                    }
+                }
+            }
+
+        }
+    }
+
+    .registerContainer{
+        flex-direction: column;
+        gap: 0;
+        display: none;
+        width: 100%;
+        height: auto;
+
+        .textPart{
+            width: 100%;
+            height: auto;
+            padding: rem(32) rem(32) rem(24) rem(32);
+            min-height: auto !important;
+
+            dotlottie-player{
+                width: 100%;
+                height: auto;
+            }
+        }
+
+        .registerForm{
+            width: 100%;
+            height: auto;
+            padding: rem(48) rem(40);
+
+            form{
+                width: 100%;
+                padding: 0 rem(16);
+
+                .form-group{
+                    width: 100%;
+    
+                    input{
+                        width: 100%;
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .reset-password-container{
+        padding: 0 rem(40);
+
+        img{
+            width: rem(64) !important;
+            height: auto !important;
+            top: rem(32) !important;
+            left: rem(32) !important;
+        }
+        #content, form, .form-groupe, input{
+            width: 100% !important;
+        }
+    }
+}
+
+.registerContainer{
+    .textPart{
+        padding: rem(64);
+
+        dotlottie-player{
+            width: 100% !important;
+            height: 100% !important;
+        }
+    }
+}
+
+#container .logo{
+    position: absolute;
+    top: rem(52);
+    left: rem(52);
+    height: rem(70);
+    width: auto;
+}

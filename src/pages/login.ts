@@ -1,6 +1,7 @@
 import { hashPassword } from "../core/auth/hashPassword.js";
 import { getCurrentUser } from "../core/auth/getCurrentUser.js";
 import { openDatabase } from "../core/database/openDatabase.js";
+import { toastAlert } from "../shared/components/alert.js";
 
 // Generate a random token
 function generateToken(length: number = 32): string {
@@ -64,13 +65,13 @@ async function handleLogin(event: Event) {
   const db = await openDatabase("UserDatabase", "users");
   const user = await getCurrentUser(db, email);
   if (!user) {
-    alert("L'utilisateur n'existe pas !");
+    toastAlert("error", "Aucun utilisateur trouvé avec cet e-mail !");
     return;
   }
 
   const hashedPassword = await hashPassword(password);
   if (user.password !== hashedPassword) {
-    alert("Mot de passe incorrect !");
+    toastAlert("error", "Mot de passe incorrect !");
     return;
   }
 
@@ -83,14 +84,14 @@ async function handleLogin(event: Event) {
 
     localStorage.setItem("userMail", email);
     document.cookie = `token=${token}; expires=${tokenExpiry}`;
-
-    alert("Connexion réussie !");
     window.location.href = "index.html";
   } catch (error) {
     console.error("Échec de la mise à jour du token", error);
-    alert("Échec de la connexion.");
+    toastAlert("error", "Échec de la connexion, veuillez réessayer !");
   }
 }
+
+
 
 // Add submit to login form only
 const loginForm = document.querySelector("form");

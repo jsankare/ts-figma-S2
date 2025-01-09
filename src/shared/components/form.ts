@@ -233,21 +233,24 @@ export async function displayItems(
       const emptySubtitle = document.createElement("h2");
       emptySubtitle.className = "empty-subtitle";
       if (storeName === "budgets") {
-        emptySubtitle.textContent = "Aucun budget";
+        emptySubtitle.textContent = "Aucun budget disponible";
       } else if (storeName === "categories") {
-        emptySubtitle.textContent = "Aucune catégorie";
+        emptySubtitle.textContent = "Aucune catégorie disponible";
       } else {
-        emptySubtitle.textContent = "Aucune transaction";
+        emptySubtitle.textContent = "Aucune transaction disponible";
       }
 
       const emptyLowercase = document.createElement("h3");
       emptyLowercase.className = "empty-lowercase";
       if (storeName === "budgets") {
-        emptyLowercase.textContent = "Commencez par créer un budget";
+        emptyLowercase.textContent = `Vous n'avez pas encore enregistré de budget.
+        Pour commencer, ajoutez un budget et suivez vos finances en toute simplicité !`;
       } else if (storeName === "categories") {
-        emptyLowercase.textContent = "Commencez par créer une catégorie";
+        emptyLowercase.textContent = `Vous n'avez pas encore enregistré de catégorie.
+        Pour commencer, ajoutez votre première catégorie et organisez vos transactions !`;
       } else {
-        emptyLowercase.textContent = "Commencez par créer une transaction";
+        emptyLowercase.textContent = `Vous n'avez pas encore enregistré de transaction.
+        Pour commencer, ajoutez votre première transaction et suivez vos finances en toute simplicité !`;
       }
 
       emptySection.appendChild(emptyIcon);
@@ -298,78 +301,86 @@ export async function displayItems(
       if (isTransaction(item)) {
         try {
           let categoryName = "";
+          let categoryIcon = "";
+      
           const categoryId = item.category ? Number(item.category) : null;
-
+      
           if (categoryId !== null) {
-            const category = await getItemById(
-              "CategoryDatabase",
-              "categories",
-              categoryId,
-            );
+            const category = await getItemById("CategoryDatabase", "categories", categoryId);
             if (isCategory(category)) {
               categoryName = category.name;
+              categoryIcon = category.icon || "";
             }
-          } else {
-            categoryName = "Non défini";
           }
-
-          const transactionDiv = document.createElement("div");
-          transactionDiv.classList.add("transaction");
-
+      
+          // En-tête de la transaction
           const headerDiv = document.createElement("div");
           headerDiv.classList.add("transaction_header");
-          // Nom de la transaction
-          const nameDiv = document.createElement("div");
-          nameDiv.classList.add("name");
-          nameDiv.textContent = `${item.name}`;
-          headerDiv.appendChild(nameDiv);
-
-          // Montant
-          const amountDiv = document.createElement("div");
-          amountDiv.classList.add("amount");
-          amountDiv.textContent = `${item.amount} €`;
-          headerDiv.appendChild(amountDiv);
-
-          transactionDiv.appendChild(headerDiv);
-
-          // Date
-          const dateDiv = document.createElement("div");
-          dateDiv.classList.add("date");
-          dateDiv.textContent = item.date ? `${item.date}` : "";
-          transactionDiv.appendChild(dateDiv);
-
-          // Description
-          if (item.description) {
-            const descriptionDiv = document.createElement("div");
-            descriptionDiv.classList.add("description");
-            descriptionDiv.textContent = `${item.description}`;
-            transactionDiv.appendChild(descriptionDiv);
+      
+          // Icône de la catégorie
+          const iconDiv = document.createElement("div");
+          iconDiv.classList.add("icon");
+          if (categoryIcon) {
+            const iconImg = document.createElement("img");
+            iconImg.src = categoryIcon;
+            iconImg.alt = categoryName;
+            iconDiv.appendChild(iconImg);
           }
-
-          // Conteneur des tags (type et catégorie)
+          headerDiv.appendChild(iconDiv);
+      
+          // Nom de la transaction
+          const nameDiv = document.createElement("p");
+          nameDiv.classList.add("name");
+          nameDiv.textContent = item.name || "Transaction sans nom";
+          headerDiv.appendChild(nameDiv);
+      
+          listItem.appendChild(headerDiv);
+      
+          // Date de la transaction (formatée)
+          const dateDiv = document.createElement("p");
+          dateDiv.classList.add("date");
+      
+          if (item.date) {
+            const date = new Date(item.date);
+            const options: Intl.DateTimeFormatOptions = {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            };
+            dateDiv.textContent = date.toLocaleDateString("fr-FR", options); // Format français
+          } else {
+            dateDiv.textContent = "Date inconnue";
+          }
+          listItem.appendChild(dateDiv);
+      
+          // Tags (type et catégorie)
           const tagDiv = document.createElement("div");
           tagDiv.classList.add("tags");
-
-          // Tag type
-          const typeDiv = document.createElement("div");
-          typeDiv.classList.add("type", item.type.toLowerCase());
-          typeDiv.textContent = `${item.type === "credit" ? "Crédit" : "Débit"}`;
-          tagDiv.appendChild(typeDiv);
-
+      
           // Tag catégorie
-          const categoryDiv = document.createElement("div");
+          const categoryDiv = document.createElement("p");
           categoryDiv.classList.add("category");
-          categoryDiv.textContent = `${categoryName}`;
+          categoryDiv.textContent = categoryName;
           tagDiv.appendChild(categoryDiv);
-
-          transactionDiv.appendChild(tagDiv);
-
-          // Ajouter l'ensemble au listItem
-          listItem.appendChild(transactionDiv);
+      
+          listItem.appendChild(tagDiv);
+      
+          // Montant de la transaction
+          const amountDiv = document.createElement("h3");
+          amountDiv.classList.add("amount");
+      
+          // Vérifier le type de transaction (débit ou crédit)
+          const amount = item.amount || 0;
+          const isCredit = item.type === "credit"; // Ex.: "credit" pour revenu, "debit" pour dépense
+          amountDiv.textContent = `${isCredit ? "+" : "-"}${Math.abs(amount)} €`;
+          amountDiv.classList.add(isCredit ? "credit" : "debit"); // Ajoute une classe spécifique
+      
+          listItem.appendChild(amountDiv);
         } catch (error) {
           console.error("Error fetching category for transaction:", error);
         }
-      } else if (isCategory(item)) {
+      }
+       else if (isCategory(item)) {
         const categoryDiv = document.createElement("div");
         categoryDiv.classList.add("category-item");
 
@@ -393,6 +404,7 @@ export async function displayItems(
       } else if (isBudget(item)) {
         try {
           let categoryName = "";
+          let categoryIcon = "";
           let categoryId = null;
 
           // Vérifier si une catégorie est liée au budget
@@ -405,9 +417,8 @@ export async function displayItems(
             );
             if (isCategory(category)) {
               categoryName = category.name;
+              categoryIcon = category.icon || "";
             }
-          } else {
-            categoryName = "Non défini";
           }
 
           // Récupérer le mois actuel
@@ -450,58 +461,61 @@ export async function displayItems(
             (totalTransactionAmount / item.budget) * 100,
             100,
           );
-          const overBudgetAmount = totalTransactionAmount - item.budget;
+          const remainingBudget = item.budget - totalTransactionAmount;
 
           // Créer l'élément DOM pour afficher le budget
-          const budgetDiv = document.createElement("div");
-          budgetDiv.classList.add("budget");
+          const categoryInfoDiv = document.createElement("div");
+          categoryInfoDiv.classList.add("category-info");
+
+          const iconDiv = document.createElement("div");
+          iconDiv.classList.add("icon");
+          if (categoryIcon) {
+            const iconImg = document.createElement("img");
+            iconImg.src = categoryIcon;
+            iconImg.alt = categoryName;
+            iconDiv.appendChild(iconImg);
+          }
+          categoryInfoDiv.appendChild(iconDiv);
+
+          const budgetTitleDiv = document.createElement("p");
+          budgetTitleDiv.classList.add("budget-title");
+          budgetTitleDiv.textContent = item.name || "Budget sans nom";
+          categoryInfoDiv.appendChild(budgetTitleDiv);
+
+          listItem.appendChild(categoryInfoDiv);
+
+          const progressSectionDiv = document.createElement("div");
+          progressSectionDiv.classList.add("progress-section");
+
+          const progressContainer = document.createElement("div");
+        progressContainer.classList.add("progress-container");
+
+        const progressBar = document.createElement("div");
+        progressBar.classList.add("progress-bar");
+        progressBar.style.width = `${progressPercentage}%`;
+        if (isOverBudget) {
+            progressBar.style.backgroundColor = "#E62E2E";
+        }
+        progressContainer.appendChild(progressBar);
+
+        const progressDetails = document.createElement("div");
+        progressDetails.classList.add("progress-details");
+        progressDetails.innerHTML = `<span>${totalTransactionAmount}€ sur ${item.budget}€</span> <span>${progressPercentage.toFixed(1)}%</span>`;
+
+        progressSectionDiv.appendChild(progressContainer);
+        progressSectionDiv.appendChild(progressDetails);
+
+        listItem.appendChild(progressSectionDiv);
+
+        const remainingBudgetDiv = document.createElement("h3");
+        remainingBudgetDiv.classList.add("remaining-budget");
+        remainingBudgetDiv.textContent = `${remainingBudget} €`;
+        listItem.appendChild(remainingBudgetDiv);
 
           const categoryDiv = document.createElement("div");
           categoryDiv.classList.add("category");
           categoryDiv.textContent = `${categoryName}`;
-          budgetDiv.appendChild(categoryDiv);
-
-          const budgetAmountDiv = document.createElement("div");
-          budgetAmountDiv.classList.add("budget-amount");
-          budgetAmountDiv.textContent = `${totalTransactionAmount}/${item.budget} €`;
-          budgetDiv.appendChild(budgetAmountDiv);
-
-          if (isOverBudget) {
-            const overBudgetDiv = document.createElement("div");
-            overBudgetDiv.classList.add("over-budget");
-            overBudgetDiv.textContent = `Over Budget by: ${overBudgetAmount.toFixed(2)} €`;
-            budgetDiv.appendChild(overBudgetDiv);
-          }
-
-          // Créer la barre de progression
-          const progressContainer = document.createElement("div");
-          progressContainer.classList.add("progress-container");
-
-          const progressBar = document.createElement("div");
-          progressBar.classList.add("progress-bar");
-          progressBar.style.width = `${progressPercentage}%`;
-
-          // Changer la couleur de la barre de progression si le budget est dépassé
-          if (isOverBudget) {
-            progressBar.style.backgroundColor = "#ff4d4d"; // Rouge si dépassé
-          }
-
-          const progressLabel = document.createElement("span");
-          progressLabel.classList.add("progress-label");
-          progressLabel.textContent = isOverBudget
-            ? `Over Budget (${progressPercentage.toFixed(1)}%)`
-            : `${progressPercentage.toFixed(1)}%`;
-
-          progressContainer.appendChild(progressBar);
-          progressContainer.appendChild(progressLabel);
-          budgetDiv.appendChild(progressContainer);
-
-          const alertDiv = document.createElement("div");
-          alertDiv.classList.add("alert");
-          alertDiv.textContent = item.alert ? "Alert enabled" : "";
-          budgetDiv.appendChild(alertDiv);
-
-          listItem.appendChild(budgetDiv);
+          listItem.appendChild(categoryDiv);
         } catch (error) {
           console.error("Error fetching category for budget:", error);
         }
@@ -552,6 +566,41 @@ export async function updateListing(
         }
         return false;
       });
+    } else if (storeName === "transactions") {
+      const transactionType = document.getElementById("transactionType") as HTMLSelectElement;
+      const transactionDate = document.getElementById("transactionDate") as HTMLInputElement;
+      const transactionCategory = document.getElementById("transactionCategory") as HTMLSelectElement;
+  
+      const selectedType = transactionType.value;
+      const selectedDate = transactionDate.value;
+      const selectedCategory = transactionCategory.value;
+  
+      filteredItems = items.filter(item => {
+          if (isTransaction(item)) {
+              let isValid = true;
+  
+              // Filtrer par type
+              if (selectedType && item.type !== selectedType) {
+                  isValid = false;
+              }
+  
+              // Filtrer par date
+              if (selectedDate && item.date !== selectedDate) {
+                  isValid = false;
+              }
+  
+              // Filtrer par catégorie
+              console.log("Item cat:", item.category);
+              console.log("Selected cat:", Number(selectedCategory));
+              console.log('is not equal', item.category !== Number(selectedCategory));
+              if (selectedCategory && item.category !== Number(selectedCategory)) {
+                  isValid = false;
+              }
+  
+              return isValid;
+          }
+          return true;
+      });
     }
 
     console.log("Filtered Items:", filteredItems); // Affiche les éléments filtrés
@@ -575,16 +624,16 @@ function createEditButton(
   editButton.classList.add("action-button", "edit-button");
   editButton.title = "Modifier"; // Ajout d'un titre pour l'accessibilité
 
-  const editIcon = document.createElement("i");
-  editIcon.classList.add("fas", "fa-edit", "action-icon", "edit-icon");
-  editIcon.setAttribute("aria-hidden", "true"); // Masquer pour les lecteurs d'écran
+  const editIcon = document.createElement("img");
+  editIcon.classList.add("action-icon", "edit-icon");
+  editIcon.src = "./assets/edit.svg";
 
   editButton.appendChild(editIcon);
 
   editButton.addEventListener("click", () => {
     const modalContent = document.getElementById("modal");
     if (modalContent) {
-      modalContent.style.display = "block";
+      modalContent.style.display = "flex";
     }
     console.log("Editing item:", item);
     fillFormWithItem(item, storeName);
@@ -604,9 +653,9 @@ function createDeleteButton(
   deleteButton.classList.add("action-button", "delete-button");
   deleteButton.title = "Supprimer"; // Ajout d'un titre pour l'accessibilité
 
-  const deleteIcon = document.createElement("i");
-  deleteIcon.classList.add("fas", "fa-trash", "action-icon", "delete-icon");
-  deleteIcon.setAttribute("aria-hidden", "true"); // Masquer pour les lecteurs d'écran
+  const deleteIcon = document.createElement("img");
+  deleteIcon.classList.add("action-icon", "delete-icon");
+  deleteIcon.src = "./assets/trash.svg";
 
   deleteButton.appendChild(deleteIcon);
 
@@ -626,9 +675,9 @@ function createCopyButton(
   copyButton.classList.add("action-button", "copy-button");
   copyButton.title = "Copy";
 
-  const copyIcon = document.createElement("i");
-  copyIcon.classList.add("fas", "fa-copy", "action-icon", "copy-icon");
-  copyIcon.setAttribute("aria-hidden", "true");
+  const copyIcon = document.createElement("img");
+  copyIcon.classList.add("action-icon", "copy-icon");
+  copyIcon.src = "./assets/clipboard.svg";
 
   copyButton.appendChild(copyIcon);
 

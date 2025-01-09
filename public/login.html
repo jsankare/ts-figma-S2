@@ -4,35 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker - login</title>
-    <link href="styles.css" rel="stylesheet">
-    <link href="styles/auth.css" rel="stylesheet">
-    <link href="styles/alert.css" rel="stylesheet">
+    <link href="styles/main.css" rel="stylesheet">
 </head>
 <body>
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <img src="assets/logo_no_bg.svg" alt="Expense Tracker Logo" class="logo">
-            <h1 class="auth-title">Bienvenue !</h1>
-            <p class="auth-subtitle">connectez-vous pour gérer vos dépenses</p>
+    <main id="container" class="authContainer textPart">
+        <div class="authContent">
+            <div class="text-content">
+              <img src="assets/login_logo.png" alt="logo" class="loginLogo">
+              <div class="content">
+                <h1>Cash Flow</h1>
+                <h3>Suivez vos dépenses, planifiez vos budgets, et prenez le contrôle de vos finances personnelles.</h3>
+              </div>
+            </div>
+          <img class="loginIllustration" src="assets/login_illustration.png" alt="">
         </div>
-        <img src="assets/man-with-hand-on-chin-svgrepo-com.svg" alt="Login Illustration" class="auth-illustration">
-        <form class="form">
+  
+        <div class="authForm partForm">
+          <h1>Se connecter</h1>
+          <form class="form">
             <div class="form-group">
-                <label class="label" for="mail">Email</label>
-                <input class="input" type="email" name="mail" id="mail" required placeholder="Votre adresse email">
+              <label class="label" for="mail">Email</label>
+              <input class="input" type="email" name="mail" id="mail" required placeholder="Votre adresse email">
             </div>
             <div class="form-group">
-                <label class="label" for="password">Mot de passe</label>
+              <label class="label" for="password">Mot de passe</label>
+              <div class="input-wrapper">
                 <input class="input" type="password" name="password" id="password" required placeholder="Votre mot de passe">
+                <span class="toggle-password" id="togglePassword">
+                  <svg id="passwordIcon" width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M10 10.501C9.17305 10.501 8.50005 9.828 8.50005 9.001C8.50005 8.174 9.17305 7.501 10 7.501C10.827 7.501 11.5 8.174 11.5 9.001C11.5 9.828 10.827 10.501 10 10.501M10.0001 5.501C8.07005 5.501 6.50005 7.071 6.50005 9.001C6.50005 10.931 8.07005 12.501 10.0001 12.501C11.9301 12.501 13.5001 10.931 13.5001 9.001C13.5001 7.071 11.9301 5.501 10.0001 5.501M10.2197 13.9986C5.91375 14.0986 3.10475 10.4156 2.17275 8.9966C3.19875 7.3916 5.78275 4.1056 9.78075 4.0036C14.0697 3.8946 16.8948 7.5866 17.8268 9.0056C16.8018 10.6106 14.2167 13.8966 10.2197 13.9986M19.8678 8.5036C19.2298 7.3916 15.7057 1.8176 9.72975 2.0046C4.20175 2.1446 0.98675 7.0146 0.13275 8.5036C-0.04425 8.8116 -0.04425 9.1906 0.13275 9.4986C0.76175 10.5956 4.16175 16.0006 10.0247 16.0006C10.1067 16.0006 10.1888 15.9996 10.2708 15.9976C15.7977 15.8566 19.0138 10.9876 19.8678 9.4986C20.0438 9.1906 20.0438 8.8116 19.8678 8.5036" fill="#BDBDBD"/>
+                  </svg>
+              </span>
+              </div>
             </div>
-            <button type="submit" class="submit-button">Me connecter</button>
-        </form>
-        <div class="auth-footer">
-            Pas encore de compte ? <a href="/register.html" class="auth-link">en créer un</a>
+            <a href="/reset-password.html">Mot de passe oublié ?</a>
+            <button type="submit" class="submit-button">Se connecter</button>
+            <p>Pas encore de compte ? <a href="/register.html">S'inscrire</a></p>
+          </form>
         </div>
-    </div>
-</div>
+      </main>
 <script type="module" src="dist/pages/login.js"></script>
 </body>
 </html>

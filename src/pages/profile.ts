@@ -144,10 +144,6 @@ async function handleUploadPicture(
     const fileType = file.type.split("/")[1];
     const fileSize = file.size / 1024;
 
-    fileNameElement.textContent = `Nom du fichier : ${fileName}`;
-    fileTypeElement.textContent = `Type de fichier : ${fileType}`;
-    fileSizeElement.textContent = `Taille du fichier : ${fileSize.toFixed(2)} ko (Ancienne norme)`;
-
     try {
       const pictureDataUrl = await uploadImage(file);
       await updateUserProfilePicture(db, email, pictureDataUrl);

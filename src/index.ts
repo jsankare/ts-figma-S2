@@ -57,16 +57,11 @@ function getAllFromStore<T extends StoreItem>(
 function createDashboardCard(
   title: string,
   value: string,
-  trend: string = "",
-  color: string = "blue",
 ): string {
   return `
-    <div class="dashboard-card bg-white p-6 rounded-lg shadow-lg">
-      <h3 class="text-lg font-semibold text-gray-600">${title}</h3>
-      <div class="flex items-center mt-2">
-        <span class="text-2xl font-bold text-${color}-600">${value}</span>
-        ${trend ? `<span class="ml-2 text-sm ${trend.startsWith("+") ? "text-green-500" : "text-red-500"}">${trend}</span>` : ""}
-      </div>
+    <div class="dashboard-card">
+      <p>${title}</p>
+      <h3>${value}</h3>
     </div>
   `;
 }
@@ -99,20 +94,14 @@ async function updateDashboardCards(userId: number): Promise<void> {
 
     const balance = totalIncome - totalExpenses;
 
-    // Calculate total budgets
-    const totalBudgets = budgets.reduce((sum, b) => sum + Number(b.budget), 0);
-
-    // Calculate budget usage percentage
-    const budgetUsagePercentage =
-      totalBudgets > 0 ? Math.round((totalExpenses / totalBudgets) * 100) : 0;
 
     // Create the cards HTML
-    console.log(balance);
     cardsContainer.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        ${createDashboardCard("Balance Totale", `${balance.toFixed(2)} €`, balance >= 0 ? `+${balance.toFixed(2)}` : `${balance.toFixed(2)}`, balance >= 0 ? "green" : "red")}
-        ${createDashboardCard("Dépenses Totales", `${totalExpenses.toFixed(2)} €`)}
-        ${createDashboardCard("Utilisation Budget", `${budgetUsagePercentage}%`, "", budgetUsagePercentage > 90 ? "red" : "blue")}
+    <h2>Statistiques</h2>
+      <div class="card-container">
+        ${createDashboardCard("Balance total", `${balance.toFixed(2)} €`)}
+        ${createDashboardCard("Dépenses", `${totalExpenses.toFixed(2)} €`)}
+        ${createDashboardCard("Revenus", `${totalIncome.toFixed(2)} €`)}
       </div>
     `;
   } catch (error) {
@@ -166,9 +155,24 @@ async function generateStatistics(userId: number): Promise<void> {
       getAllFromStore<Budget>(budgetsDB, "budgets", userId),
     ]);
 
+    if (!categories.length && !transactions.length && !budgets.length) {
+      console.error("Aucune donnée disponible.");
+      return;
+    }
+
     // Convertir les montants en nombres
-    transactions.forEach((t) => (t.amount = Number(t.amount)));
-    budgets.forEach((b) => (b.budget = Number(b.budget)));
+    transactions.forEach((t) => {
+      t.amount = Number(t.amount);
+      t.userId = userId;
+    });
+    
+    budgets.forEach((b) => {
+      b.budget = Number(b.budget);
+      b.userId = userId;
+    });
+    transactions.forEach((t) => ((
+      t.userId = userId
+    )));
 
     // Calcul des totaux
     const totalExpenses = transactions
@@ -192,14 +196,8 @@ async function generateStatistics(userId: number): Promise<void> {
     );
 
     const recentTransactions = transactions
-      .filter((t) => {
-        const date = new Date(t.date);
-        return (
-          date.getMonth() === currentMonth && date.getFullYear() === currentYear
-        );
-      })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5);
+      .slice(0, 3);
 
     // Filtrer les transactions du mois actuel
     const currentMonthTransactions = transactions.filter((t) => {
@@ -265,71 +263,113 @@ async function generateStatistics(userId: number): Promise<void> {
     const categoryNames = Object.keys(categoryExpenses);
     const categoryAmounts = categoryNames.map((name) => categoryExpenses[name]);
 
+    const monthlyCredits = transactions
+    .filter((t) => {
+      const date = new Date(t.date);
+      return (
+        date.getMonth() === currentMonth &&
+        date.getFullYear() === currentYear &&
+        t.type === "credit"
+      );
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const monthlyDebits = transactions
+    .filter((t) => {
+      const date = new Date(t.date);
+      return (
+        date.getMonth() === currentMonth &&
+        date.getFullYear() === currentYear &&
+        t.type === "debit"
+      );
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+    const months = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ];
+    
+    const currentMonthString = months[new Date().getMonth()];
+
     // Afficher les graphiques
-    renderMonthlyExpensesChart(daysInMonth, dailyAmounts);
+    renderMonthlyExpensesChart(daysInMonth, dailyAmounts, currentMonthString);
     renderCategoryExpensesChart(categoryNames, categoryAmounts);
+    renderCreditsVsDebitsChart(monthlyCredits, monthlyDebits);
 
-    // Afficher les résultats dans la page
-    const statsContainer = document.getElementById("stats");
-    if (statsContainer) {
-      statsContainer.innerHTML = `
-        <h2>Statistiques Financières</h2>
-        <p><strong>Total des Dépenses :</strong> ${Math.abs(totalExpenses).toFixed(2)} €</p>
-        <p><strong>Total des Revenus :</strong> ${totalIncome.toFixed(2)} €</p>
-        <p><strong>Balance :</strong> ${balance.toFixed(2)} €</p>
-      `;
-    }
+   // Afficher les résultats dans la page
+  const activeBudgetsContainer = document.getElementById("activeBudget");
+  if (activeBudgetsContainer) {
+    activeBudgetsContainer.innerHTML = `
+      <h3>Budgets Actifs</h3>
+      <ul>
+        ${activeBudgets
+          .map((b) => {
+            // Trouver la catégorie correspondante
+            const categoryObj = categories.find((c) => c.id.toString() === b.category);
+            const categoryName = categoryObj?.name || "Non défini";
+            const categoryIcon = categoryObj?.icon || ""; // Ajouter une propriété 'icon' dans tes données catégories
+            const debitSum = debitSumsByCategory[categoryName] || 0;
 
-    // Afficher les résultats dans la page
-    const recentTransactionsContainer = document.getElementById("transactions");
-    if (recentTransactionsContainer) {
-      recentTransactionsContainer.innerHTML = `
-        <h3>Budgets Actifs</h3>
-        <ul>
-          ${activeBudgets
-            .map((b) => {
-              const category =
-                categories.find((c) => c.id.toString() === b.category)?.name ||
-                "Inconnu";
-              const debitSum = debitSumsByCategory[category] || 0;
-              let progress = (debitSum / b.budget) * 100;
-              progress = progress > 100 ? 100 : progress;
-              const isOverBudget = debitSum > b.budget;
-              const overBudgetAmount = debitSum - b.budget;
-              const progressBar = `<div class="progress-container">
+            // Calculer la progression
+            let progress = (debitSum / b.budget) * 100;
+            progress = progress > 100 ? 100 : progress;
+            const isOverBudget = debitSum > b.budget;
+            const overBudgetAmount = debitSum - b.budget;
+
+            // Générer la barre de progression
+            const progressBar = `
+              <div class="progress-container">
                 <div class="progress-bar" style="width: ${progress}%; background-color: ${
-                  isOverBudget ? "#ff4d4d" : "#4caf50"
+                  isOverBudget ? "#E62E2E" : "#29CC39"
                 };"></div>
               </div>`;
-              const progressText = isOverBudget
-                ? `Dépassement : ${overBudgetAmount.toFixed(2)} €`
-                : `${progress.toFixed(2)}% du budget atteint`;
-              return `
-                <li>
-                  ${category} : ${b.budget.toFixed(2)} € - Dépenses : ${debitSum.toFixed(2)} € 
-                  <div>${progressText}</div>
-                  ${progressBar}
-                </li>`;
-            })
-            .join("")}
-        </ul>
-        <h3>Transactions Récentes</h3>
-        <ul>
-          ${recentTransactions
-            .map((t) => {
-              const category =
-                categories.find((c) => c.id.toString() === t.category)?.name ||
-                "Non défini";
-              const color = t.type === "debit" ? "red" : "green";
-              return `<li style="color: ${color}"><h4>${t.name}</h4> 
-                <div class="transactionPrice">${t.amount.toFixed(2)}</div> 
-                <div class="transactionInfo">${t.date} - ${category}</div>
+
+            // Texte d'état de progression
+            const progressText = `${progress}%`;
+
+            // Retourner l'élément HTML
+            return `
+              <li class="budget-item">
+                <div class="category-info">
+                  <span class="category-icon">${categoryIcon}</span>
+                  <span class="category-name">${categoryName}</span>
+                </div>
+                <div class="budget-info">
+                ${progressBar}
+                ${debitSum.toFixed(2)}€ / ${b.budget.toFixed(2)} € 
+                <div>${progressText}</div>
+                </div>
               </li>`;
-            })
-            .join("")}
-        </ul>
-      `;
-    }
+          })
+          .join("")}
+      </ul>`;
+  }
+
+
+  const recentTransactionsContainer = document.getElementById('lastTransactions');
+  if (recentTransactionsContainer) {
+    recentTransactionsContainer.innerHTML = `
+      <h3>Transactions Récentes</h3>
+      <ul>
+        ${recentTransactions
+          .map((t) => {
+            const categoryIcon =
+              categories.find((c) => c.id.toString() === t.category)?.icon ||
+              "";
+            const color = t.type === "debit" ? "#E62E2E" : "#29CC39";
+            const sign = t.type === "debit" ? "-" : "+"; // Ajouter le signe
+            return `<li>
+              <img src="${categoryIcon}" alt="${t.category}" class="category-icon" />
+              <h4>${t.name}</h4> 
+              <div class="transactionPrice" style="color: ${color}">${sign} ${t.amount.toFixed(2)} €</div> 
+              <div class="transactionInfo">${t.date}</div>
+            </li>`;
+          })
+          .join("")}
+      </ul>
+    `;
+  }  
   } catch (error) {
     console.error("Erreur lors de la génération des statistiques :", error);
   }
@@ -372,10 +412,21 @@ declare class Chart {
 }
 
 // Fonction pour afficher le graphique des dépenses mensuelles
-function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
-  const canvas = document.getElementById(
-    "monthlyExpensesChart",
-  ) as HTMLCanvasElement | null;
+function renderMonthlyExpensesChart(labels: string[], data: number[], month?: string): void {
+  const container = document.getElementById("monthlyExpensesChart");
+  const title = document.createElement("h2");
+  title.textContent = "Dépenses Mensuelles";
+  container?.appendChild(title);
+  const canvas = document.createElement("canvas");
+  container?.appendChild(canvas);
+
+  const subtitle = document.createElement("h3");
+  console.log(month);
+  subtitle.textContent = month || new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  subtitle.style.color = "#6D6D6D"; // Optionnel : Couleur pour différencier
+  subtitle.style.fontSize = "1rem"; // Optionnel : Ajuster la taille de la police
+  container.appendChild(subtitle);
+
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
@@ -387,10 +438,9 @@ function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
       labels,
       datasets: [
         {
-          label: "Dépenses mensuelles (€)",
           data,
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-          borderColor: "rgba(255, 99, 132, 1)",
+          backgroundColor: "#4299E1",
+          borderColor: "#4299E1",
           borderWidth: 2,
           tension: 0.3,
         },
@@ -399,7 +449,7 @@ function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
     options: {
       responsive: true,
       plugins: {
-        legend: { display: true },
+        legend: { display: false },
         tooltip: { enabled: true },
       },
       scales: {
@@ -412,10 +462,12 @@ function renderMonthlyExpensesChart(labels: string[], data: number[]): void {
 
 // Fonction pour afficher le graphique des dépenses par catégorie
 function renderCategoryExpensesChart(labels: string[], data: number[]): void {
-  const canvas = document.getElementById(
-    "categoryExpensesChart",
-  ) as HTMLCanvasElement | null;
-  if (!canvas) return;
+  const container = document.getElementById("categoryExpensesChart");
+  const title = document.createElement("h2");
+  title.textContent = "Dépenses par Catégorie";
+  container?.appendChild(title);
+  const canvas = document.createElement("canvas");
+  container?.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -429,20 +481,20 @@ function renderCategoryExpensesChart(labels: string[], data: number[]): void {
           label: "Dépenses par catégorie (€)",
           data,
           backgroundColor: [
-            "rgba(255, 99, 132, 0.2)",
-            "rgba(54, 162, 235, 0.2)",
-            "rgba(255, 206, 86, 0.2)",
-            "rgba(75, 192, 192, 0.2)",
-            "rgba(153, 102, 255, 0.2)",
-            "rgba(255, 159, 64, 0.2)",
+            "rgb(41, 76, 96)",
+            "rgb(66, 153, 255)",
+            "rgb(110, 196, 227)",
+            "rgb(109, 109, 109)",
+            "rgb(0, 27, 46)",
+            "rgb(79, 79, 188)",
           ],
           borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(75, 192, 192, 1)",
-            "rgba(153, 102, 255, 1)",
-            "rgba(255, 159, 64, 1)",
+            "rgb(41, 76, 96)",
+            "rgb(66, 153, 255)",
+            "rgb(110, 196, 227)",
+            "rgb(109, 109, 109)",
+            "rgb(0, 27, 46)",
+            "rgb(79, 79, 188)",
           ],
           borderWidth: 1,
         },
@@ -453,6 +505,52 @@ function renderCategoryExpensesChart(labels: string[], data: number[]): void {
       plugins: {
         legend: { display: true },
         tooltip: { enabled: true },
+      },
+    },
+  });
+}
+
+function renderCreditsVsDebitsChart(credits, debits) {
+  const container = document.getElementById("debitVSCreditChart")
+  const title = document.createElement("h2");
+  title.textContent = "Crédits vs Débits";
+  container?.appendChild(title);
+  const canvas = document.createElement("canvas");
+  container?.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Crédits", "Débits"],
+      datasets: [
+        {
+          data: [credits, debits],
+          backgroundColor: ["rgba(41, 76, 96, 0.5)", "rgba(66, 153, 225, 0.5)"],
+          borderRadius: 8,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: true,
+          titleColor: '#6D6D6D',
+          bodyColor: '#6D6D6D', 
+        },
+      },
+      scales: {
+        y: { title: { 
+          display: true, 
+          text: "Montants", 
+          color: "#6D6D6D", 
+        }, 
+      grid: {
+        borderColor: '#6D6D6D',
+      } },
+      },
+      x: {
+        categoryPercentage: 0.8,
       },
     },
   });
