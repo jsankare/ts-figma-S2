@@ -206,6 +206,38 @@ async function handleUploadPicture(
   }
 }
 
+async function handleRemoveProfilePicture(db: IDBDatabase, email: string, profilePicture: HTMLImageElement, addProfileButton: HTMLElement, removeButton: HTMLElement): Promise<void> {
+  try {
+    const transaction = db.transaction("users", "readwrite");
+    const store = transaction.objectStore("users");
+    const index = store.index("email");
+    const userRequest = index.get(email);
+
+    userRequest.onsuccess = () => {
+      const user = userRequest.result;
+      if (user) {
+        user.picture = null;
+        user.updatedAt = new Date();
+        const updateRequest = store.put(user);
+
+        updateRequest.onsuccess = () => {
+          profilePicture.src = "./assets/default-user.svg";
+          addProfileButton.style.display = "block";
+          removeButton.style.display = "none";
+          toastAlert("success", "Photo de profil supprimée avec succès");
+        };
+
+        updateRequest.onerror = () => {
+          toastAlert("error", "Erreur lors de la suppression de la photo de profil");
+        };
+      }
+    };
+  } catch (error) {
+    console.error("Error removing profile picture:", error);
+    toastAlert("error", "Erreur lors de la suppression de la photo de profil");
+  }
+}
+
 async function updateUserProfilePicture(
   db: IDBDatabase,
   email: string,

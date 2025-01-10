@@ -1,3 +1,11 @@
+#profile--picture {
+    width: rem(120);
+    height: rem(120);
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid $light_grey;
+}
+
 .profile-container {
     #content {
         flex-direction: row;
@@ -12,6 +20,10 @@
             display: flex;
             flex-direction: column;
             gap: 40px;
+            width: 30%;
+            background: white;
+            border-radius: rem(16);
+            box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
 
             .header_info {
                 display: flex;
@@ -20,14 +32,6 @@
                 border-bottom: rem(1) solid $light_grey;
                 padding-bottom: rem(32);
                 gap: rem(8);
-
-                #profile--picture {
-                    width: rem(120);
-                    height: rem(120);
-                    border-radius: 50%;
-                    object-fit: cover;
-                    border: 2px solid $light_grey;
-                }
 
                 .button--addProfilePicture {
                     background: none;
@@ -60,6 +64,8 @@
                 display: flex;
                 flex-direction: column;
                 gap: rem(16);
+                border-bottom: rem(1) solid $light_grey;
+                padding-bottom: rem(32);
 
                 > p {
                     font-size: 18px;
@@ -84,64 +90,51 @@
                 display: flex;
                 flex-direction: column;
                 gap: rem(16);
-                padding-top: rem(32);
-                border-top: rem(1) solid $light_grey;
+
+                button {
+                    background: none;
+                    border: none;
+                    text-align: left;
+                    color: $dark_grey;
+                    font-size: rem(16);
+                    cursor: pointer;
+                    transition: color 0.3s ease;
+
+                    &:hover {
+                        color: $blue;
+                    }
+                }
 
                 a {
                     display: flex;
                     gap: rem(16);
                     align-items: center;
+                    font-size: rem(16);
 
                     &#button--logout {
                         color: $dark_grey;
+                        &:hover {
+                            color: $blue;
+                        }
                     }
 
                     &#button--deleteAccount {
                         color: $red;
+                        &:hover {
+                            color: darken($red, 10%);
+                        }
                     }
                 }
             }
         }
 
-        .profile_settings {
+        .profile_content {
+            width: 70%;
             padding: rem(40) rem(52);
-            display: flex;
-            flex-direction: column;
-            gap: rem(40);
-
-            nav {
-                display: flex;
-                gap: rem(56);
-                position: relative;
-
-                &:after {
-                    content: '';
-                    display: block;
-                    width: 100%;
-                    height: rem(1);
-                    background-color: $light_grey;
-                    position: absolute;
-                    bottom: 0;
-                }
-
-                a {
-                    font-size: rem(14);
-                    color: $dark_grey;
-                    padding-bottom: rem(8);
-                    position: relative;
-
-                    &.active::after {
-                        content: '';
-                        display: block;
-                        width: 100%;
-                        height: rem(1);
-                        background-color: $blue;
-                        position: absolute;
-                        bottom: 0;
-                        z-index: 1;
-                    }
-                }
-            }
+            margin-left: rem(32);
+            background: white;
+            border-radius: rem(16);
+            box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
         }
     }
 }
