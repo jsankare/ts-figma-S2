@@ -1,7 +1,8 @@
 {
 	"type": "module",
 	"scripts": {
-		"build": "concurrently \"tsc --watch\" \"postcss src/styles.css -o public/styles.css --watch\"",
+		"build": "concurrently \"tsc --watch\" \"npm run build:scss\"",
+		"build:scss": "sass --watch src/css:public/styles",
 		"start": "live-server public --mount=/dist:./dist",
 		"lint": "eslint 'src/**/*.{ts,tsx}' --fix"
 	},

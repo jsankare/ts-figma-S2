@@ -1,0 +1,253 @@
+.partForm{
+    box-shadow: rem(-3) 0 rem(24) rgba(0, 0, 0, 0.05);
+    width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    height: 100vh;
+    flex-direction: column;
+    gap: rem(40);
+    border-radius: rem(16) 0 0 rem(16);
+}
+
+.textPart{
+    width: 60%;
+    height: 100vh;
+}
+
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: rem(24);
+    align-items: center;
+
+    &.start{
+        align-items: start;
+    }
+
+    .form-group{
+        display: flex;
+        flex-direction: column;
+        gap: rem(8);
+
+        &.double-gap{
+            gap: rem(16);
+        }
+    }
+
+    input:not([type="file"]), select, textarea{
+        background-color: white;
+        border: rem(1) solid $light_grey;
+        border-radius: rem(8);
+        padding: rem(16);
+        font-size: rem(14);
+        line-height: rem(18);
+        font-weight: 400;
+        color: $dark_grey;
+        width: rem(332);
+        outline: none;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+            border-color: $dark_grey;
+        }
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: rem(16);
+        cursor: pointer;
+        width: rem(20); 
+        height: rem(18);
+        display: flex;
+        align-items: center;
+    }
+
+
+    button, input[type="submit"]{
+        margin-top: rem(16);
+        background-color: $blue;
+        padding: rem(16);
+        width: 100%;
+        color: white;
+        font-weight: 400;
+        font-size: rem(18);
+        line-height: rem(25);
+        border-radius: rem(8);
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        border: rem(1) solid $blue;
+
+        &:hover{
+            background-color: white;
+            color: $blue;
+        }
+    }
+    
+}
+
+
+
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.reset-password-container p{
+    max-width: rem(332);
+    text-align: center;
+    color: $dark_grey;
+}
+
+
+
+header{
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+    align-items: center;
+}
+
+.select-container{
+    position: relative;
+}
+.select-container select{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 32px;
+}
+.select-container::after {
+    content: '';
+    position: absolute;
+    pointer-events: none; /* Empêche d'interagir avec la flèche */
+    top: 50%;
+    right: rem(16); /* Position de la flèche */
+    transform: translateY(-50%);
+    width: 10px; /* Largeur du SVG */
+    height: 6px; /* Hauteur du SVG */
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6" fill="none"><path d="M9 1.00652L5 4.99349L1 1.00652" stroke="%23F1F1FA" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+/* Conteneur principal */
+.input-file {
+    display: flex;
+    align-items: center;
+}
+
+
+.file-input {
+    display: none;
+}
+
+/* Styliser le bouton personnalisé */
+.file-label {
+    background-color: $light_grey;
+    color: $dark_blue;
+    padding: rem(2) rem(16);
+    border-radius: rem(8) 0 0 rem(8);
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.file-label:hover {
+    background-color: $light_grey;
+}
+
+.file-name {
+    border: 1px solid $light_grey;
+    font-size: rem(14);
+    color: $dark_grey;
+    white-space: nowrap;
+    max-width: rem(200);
+    padding: rem(4) rem(16);
+    border-radius: 0 rem(8) rem(8) 0;
+}
+
+.row{
+    display: flex;
+    gap: rem(56);
+}
+.column{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: rem(24);
+}
+
+.checkbox-input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: rem(8);
+    
+    .custom-checkbox-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        gap: rem(8);
+    
+        p{
+            font-size: rem(13);
+            color: $dark_grey;
+        }
+
+        .input-checkbox {
+            display: none;
+        }
+        
+        .custom-checkbox {
+            width: 40px;
+            height: 24px;
+            background-color: #f44336;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+            transition: background-color 0.3s ease;
+            
+            &:before {
+                content: "";
+                width: rem(16);
+                height: rem(16);
+                background-color: white;
+                border-radius: 50%;
+                position: absolute;
+                left: 4px;
+                top: 50%;
+                transform: translateY(-50%);
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                transition: left 0.3s ease;
+            }
+        }
+        
+        .input-checkbox:checked + .custom-checkbox {
+            background-color: #4caf50;
+        }
+    
+        .input-checkbox:checked + .custom-checkbox:before {
+            left: calc(100% - 20px);
+        }
+    }
+}
+
+.form-group button{
+    background-color: $light_grey;
+    color: $dark_grey;
+    border: none;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+}

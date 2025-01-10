@@ -288,3 +288,61 @@ export async function getItemById(
     };
   });
 }
+
+export async function updateUserInfo(
+  email: string,
+  firstname: string,
+  lastname: string,
+  address: string,
+  currency: string,
+  notifications: boolean
+) {
+  const db = await openDatabase("UserDatabase", "users");
+  const transaction = db.transaction("users", "readwrite");
+  const store = transaction.objectStore("users");
+  const index = store.index("email");
+
+  const userRequest = index.get(email);
+  userRequest.onsuccess = () => {
+    const user = userRequest.result;
+    if (user) {
+      user.firstname = firstname;
+      user.lastname = lastname;
+      user.address = address;
+      user.currency = currency;
+      user.notifications = notifications;
+      store.put(user);
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = resolve;
+    transaction.onerror = reject;
+  });
+}
+
+// Add user in database
+export function addUser(
+  db: IDBDatabase,
+  userData: {
+    email: string;
+    password: string;
+    firstname: string;
+    lastname: string;
+    picture: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("users", "readwrite");
+    const store = transaction.objectStore("users");
+    const request = store.add(userData);
+
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => {
+      console.error("Erreur lors de l'ajout de l'utilisateur", event);
+      reject("Échec de l'ajout de l'utilisateur");
+    };
+  });
+}

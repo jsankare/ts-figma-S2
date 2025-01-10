@@ -1,19 +1,9 @@
 import {
   handleFormSubmit,
-  updateListing,
   displayItems,
 } from "../shared/components/form.js";
 import { getAllItems } from "../core/database/openDatabase.js";
-
-export interface Budget {
-  id: number;
-  category: string;
-  budget: number;
-  alert?: boolean;
-  month: number;
-  year: number;
-  userId: number;
-}
+import { Budget } from "../core/database/types.js";
 
 export function isBudget(item: any): item is Budget {
   return (item as Budget).budget !== undefined;
@@ -75,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "budgetsListing",
     "BudgetDatabase",
     "budgets",
-    ["category", "budget", "year", "month"],
+    ["name", "category", "budget", "year", "month"],
     ["alert"],
   );
 });
