@@ -120,8 +120,6 @@ export async function fetchAllCurrencies(countryCode): Promise<string[]> {
               });
           }
       });
-
-      return Array.from{ currenciesSet };
   } catch (error) {
       console.error(`Erreur pour le code pays ${countryCode}:`, error);
   }

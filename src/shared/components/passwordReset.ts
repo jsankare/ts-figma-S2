@@ -44,8 +44,8 @@ export function displayPasswordResetForm() {
   ) as HTMLFormElement;
   form.addEventListener("submit", handlePasswordFormSubmit);
 
-  displayPassword('togglePassword', 'current-password');
-  displayPassword('togglePassword2', 'new-password', 'passwordIcon2');
+  displayPassword("togglePassword", "current-password");
+  displayPassword("togglePassword2", "new-password", "passwordIcon2");
 }
 
 async function handlePasswordFormSubmit(event: Event) {
