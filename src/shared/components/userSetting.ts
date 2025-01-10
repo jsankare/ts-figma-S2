@@ -10,7 +10,10 @@ export function displayAccountSettingsForm(user) {
     "profile_modification",
   ) as HTMLElement;
   formContainer.innerHTML = `
+    <h2 class="title">Modifier mes information</h2>
     <form class="form" id="account-settings-form">
+      <div class="row">  
+       <div class="column">
       <label class="label label-text" for="firstname">Prénom</label>
       <input class="input input-text" type="text" id="firstname" name="firstname" value="${user.firstname}" required>
       
@@ -19,9 +22,12 @@ export function displayAccountSettingsForm(user) {
       
       <label class="label label-text" for="email">Email</label>
       <input class="input input-text" type="email" id="email" name="email" value="${user.email}" disabled>
+      </div>
+
+      <div class="column">
       
       <label class="label label-text" for="address">Adresse</label>
-      <div style="display: flex; gap: 8px;">
+      <div class="geoloc_container" style="display: flex; gap: 8px;">
         <input class="input input-text" type="text" id="address" name="address" value="${user.adress || ""}" required>
         <button type="button" id="get-location-btn">📍 Remplir mon adresse</button>
       </div>
@@ -37,7 +43,9 @@ export function displayAccountSettingsForm(user) {
           <label for="alert" class="custom-checkbox"></label>
         </div>
       </div>
+      </div>
       
+      </div>
       <button type="submit">Sauvegarder les modifications</button>
     </form>
   `;

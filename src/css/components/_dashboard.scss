@@ -1,7 +1,7 @@
 .homeContainer{
     display: flex;
     gap: rem(52);
-    padding: rem(32) rem(48) rem(32) rem(40); 
+    padding: rem(56) rem(48) rem(32) rem(40); 
 
     section{
 
@@ -66,8 +66,121 @@
                 padding: rem(32);
                 box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
 
+                &#cta{
+                    display: flex;
+                    justify-content: space-between;
+
+                    div{
+                        display: flex;
+                        gap: rem(16);
+                        align-items: center;
+
+                        a{ 
+                            padding: rem(12);
+                            display: flex;
+                            border-radius: 50%;
+
+                            &.transaction{
+                                background-color: rgba(66, 153, 225, 0.20);
+
+                                svg path{ 
+                                    fill: $blue;
+                                }
+                            }
+
+                            &.budget{
+                                background-color: rgba(41, 76, 96, 0.20);
+
+                                svg path{ 
+                                    fill: #294C60;
+                                }
+                            }
+
+                            &.category{
+                                background-color: rgba(0, 27, 46, 0.20);
+
+                                svg path{ 
+                                    fill: $dark_blue;
+                                }
+                            }
+    
+                            svg{
+                                width: rem(15);
+                                height: rem(15);
+                            }
+                        }
+                    }
+
+                }
+
                 ul{
                     list-style: none;
+                }
+
+                &#lastTransactions{
+                    h3{
+                        padding-bottom: rem(16);
+                        position: relative;
+
+                        &::after{
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 1px;
+                            background-color: $light_grey;
+                        }
+                    }
+
+                    ul{
+                        padding-top: rem(24);
+                        display: flex;
+                        flex-direction: column;
+                        gap: rem(24);
+
+                        li{
+                            display: flex;
+                            align-items: center;
+                            gap: rem(16);
+
+                            .categoryIcon{
+                                background-color: $light_grey;
+                                padding: rem(16);
+                                border-radius: 50%;
+
+                                img{
+                                    width: rem(19);
+                                    height: auto;
+                                    display: flex;
+                                }
+                            }
+
+                            .transactionContent{
+                                width: 100%;
+                                display: flex;
+                                flex-direction: column;
+                                gap: rem(8);
+
+                                .transactionTitle{
+                                    display: flex;
+                                    justify-content: space-between;
+                                    width: 100%;
+
+                                    p{
+                                        font-weight: 700;
+
+                                        .transactionPrice{
+                                            font-weight: 800;
+                                        }
+                                    }
+                                }
+                                .transactionInfo{
+                                    @include smallText;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 &#activeBudget{
@@ -88,9 +201,116 @@
 
                     ul{
                         padding-top: rem(24);
+                        display: flex;
+                        flex-direction: column;
+                        gap: rem(24);
+
+                        li{
+                            .category-info{
+                                display: flex;
+                                align-items: center;
+                                gap: rem(16);
+
+                                
+                                    span.category-icon{
+                                        background-color: $light_grey;
+                                        padding: rem(16);
+                                        border-radius: 50%;
+    
+                                        img{
+                                            width: rem(19);
+                                            height: auto;
+                                            display: flex;
+                                        }
+                                    }
+                                
+                                .budget-content{
+                                    width: 100%;
+
+                                    .budget-info{
+                                        gap: rem(4);
+                                    }
+
+                                    .category-name{
+                                        font-weight: 700;
+                                    }
+                                }
+
+                            }
+                            
+                            .budget-info{
+                                display: flex;
+                                flex-direction: column;
+                                gap: rem(8);
+                
+                                .progress-container {
+                                    position: relative;
+                                    width: 100%;
+                                    height: rem(8);
+                                    background-color: $light_grey;
+                                    border-radius: 10px;
+                                    overflow: hidden;
+                                    margin-top: rem(10);
+                                  }
+                                  
+                                  .progress-bar {
+                                    height: 100%;
+                                    border-radius: 10px;
+                                    background-color: $green; /* Vert */
+                                    transition: width 0.3s ease, background-color 0.3s ease;
+                                  }
+                
+                                  .progress-details{
+                                    display: flex;
+                                    justify-content: space-between;
+                
+                                    span{
+                                        @include smallText;
+                                        color: $dark_grey;
+                
+                                        &:last-of-type{
+                                            font-weight: 700;
+                                        }
+                                    }
+                                  }
+                            }
+
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@media screen and (max-width: 1024px){
+    .homeContainer{
+        flex-direction: column;
+        gap: rem(32);
+        padding: rem(48) rem(32);
+        margin-bottom: rem(80) !important;
+
+        section{
+            flex-direction: column !important;
+            width: 100% !important;
+
+            .row{
+                width: 100% !important;
+                flex-direction: column;
+            }
+            
+    
+            #dashboard_cards{
+                width: 100% !important;
+            }
+        
+
+    
+
+                #cta, >div{
+                    width: 100% !important;
+                }
+            
         }
     }
 }

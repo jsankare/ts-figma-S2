@@ -1,62 +1,119 @@
-// #profile--wrapper {
-//     display: flex;
-//     flex-direction: column;
-//     gap: 2.5rem;
-//     justify-content: center;
-//     align-items: center;
-//     padding: 2rem 1rem;
-// }
-
-// #button--addProfilePicture {
-//     flex-direction: column;
-//     justify-content: center;
-//     align-items: center;
-//     gap: 1rem;
-//     border: solid 1px black;
-//     padding: 2rem;
-// }
-
-// #delete-picture, #submit--image {
-//     padding: 0.5rem 1rem;
-//     background-color: #e1e1e1;
-//     border-radius: 1rem;
-//     border: 1px solid black;
-//     transition: all ease-in-out 0.1s;
-// }
-// #delete-picture:hover, #submit--image:hover {
-//     transform: scale(1.05);
-// }
-
-// #profile--picture {
-//     width: 100%;
-//     max-width: 15rem;
-//     max-height: 15rem;
-//     aspect-ratio: 1;
-//     object-fit: cover;
-//     border-radius: 5000rem;
-// }
-
-// #profile--username {
-//     font-weight: bold;
-//     font-size: 2rem;
-// }
-
-// #profile--infos {
-//     display: flex;
-//     flex-direction: column;
-//     gap: 1rem;
-//     justify-content: center;
-//     align-items: center;
-// }
-
-// #buttons {
-//     display: flex;
-//     flex-direction: column;
-//     gap: 1rem;
-//     align-items: flex-start;
-// }
-
 .profile-container{
+    margin-left: rem(90);
+    padding: rem(32) rem(48);
+    gap: rem(48);
+
+    .profile_header{
+        width: 30%;
+        padding: 52px 48px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        height: 70vh;
+        background-color: white;
+        border-radius: 16px;
+        gap: 48px;
+        box-shadow: 0 0 14px rgba(0, 0, 0, 0.05);
+
+        .header_info{
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+
+            img{
+                border-radius: 50%;
+                display: block;
+                border: 1px solid $blue;
+                width: 170px;
+                height: 170px;
+                margin-bottom: 16px;
+            }
+            button{
+                position: absolute;
+                top: 0;
+                left: 10%;
+                border: none;
+                background: none;
+
+                img{
+                    width: rem(42);
+                    height: rem(42);
+                }
+            }
+            p{
+                @include smallText;
+                color: $dark_grey;
+            }
+        }
+        .nav{
+            display: flex;
+            flex-direction: column;
+
+            button{
+                background: none;
+                border: none;
+                border-bottom: $light_grey 1px solid;
+                padding: 16px 0;
+                color: $dark_grey;
+            }
+        }
+
+        .header_button{
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    }
+
+    .profile_content{
+        width: 70%;
+
+        .header_total{
+            display: flex;
+            flex-direction: column;
+            gap: rem(16);
+            padding-bottom: rem(32);
+            position: relative;
+            .total_content{
+                display: flex;
+                gap: rem(56);
+                .profile_info{
+                    display: flex;
+                    align-items: center;
+                    gap: rem(8);
+                    h2{
+                        font-size: rem(32);
+                        color: $blue;
+                    }
+                    p{
+                        color: $dark_grey;
+                    }
+                }
+            }
+            &::after{
+                content: '';
+                display: block;
+                width: 100%;
+                height: rem(1);
+                background-color: $light_grey;
+                position: absolute;
+                bottom: 0;
+            }
+        }
+
+        #profile_modification{
+            background-color: white;
+            padding: rem(52);
+            border-radius: rem(16);
+            margin-top: rem(80);
+            width: fit-content;
+            box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
+        }
+
+    }
 
     #content{
         flex-direction: row;
@@ -175,4 +232,57 @@
         }
     }
 
+}
+
+@media screen and (max-width: 1024px) {
+    .profile-container{
+        flex-direction: column;
+        margin-left: 0;
+        margin-bottom: rem(90);
+        padding: rem(24) rem(32);
+
+        .profile_header{
+            width: 100%;
+            background-color: transparent;
+            box-shadow: none;
+            height: 100%;
+        }
+        .profile_content{
+            width: 100%;
+
+            .header_total{
+                h1{
+                    text-align: center;
+                }
+                .total_content{
+                    gap: rem(16);
+                    flex-direction: column;
+                    justify-content: center;
+
+                    .profile_info{
+                        justify-content: center;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.form{
+    .row{
+        flex-direction: column;
+
+        .column{
+            width: 100%;
+
+            .geoloc_container{
+                flex-direction: column !important;
+            }
+        }
+    }
+
+
+    input, textarea, select, button{
+        width: 100% !important;
+    }
 }

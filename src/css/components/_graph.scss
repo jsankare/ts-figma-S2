@@ -13,13 +13,41 @@
 
     #monthlyExpensesChart {
         width: 70%;
+
+        div{
+            display: flex;
+            flex-direction: column;
+            gap: rem(16);
+            justify-content: center;
+
+            p{
+                text-align: center;
+            }
+        }
     }
     
     #debitVSCreditChart{
         width: 50%;
+
+        canvas{
+            height: rem(235) !important;
+        }
     }
     
     #categoryExpensesChart {
         width: 50%;
+
+        canvas{
+            width: rem(200) !important;
+            height: rem(200) !important;
+        }
+    }
+}
+
+@media screen and (max-width: 1024px){
+    .homeContainer{
+        #monthlyExpensesChart, #debitVSCreditChart, #categoryExpensesChart {
+            width: 100%;
+        }
     }
 }
