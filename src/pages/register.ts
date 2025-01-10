@@ -1,7 +1,32 @@
 import { hashPassword } from "../core/auth/hashPassword.js";
 import { openDatabase } from "../core/database/openDatabase.js";
 import { toastAlert } from "../shared/components/alert.js";
-import { addUser } from "../core/database/openDatabase.js";
+
+// Add user in database
+function addUser(
+  db: IDBDatabase,
+  userData: {
+    email: string;
+    password: string;
+    firstname: string;
+    lastname: string;
+    picture: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("users", "readwrite");
+    const store = transaction.objectStore("users");
+    const request = store.add(userData);
+
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => {
+      console.error("Erreur lors de l'ajout de l'utilisateur", event);
+      reject("Échec de l'ajout de l'utilisateur");
+    };
+  });
+}
 
 // Register
 async function handleRegister(event: Event): Promise<void> {
