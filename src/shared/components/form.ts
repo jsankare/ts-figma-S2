@@ -216,6 +216,9 @@ export async function displayItems(
       const emptySection = document.createElement("section");
       emptySection.className = "empty-data";
 
+      const emptyContainer = document.createElement("div");
+      emptyContainer.className = "empty-info";
+
       const emptyIcon = document.createElement("div");
       emptyIcon.className = "empty-icon";
 
@@ -241,7 +244,7 @@ export async function displayItems(
         emptySubtitle.textContent = "Aucune transaction disponible";
       }
 
-      const emptyLowercase = document.createElement("h3");
+      const emptyLowercase = document.createElement("p");
       emptyLowercase.className = "empty-lowercase";
       if (storeName === "budgets") {
         emptyLowercase.textContent = `Vous n'avez pas encore enregistré de budget.
@@ -255,8 +258,10 @@ export async function displayItems(
       }
 
       emptySection.appendChild(emptyIcon);
-      emptySection.appendChild(emptySubtitle);
-      emptySection.appendChild(emptyLowercase);
+      emptySection.appendChild(emptyContainer);
+      emptyContainer.appendChild(emptySubtitle);
+      emptyContainer.appendChild(emptyLowercase);
+
 
       listing.appendChild(emptySection);
 

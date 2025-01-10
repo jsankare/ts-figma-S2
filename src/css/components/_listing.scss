@@ -78,6 +78,10 @@
         padding-bottom: rem(40);
     }
 
+    .mobile-filter{
+        display: none;
+    }
+
     .filters{
         padding-bottom: rem(40);
         position: relative;
@@ -85,6 +89,7 @@
         flex-wrap: wrap;
         align-items: center;
         gap: rem(32);
+
 
         &::after{
             content: '';
@@ -118,6 +123,7 @@
             background-color: white;
             padding: rem(16) rem(32);
             color: $blue;
+            width: 14%;
             font-weight: 400;
             font-size: rem(18);
             line-height: rem(25);
@@ -221,6 +227,7 @@
 
 
 .budgetContainer{
+    padding-bottom: rem(120);
 
     #month-navigation{
         display: flex;
@@ -249,6 +256,11 @@
             display: flex;
             align-items: baseline;
             gap: rem(16);
+
+            span{
+                font-weight: 400;
+                color: $dark_grey;
+            }
         }
     }
     .listingTitle{
@@ -260,6 +272,7 @@
     }
 
     #budgetsListing{
+        min-height: 500px;
         li{
             grid-template-columns: 20% 31% 7% 10% 18% !important;
 
@@ -327,6 +340,7 @@
     }
 }
 
+
 .page-header{
     display: flex;
     align-items: start;
@@ -343,6 +357,10 @@
         border: 1px solid $blue;
         width: fit-content;
         padding: rem(16) rem(56);
+
+        span{
+            color: white;
+        }
     }
 }    
 
@@ -422,15 +440,14 @@
 
 // Aucunes données à afficher
 .empty-data {
-    width: 100%;
-    background-color: white;
-    border-radius: rem(16);
     display: flex;
     flex-direction: column;
     gap: rem(48);
     justify-content: center;
+    padding-top: 40px;
+    min-height: 500px;
+    justify-content: start;
     align-items: center;
-    box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
 
     .empty-icon svg{
         width: rem(70);
@@ -446,7 +463,7 @@
         align-items: center;
         width: 40%;
 
-        h1, p{
+        h2, p{
             color: $dark_grey;
             text-align: center;
         }
@@ -457,8 +474,12 @@
 
 @media screen and (max-width: 1024px){
     .categoriesContainer{
+        margin-bottom: rem(88) !important;
+        padding: rem(48) rem(32);
 
         #categoriesListing{
+            padding-top: rem(8);
+            gap: rem(32);
             li{
                 width: 100%;
             }
@@ -466,13 +487,46 @@
         }
     }
 
+    .page-header{
+        button{
+            padding: rem(16);
+            border-radius: 50%;
+            span:first-of-type{
+                display: flex;
+            }
+            svg{
+                width: rem(13);
+                height: rem(13);
+            }
+            span:nth-of-type(2){
+                display: none;
+            }
+        }
+        &::after{
+            content: none !important;
+        }
+    }
+
     .budgetContainer{
+        margin-bottom: rem(88) !important;
         padding: rem(48) rem(32);
+
+        #month-navigation{
+
+            a span{
+                display: none;
+            }
+
+            &::after{
+                content: none;
+            }
+        }
 
         .list{
             background: none;
             box-shadow: none;
             padding: 0;
+            margin-top: 0;
 
             .listingTitle{
                 display: none;
@@ -506,5 +560,73 @@
                 }
             }
         }
+    }
+
+    .transactionsContainer{
+        margin-bottom: rem(88) !important;
+        padding: rem(48) rem(32);
+
+        .mobile-filter{
+            display: flex;
+            gap: rem(16);
+            align-items: center;
+            img{
+                width: rem(24);
+                height: rem(18);
+            }
+
+            p{
+                @include smallText;
+            }
+        }
+
+        .filters{
+            gap: rem(16);
+            padding: 0;
+            height: 0;
+            overflow: hidden;
+
+            .select-container, .select-container select, .date-container, .date-container input{
+                width: 100%;
+    
+            }
+            button{
+                width: 100%;
+                padding: rem(8) rem(16);
+            }
+        }
+
+        .list{
+            padding: 0;
+            margin-top: 0;
+            background-color: transparent;
+            box-shadow: none;
+
+            .listingTitle{
+                display: none;
+            }
+
+            #transactionsListing{
+                display: flex;
+                flex-direction: column;
+                gap: rem(32);
+                padding-top: 0;
+
+                li{
+                    padding: rem(24);
+                    background-color: white;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: rem(24);
+                    border-radius: rem(16);
+
+                    &::before{
+                        content: none;
+                    }
+
+                }
+            }
+        }
+
     }
 }
