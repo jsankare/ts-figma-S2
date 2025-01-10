@@ -1,7 +1,6 @@
 import { monitorUserInteraction } from "./utils/userInteraction.js";
 import { openDatabase } from "./core/database/openDatabase.js";
 import { getCurrentUser } from "./core/auth/getCurrentUser.js";
-import { generateStatistics } from "./utils/statistics.js";
 import { getUser } from "./shared/components/form.js";
 
 function onUserInteraction(eventType: string) {
@@ -16,8 +15,7 @@ function initializeApp() {
 
 initializeApp();
 
-<<<<<<< HEAD
-=======
+
 // Configuration des noms de bases de données
 const DB_NAMES = {
   categories: "CategoryDatabase",
@@ -557,7 +555,6 @@ function renderCreditsVsDebitsChart(credits, debits) {
   });
 }
 
->>>>>>> 7a7960a (Ajout de style)
 // Charger les statistiques après le chargement de la page
 document.addEventListener("DOMContentLoaded", async () => {
   const userId = await getUser();

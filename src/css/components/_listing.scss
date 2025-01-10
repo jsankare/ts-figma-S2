@@ -116,12 +116,7 @@
 
         button, input[type="submit"]{
             background-color: white;
-<<<<<<< HEAD
             padding: rem(16) rem(32);
-=======
-            padding: rem(16);
-            width: 100%;
->>>>>>> 7a7960a (Ajout de style)
             color: $blue;
             font-weight: 400;
             font-size: rem(18);
@@ -341,12 +336,9 @@
         @include bigText;
         background-color: $blue;
         border-radius: rem(8);
-<<<<<<< HEAD
         display: flex;
         align-items: baseline;
         gap: 10px;
-=======
->>>>>>> 7a7960a (Ajout de style)
         color: white;
         border: 1px solid $blue;
         width: fit-content;
@@ -473,7 +465,6 @@
 
         }
     }
-<<<<<<< HEAD
 
     .budgetContainer{
         padding: rem(48) rem(32);
@@ -516,6 +507,4 @@
             }
         }
     }
-=======
->>>>>>> 7a7960a (Ajout de style)
 }

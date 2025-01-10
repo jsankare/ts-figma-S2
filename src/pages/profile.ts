@@ -139,14 +139,9 @@ async function handleUploadPicture(
   const fileInput = document.getElementById("myfile") as HTMLInputElement;
   if (fileInput.files?.length) {
     const file = fileInput.files[0];
-
-<<<<<<< HEAD
-=======
     const fileName = file.name.split(".")[0];
     const fileType = file.type.split("/")[1];
     const fileSize = file.size / 1024;
-
->>>>>>> 7a7960a (Ajout de style)
     try {
       const pictureDataUrl = await uploadImage(file);
       await updateUserProfilePicture(db, email, pictureDataUrl);

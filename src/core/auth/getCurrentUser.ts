@@ -1,8 +1,6 @@
 import { openDatabase } from "../database/openDatabase.js";
 import { User } from "../database/types.js";
 
-<<<<<<< HEAD
-
 async function getUser(): Promise<number | null> {
   const db = await openDatabase("UserDatabase", "users");
   const userEmail = localStorage.getItem("userMail");
@@ -27,6 +25,7 @@ async function getUser(): Promise<number | null> {
   }
 }
 
+
 export async function getCurrentUser(
   db?: IDBDatabase,
   email?: string
@@ -36,17 +35,6 @@ export async function getCurrentUser(
     if (!db) {
       db = await openDatabase('UserDatabase', 'users');
     }
-=======
-export async function getCurrentUser(
-  db?: IDBDatabase,
-  email?: string
-): Promise<User | undefined> {
-  try {
-    // Initialiser db si non fourni
-    if (!db) {
-      db = await openDatabase('UserDatabase', 'users');
-    }
->>>>>>> 7a7960a (Ajout de style)
 
     // Récupérer l'email depuis localStorage si non fourni
     if (!email) {

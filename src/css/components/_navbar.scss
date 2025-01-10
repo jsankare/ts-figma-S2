@@ -149,10 +149,7 @@
     display: flex;
     align-items: center;
     gap: rem(8);
-<<<<<<< HEAD
     flex-direction: row-reverse;
-=======
->>>>>>> 7a7960a (Ajout de style)
 
     img{
       width: rem(24);
@@ -190,15 +187,12 @@
     bottom: 0;
     top: auto;
     left: 0;
-<<<<<<< HEAD
     padding: rem(24) rem(40);
     height: fit-content;
     width: 100vw;
     border-radius: rem(16) rem(16) 0 0;
-=======
     height: fit-content;
     width: 100vw;
->>>>>>> 7a7960a (Ajout de style)
 
     &:hover{
       width: 100vw;
@@ -215,7 +209,6 @@
     .navigation--items{
       flex-direction: row;
       align-items: baseline;
-<<<<<<< HEAD
       justify-content: space-between;
       width: 100%;
 
@@ -235,20 +228,11 @@
         span{
           margin-left: 0 !important;
           font-size: rem(10) !important;
-=======
-
-      li a{
-        margin-top: 0 !important;
-        flex-direction: column;
-
-        span{
->>>>>>> 7a7960a (Ajout de style)
           width: fit-content !important;
         }
       }
     }
   }
-<<<<<<< HEAD
 
   .top-bar{
     padding: rem(24) rem(32);
@@ -258,12 +242,7 @@
       display: none;
     }
   }
-
-=======
-  .top-bar{
-    margin-left: 0;
-  }
->>>>>>> 7a7960a (Ajout de style)
+  
   main{
     margin-left: 0 !important;
   }

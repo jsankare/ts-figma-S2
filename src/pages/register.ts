@@ -1,9 +1,6 @@
 import { hashPassword } from "../core/auth/hashPassword.js";
 import { openDatabase } from "../core/database/openDatabase.js";
 import { toastAlert } from "../shared/components/alert.js";
-<<<<<<< HEAD
-import { addUser } from "../core/database/openDatabase.js";
-=======
 
 // Add user in database
 function addUser(
@@ -30,7 +27,6 @@ function addUser(
     };
   });
 }
->>>>>>> 7a7960a (Ajout de style)
 
 // Register
 async function handleRegister(event: Event): Promise<void> {
@@ -101,7 +97,6 @@ const form = document.querySelector("form");
 form?.addEventListener("submit", handleRegister);
 
 
-<<<<<<< HEAD
 export function displayPassword(toggleId?: string, field?: string, icon?: string) {
   console.log("displayPassword");
   if( !toggleId){
@@ -118,14 +113,6 @@ export function displayPassword(toggleId?: string, field?: string, icon?: string
         icon = "passwordIcon";
       }
                 const passwordIcon = document.getElementById(icon) as HTMLElement;
-=======
-export function displayPassword(){
-  const togglePassword = document.getElementById("togglePassword");
-  if (togglePassword) {
-    togglePassword.addEventListener("click", function () {
-                const passwordField = document.getElementById("password") as HTMLInputElement;
-                const passwordIcon = document.getElementById("passwordIcon") as HTMLElement;
->>>>>>> 7a7960a (Ajout de style)
 
                 if (passwordField.type === "password") {
                     passwordField.type = "text";
