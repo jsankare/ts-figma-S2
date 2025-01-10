@@ -566,7 +566,8 @@ p, a, span, input, textarea, select, label {
 }
 .transactionsContainer .filters button, .transactionsContainer .filters input[type=submit], .budgetContainer .filters button, .budgetContainer .filters input[type=submit] {
   background-color: white;
-  padding: 1rem 2rem;
+  padding: 1rem;
+  width: 100%;
   color: #4299E1;
   font-weight: 400;
   font-size: 1.125rem;

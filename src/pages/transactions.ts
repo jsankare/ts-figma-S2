@@ -45,6 +45,10 @@ document.getElementById("filterTransactions")?.addEventListener("click", (event)
     "amount",
     "category",
     "date",
+<<<<<<< HEAD
+=======
+    "description",
+>>>>>>> 7a7960a (Ajout de style)
   ]);
 });
 

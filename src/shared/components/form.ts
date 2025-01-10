@@ -381,7 +381,32 @@ export async function displayItems(
           console.error("Error fetching category for transaction:", error);
         }
       }
+<<<<<<< HEAD
       else if (isBudget(item)) {
+=======
+       else if (isCategory(item)) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.classList.add("category-item");
+
+        if (typeof item.icon === "string" && item.icon.trim() !== "") {
+          // Si item.icon est une chaîne non vide, l'afficher directement
+          const iconImg = document.createElement("img");
+          iconImg.src = item.icon; // Utilise l'URL de l'icône dans le cas d'une chaîne
+          iconImg.alt = `${item.name} icon`;
+          iconImg.classList.add("item-icon");
+          categoryDiv.appendChild(iconImg);
+        } else {
+          console.log("L'icône est vide ou invalide");
+        }
+
+        const nameSpan = document.createElement("p");
+        nameSpan.classList.add("category-name");
+        nameSpan.textContent = item.name;
+        categoryDiv.appendChild(nameSpan);
+
+        listItem.appendChild(categoryDiv);
+      } else if (isBudget(item)) {
+>>>>>>> 7a7960a (Ajout de style)
         try {
           let categoryName = "";
           let categoryIcon = "";

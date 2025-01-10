@@ -3,7 +3,21 @@ import {
   displayItems,
 } from "../shared/components/form.js";
 import { getAllItems } from "../core/database/openDatabase.js";
+<<<<<<< HEAD
 import { Budget } from "../core/database/types.js";
+=======
+
+export interface Budget {
+  id: number;
+  name: string;
+  category: string;
+  budget: number;
+  alert?: boolean;
+  month: number;
+  year: number;
+  userId: number;
+}
+>>>>>>> 7a7960a (Ajout de style)
 
 export function isBudget(item: any): item is Budget {
   return (item as Budget).budget !== undefined;
