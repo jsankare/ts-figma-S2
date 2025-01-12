@@ -1,5 +1,5 @@
 import { toastAlert } from "../shared/components/alert.js";
-import { fetchAllCurrencies } from "../shared/components/userSetting.js";
+import { fetchAllCurrencies } from "../shared/components/select.js";
 
 const API_KEY_GOOGLE = "AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8";
 
@@ -71,7 +71,7 @@ export async function fillAddressWithGeolocation() {
   }
 }
 
-async function getAddressAndCountryFromCoordinates(
+export async function getAddressAndCountryFromCoordinates(
   lat: number,
   lon: number,
 ): Promise<{ address: string; countryCode: string }> {

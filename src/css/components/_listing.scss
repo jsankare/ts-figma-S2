@@ -47,6 +47,7 @@
                 img{
                     height: rem(26);
                     width: auto;
+                    object-fit: contain
                 }
 
                 p{
@@ -188,6 +189,7 @@
 
                         img{
                             width: rem(19);
+                            object-fit: contain;
                             height: rem(15);
                         }
                     }
@@ -572,6 +574,7 @@
             align-items: center;
             img{
                 width: rem(24);
+                object-fit: contain;
                 height: rem(18);
             }
 

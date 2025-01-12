@@ -1,19 +1,13 @@
-import { handleFormSubmit, updateListing } from "../shared/components/form.js";
-import { Category } from "../core/database/types";
-
-// Gardes de type
-export function isCategory(item: any): item is Category {
-  return (item as Category).name !== undefined;
-}
+import { handleFormSubmit } from "../shared/components/form.js"; 
+import { updateListing } from "../shared/components/listing.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   handleFormSubmit(
     "categoriesForm",
     "categoriesListing",
-    "CategoryDatabase",
     "categories",
     ["name"],
     ["existingIcon", "icon"],
   );
-  updateListing("CategoryDatabase", "categories", ["name", "icon"]);
+  updateListing("categories", ["name", "icon"]);
 });

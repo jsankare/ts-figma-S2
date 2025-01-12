@@ -1,6 +1,8 @@
-import { openDatabase } from "../database/openDatabase.js";
-import { logoutLogic } from "./logout.js";
+import { openDatabase } from "../database/dbUtils.js";
+import { logoutLogic } from "./logoutLogic.js";
+import { User } from "../database/types.js";
 
+// Function to get a cookie by its name
 function getCookie(name: string): string | null {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -10,8 +12,8 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-// Check auth && Token validity
-async function checkAuthentication() {
+// Check auth & token validity
+export async function checkAuthentication(): Promise<void> {
   const userEmail = localStorage.getItem("userMail");
   const authToken = getCookie("token");
 
@@ -21,14 +23,14 @@ async function checkAuthentication() {
   }
 
   // Fetch token
-  const db = await openDatabase("UserDatabase", "users", "email");
+  const db = await openDatabase();
   const transaction = db.transaction("users", "readonly");
   const store = transaction.objectStore("users");
   const index = store.index("token");
   const request = index.get(authToken);
 
   request.onsuccess = () => {
-    const user = request.result;
+    const user: User = request.result;
 
     // Check token validity
     if (!user || !user.tokenExpiry || new Date(user.tokenExpiry) < new Date()) {
@@ -42,5 +44,5 @@ async function checkAuthentication() {
   };
 }
 
-// Call Auth function at page load
-checkAuthentication().then(() => console.log("success authverification"));
+// Call auth function at page load
+checkAuthentication().then(() => console.log("success auth verification"));

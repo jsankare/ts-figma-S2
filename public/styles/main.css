@@ -526,6 +526,7 @@ p, a, span, input, textarea, select, label {
 .categoriesContainer .list li .category-item img {
   height: 1.625rem;
   width: auto;
+  object-fit: contain;
 }
 .categoriesContainer .list li .category-item p {
   font-size: 1.125rem;
@@ -652,6 +653,7 @@ p, a, span, input, textarea, select, label {
 }
 .transactionsContainer .list > div:nth-of-type(2) li .transaction_header .icon img, .transactionsContainer .list > div:nth-of-type(2) li .category-info .icon img, .budgetContainer .list > div:nth-of-type(2) li .transaction_header .icon img, .budgetContainer .list > div:nth-of-type(2) li .category-info .icon img {
   width: 1.1875rem;
+  object-fit: contain;
   height: 0.9375rem;
 }
 .transactionsContainer .list > div:nth-of-type(2) li .transaction_header .name, .transactionsContainer .list > div:nth-of-type(2) li .category-info .name, .budgetContainer .list > div:nth-of-type(2) li .transaction_header .name, .budgetContainer .list > div:nth-of-type(2) li .category-info .name {
@@ -996,6 +998,7 @@ p, a, span, input, textarea, select, label {
   }
   .transactionsContainer .mobile-filter img {
     width: 1.5rem;
+    object-fit: contain;
     height: 1.125rem;
   }
   .transactionsContainer .mobile-filter p {
@@ -1150,7 +1153,6 @@ p, a, span, input, textarea, select, label {
   border-radius: 1rem;
   margin-top: 5rem;
   width: fit-content;
-  min-width: 50rem;
   box-shadow: 0 0 0.875rem rgba(0, 0, 0, 0.05);
 }
 .profile-container #content {
@@ -1293,11 +1295,6 @@ p, a, span, input, textarea, select, label {
 }
 .form input, .form textarea, .form select, .form button {
   width: 100% !important;
-}
-
-#account-settings-form div div {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
 }
 
 .header {

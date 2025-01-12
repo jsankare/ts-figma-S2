@@ -1,6 +1,10 @@
-import { getAllItems, getItemById } from "../core/database/openDatabase.js";
+import { getAllItems, getItemById } from "../core/database/dbUtils.js";
 import { isBudget, isCategory, isTransaction } from "../core/database/types.js";
+import { getCurrentUser } from "../core/auth/handleUser.js";
 
+/**
+ * Affiche une notification avec un titre, des options, et une vibration éventuelle.
+ */
 export function showNotification(
   title: string,
   options?: NotificationOptions,
@@ -41,13 +45,25 @@ export function showNotification(
 
 (window as any).notifyMe = showNotification;
 
-export async function checkBudgetsAndNotify() {
+/**
+ * Vérifie les budgets et affiche des notifications en cas de dépassement ou de seuil critique.
+ */
+export async function checkBudgetsAndNotify(): Promise<void> {
   try {
-    // Récupérer tous les budgets
-    const budgets = await getAllItems("BudgetDatabase", "budgets");
+    // Récupérer l'utilisateur actuel
+    const currentUser = await getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      console.warn("Aucun utilisateur connecté.");
+      return;
+    }
 
-    // Parcourir chaque budget pour effectuer les vérifications
-    for (const budget of budgets) {
+    const userId = currentUser.id;
+
+    // Récupérer tous les budgets associés à l'utilisateur
+    const budgets = await getAllItems("budgets");
+    const userBudgets = budgets.filter((budget) => budget.userId === userId);
+
+    for (const budget of userBudgets) {
       if (!isBudget(budget)) continue;
 
       let categoryName = "Non défini";
@@ -58,7 +74,6 @@ export async function checkBudgetsAndNotify() {
         categoryId = Number(budget.category);
 
         const category = await getItemById(
-          "CategoryDatabase",
           "categories",
           categoryId,
         );
@@ -69,17 +84,18 @@ export async function checkBudgetsAndNotify() {
       }
 
       // Récupérer le mois et l'année actuels
-      const currentMonth = new Date().getMonth(); // Mois (0-11)
-      const currentYear = new Date().getFullYear(); // Année
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth(); // Mois (0-11)
+      const currentYear = currentDate.getFullYear(); // Année
 
-      // Récupérer toutes les transactions
-      const transactions = await getAllItems(
-        "TransactionDatabase",
-        "transactions",
+      // Récupérer toutes les transactions associées à l'utilisateur
+      const transactions = await getAllItems("transactions");
+      const userTransactions = transactions.filter(
+        (transaction) => transaction.userId === userId,
       );
 
       // Filtrer les transactions pour la catégorie et le mois/année en cours
-      const filteredTransactions = transactions.filter((transaction) => {
+      const filteredTransactions = userTransactions.filter((transaction) => {
         if (!isTransaction(transaction)) return false;
         if (!transaction.category || !transaction.date) return false;
 
@@ -94,7 +110,12 @@ export async function checkBudgetsAndNotify() {
 
       // Calculer le montant total des transactions pour cette catégorie
       const totalTransactionAmount = filteredTransactions.reduce(
-        (sum, transaction) => sum + (Number(transaction.amount) || 0),
+        (sum, transaction) => {
+          if (isTransaction(transaction)) {
+            return sum + (Number(transaction.amount) || 0);
+          }
+          return sum;
+        },
         0,
       );
 
@@ -108,8 +129,12 @@ export async function checkBudgetsAndNotify() {
       if (progressPercentage >= 80) {
         const message =
           progressPercentage >= 100
-            ? `Le budget pour ${categoryName} a été dépassé ! (${progressPercentage.toFixed(1)}%)`
-            : `Attention : le budget pour ${categoryName} est à ${progressPercentage.toFixed(1)}% !`;
+            ? `Le budget pour ${categoryName} a été dépassé ! (${progressPercentage.toFixed(
+                1,
+              )}%)`
+            : `Attention : le budget pour ${categoryName} est à ${progressPercentage.toFixed(
+                1,
+              )}% !`;
 
         // Afficher la notification
         showNotification("Alerte Budget", {
