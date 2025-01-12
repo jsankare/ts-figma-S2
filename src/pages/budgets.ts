@@ -1,7 +1,4 @@
-import {
-  handleFormSubmit,
-  displayItems,
-} from "../shared/components/form.js";
+import { handleFormSubmit, displayItems } from "../shared/components/form.js";
 import { getAllItems } from "../core/database/openDatabase.js";
 import { Budget } from "../core/database/types.js";
 

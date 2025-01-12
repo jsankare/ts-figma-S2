@@ -35,10 +35,10 @@ function getCategoryIcons(): void {
         if (previouslySelected) {
           previouslySelected.classList.remove("selected");
         }
-        
+
         imgwrapper.classList.add("selected");
-          iconPreview.src = icon.icon; // Set the preview image to selected icon
-        }
+        iconPreview.src = icon.icon; // Set the preview image to selected icon
+      }
     });
 
     iconsContainer.appendChild(imgwrapper);

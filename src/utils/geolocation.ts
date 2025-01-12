@@ -1,5 +1,5 @@
 import { toastAlert } from "../shared/components/alert.js";
-import { fetchAllCurrencies } from "../shared/components/userSetting.js" 
+import { fetchAllCurrencies } from "../shared/components/userSetting.js";
 
 const API_KEY_GOOGLE = "AIzaSyAG0gEdLgnbO12KDsceMtSJ9z-IvPGnXQ8";
 
@@ -51,8 +51,7 @@ export async function fillAddressWithGeolocation() {
 
           // Adapter la devise et la langue en fonction du pays
           if (countryCode) {
-            const { currency } =
-                fetchAllCurrencies(countryCode);
+            const { currency } = fetchAllCurrencies(countryCode);
             if (currency) currencySelect.value = currency;
           }
         } catch (error) {
@@ -108,34 +107,33 @@ async function getAddressAndCountryFromCoordinates(
 }
 
 export async function getCountryCodeFromAddress(
-    address: string,
-  ): Promise<{ countryCode: string }> {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY_GOOGLE}`,
+  address: string,
+): Promise<{ countryCode: string }> {
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY_GOOGLE}`,
+    );
+    const data = await response.json();
+
+    if (data.status === "OK" && data.results.length > 0) {
+      const result = data.results[0];
+
+      // Trouve le code pays dans les composants de l'adresse
+      const countryComponent = result.address_components.find(
+        (component: any) => component.types.includes("country"),
       );
-      const data = await response.json();
-  
-      if (data.status === "OK" && data.results.length > 0) {
-        const result = data.results[0];
-  
-        // Trouve le code pays dans les composants de l'adresse
-        const countryComponent = result.address_components.find(
-          (component: any) => component.types.includes("country"),
-        );
-  
-        return { countryCode: countryComponent?.short_name || "" };
-      } else {
-        console.error(
-          "Erreur API Google Maps :",
-          data.status,
-          data.error_message,
-        );
-        return { countryCode: "" };
-      }
-    } catch (error) {
-      console.error("Erreur avec Google Maps API :", error);
+
+      return { countryCode: countryComponent?.short_name || "" };
+    } else {
+      console.error(
+        "Erreur API Google Maps :",
+        data.status,
+        data.error_message,
+      );
       return { countryCode: "" };
     }
+  } catch (error) {
+    console.error("Erreur avec Google Maps API :", error);
+    return { countryCode: "" };
   }
-  
+}

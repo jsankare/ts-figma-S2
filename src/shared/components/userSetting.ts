@@ -1,7 +1,11 @@
 import { toastAlert } from "./alert.js";
 import { updateUserInfo } from "../../core/database/openDatabase.js";
 // import { API_KEY_GOOGLE } from "../../config.js";
-import { getCountryCodeFromAddress, loadGoogleMapsAPI, fillAddressWithGeolocation } from "../../utils/geolocation.js";
+import {
+  getCountryCodeFromAddress,
+  loadGoogleMapsAPI,
+  fillAddressWithGeolocation,
+} from "../../utils/geolocation.js";
 
 loadGoogleMapsAPI();
 
@@ -106,7 +110,7 @@ export function displayAccountSettingsForm(user) {
 
 export async function fetchAllCurrencies(countryCode): Promise<string[]> {
   let apiUrl;
-  if(!countryCode){
+  if (!countryCode) {
     apiUrl = `https://restcountries.com/v3.1/all`;
   } else {
     apiUrl = `https://restcountries.com/v3.1/alpha/${countryCode}`;
@@ -114,30 +118,33 @@ export async function fetchAllCurrencies(countryCode): Promise<string[]> {
 
   try {
     const response = await fetch(apiUrl);
-      if (!response.ok) {
-          throw new Error(`Erreur lors de la récupération des données : ${response.statusText}`);
+    if (!response.ok) {
+      throw new Error(
+        `Erreur lors de la récupération des données : ${response.statusText}`,
+      );
+    }
+
+    const countries = await response.json();
+    const currenciesSet = new Set<string>();
+
+    countries.forEach((country: any) => {
+      if (country.currencies) {
+        country.currencies.forEach((currency: any) => {
+          currenciesSet.add(currency.code);
+        });
       }
+    });
 
-      const countries = await response.json();
-      const currenciesSet = new Set<string>();
-
-      countries.forEach((country: any) => {
-          if (country.currencies) {
-              country.currencies.forEach((currency: any) => {
-                  currenciesSet.add(currency.code);
-              });
-          }
-      });
-
-      return Array.from{ currenciesSet };
+    // return Array.from{ currenciesSet };
   } catch (error) {
-      console.error(`Erreur pour le code pays ${countryCode}:`, error);
+    console.error(`Erreur pour le code pays ${countryCode}:`, error);
   }
 }
 
-
 export async function populateCurrencySelect(): Promise<void> {
-  const currencySelect = document.getElementById("currency") as HTMLSelectElement;
+  const currencySelect = document.getElementById(
+    "currency",
+  ) as HTMLSelectElement;
   if (!currencySelect) return;
 
   try {
@@ -187,9 +194,8 @@ function initAutocomplete() {
       )?.short_name;
 
       if (countryCode) {
-        const { currency } =
-        fetchAllCurrencies(countryCode);
-          console.log(currency);
+        const { currency } = fetchAllCurrencies(countryCode);
+        console.log(currency);
         if (currency) currencySelect.value = currency;
       }
     }
@@ -202,8 +208,7 @@ function initAutocomplete() {
       try {
         const { countryCode } = await getCountryCodeFromAddress(address);
         if (countryCode) {
-          const { currency } =
-            fetchAllCurrencies(countryCode);
+          const { currency } = fetchAllCurrencies(countryCode);
           if (currency) currencySelect.value = currency;
         }
       } catch (error) {
@@ -212,4 +217,3 @@ function initAutocomplete() {
     }
   });
 }
-
