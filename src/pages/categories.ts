@@ -1,12 +1,5 @@
 import { handleFormSubmit, updateListing } from "../shared/components/form.js";
-
-export interface Category {
-  id: number;
-  name: string;
-  icon?: string;
-  amount?: number;
-  userId: number;
-}
+import { Category } from "../core/database/types";
 
 // Gardes de type
 export function isCategory(item: any): item is Category {

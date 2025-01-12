@@ -8,6 +8,7 @@ import { showNotification } from "../utils/notification.js";
 import { displayPasswordResetForm } from "../shared/components/passwordReset.js";
 import { displayAccountSettingsForm } from "../shared/components/userSetting.js";
 import isVisible from "../utils/visibility.js";
+import { Budget, Transaction, Category } from "../core/database/types";
 
 displayUserProfile();
 
@@ -79,7 +80,11 @@ async function updateUserProfileUI(
   }
 
   if (creationDateElement) {
-    const options = { year: "numeric", month: "long", day: "numeric" };
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
     const formattedDate = new Intl.DateTimeFormat("fr-FR", options).format(
       new Date(user.createdAt),
     );
@@ -138,13 +143,18 @@ async function updateUserProfileUI(
     }
 
     const budgets = await getAllItems("BudgetDatabase", "budgets");
-    const filteredBudgets = budgets.filter((budget) => {
-      return (
-        budget.userId === user.id &&
-        budget.month === currentMonth &&
-        budget.year === currentYear
-      );
-    });
+    const filteredBudgets = budgets.filter(
+      (item: Category | Transaction | Budget) => {
+        if ("userId" in item && "month" in item && "year" in item) {
+          return (
+            item.userId === user.id &&
+            item.month === currentMonth &&
+            item.year === currentYear
+          );
+        }
+        return false;
+      },
+    );
 
     if (activeBudget) {
       activeBudget.textContent = `${filteredBudgets.length}`;

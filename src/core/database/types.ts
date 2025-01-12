@@ -3,6 +3,8 @@ export interface Category {
   name: string;
   icon?: string;
   userId: number;
+  month?: number;
+  amount?: number;
 }
 
 export function isCategory(item: any): item is Category {
@@ -21,6 +23,7 @@ export interface Budget {
   month: number;
   year: number;
   userId: number;
+  amount?: number;
 }
 
 export function isBudget(item: any): item is Budget {
@@ -53,6 +56,7 @@ export function isTransaction(item: any): item is Transaction {
 }
 
 export interface User {
+  notifications?: any;
   id: number;
   firstname: string;
   lastname: string;
@@ -76,4 +80,30 @@ export function isUser(item: any): item is User {
     (item as User).createdAt instanceof Date &&
     (item as User).updatedAt instanceof Date
   );
+}
+
+export interface ChartDataset {
+  label?: string;
+  data: number[];
+  backgroundColor?: string | string[];
+  borderColor?: string | string[];
+  borderWidth?: number;
+  pointBorderWidth?: number;
+  pointRadius?: number;
+  tension?: number;
+  fill?: boolean;
+  borderRadius?: number;
+}
+
+// Add Google Maps types
+declare global {
+  interface Window {
+    google: any;
+  }
+
+  interface Navigator {
+    brave?: {
+      isBrave: () => boolean;
+    };
+  }
 }

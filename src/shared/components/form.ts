@@ -7,10 +7,10 @@ import {
 } from "../../core/database/openDatabase.js";
 import { toastAlert } from "./alert.js";
 import { uploadImage } from "../../core/database/uploadImage.js";
+import { Budget, Category, Transaction } from "../../core/database/types.js";
 import { isBudget } from "../../pages/budgets.js";
-import { Budget } from "../../core/database/types.js";
-import { Category, isCategory } from "../../pages/categories.js";
-import { isTransaction, Transaction } from "../../pages/transactions.js";
+import { isCategory } from "../../pages/categories.js";
+import { isTransaction } from "../../pages/transactions.js";
 import { getCurrentUser } from "../../core/auth/getCurrentUser.js";
 
 export async function getUser() {
@@ -606,11 +606,10 @@ export async function updateListing(
           // Filtrer par catégorie
           console.log("Item cat:", item.category);
           console.log("Selected cat:", Number(selectedCategory));
-          console.log(
-            "is not equal",
-            item.category !== Number(selectedCategory),
-          );
-          if (selectedCategory && item.category !== Number(selectedCategory)) {
+          if (
+            selectedCategory &&
+            Number(item.category) !== Number(selectedCategory)
+          ) {
             isValid = false;
           }
 

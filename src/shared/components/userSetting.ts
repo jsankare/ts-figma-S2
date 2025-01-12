@@ -1,5 +1,6 @@
 import { toastAlert } from "./alert.js";
 import { updateUserInfo } from "../../core/database/openDatabase.js";
+import { User } from "../../core/database/types.js";
 // import { API_KEY_GOOGLE } from "../../config.js";
 import {
   getCountryCodeFromAddress,
@@ -9,7 +10,7 @@ import {
 
 loadGoogleMapsAPI();
 
-export function displayAccountSettingsForm(user) {
+export function displayAccountSettingsForm(user: User) {
   const formContainer = document.getElementById(
     "profile_modification",
   ) as HTMLElement;
@@ -108,8 +109,10 @@ export function displayAccountSettingsForm(user) {
   });
 }
 
-export async function fetchAllCurrencies(countryCode): Promise<string[]> {
-  let apiUrl;
+export async function fetchAllCurrencies(
+  countryCode: string,
+): Promise<string[]> {
+  let apiUrl = "";
   if (!countryCode) {
     apiUrl = `https://restcountries.com/v3.1/all`;
   } else {
@@ -135,9 +138,10 @@ export async function fetchAllCurrencies(countryCode): Promise<string[]> {
       }
     });
 
-    // return Array.from{ currenciesSet };
+    return Array.from(currenciesSet);
   } catch (error) {
     console.error(`Erreur pour le code pays ${countryCode}:`, error);
+    return [];
   }
 }
 
@@ -149,7 +153,7 @@ export async function populateCurrencySelect(): Promise<void> {
 
   try {
     const currencies = await fetchAllCurrencies();
-    currencies.forEach((currency) => {
+    currencies.forEach((currency: string) => {
       const option = document.createElement("option");
       option.value = currency;
       option.textContent = currency;
@@ -162,11 +166,12 @@ export async function populateCurrencySelect(): Promise<void> {
 
 function initAutocomplete() {
   const addressInput = document.getElementById("address") as HTMLInputElement;
+
   const currencySelect = document.getElementById(
     "currency",
   ) as HTMLSelectElement;
-
   // Initialise l'autocomplétion Google Places
+  declare const google: any;
   const autocomplete = new google.maps.places.Autocomplete(addressInput, {
     types: ["address"],
   });
@@ -186,7 +191,7 @@ function initAutocomplete() {
   }
 
   // Écoute les modifications apportées par autocomplétion
-  autocomplete.addListener("place_changed", () => {
+  autocomplete.addListener("place_changed", async () => {
     const place = autocomplete.getPlace();
     if (place.geometry) {
       const countryCode = place.address_components.find((component: any) =>
@@ -194,7 +199,8 @@ function initAutocomplete() {
       )?.short_name;
 
       if (countryCode) {
-        const { currency } = fetchAllCurrencies(countryCode);
+        const currencies = await fetchAllCurrencies(countryCode);
+        const currency = currencies[0];
         console.log(currency);
         if (currency) currencySelect.value = currency;
       }
@@ -208,7 +214,8 @@ function initAutocomplete() {
       try {
         const { countryCode } = await getCountryCodeFromAddress(address);
         if (countryCode) {
-          const { currency } = fetchAllCurrencies(countryCode);
+          const currencies = await fetchAllCurrencies(countryCode);
+          const currency = currencies[0];
           if (currency) currencySelect.value = currency;
         }
       } catch (error) {

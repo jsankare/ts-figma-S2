@@ -1,6 +1,4 @@
-import { Budget } from "../../pages/budgets.js";
-import { Category } from "../../pages/categories.js";
-import { Transaction } from "../../pages/transactions.js";
+import { Category, Transaction, Budget } from "./types";
 
 export function openDatabase(
   dbName: string,

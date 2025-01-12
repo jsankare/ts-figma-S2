@@ -2,6 +2,12 @@ import { monitorUserInteraction } from "./utils/userInteraction.js";
 import { openDatabase } from "./core/database/openDatabase.js";
 import { getCurrentUser } from "./core/auth/getCurrentUser.js";
 import { getUser } from "./shared/components/form.js";
+import {
+  Transaction,
+  Budget,
+  Category,
+  ChartDataset,
+} from "./core/database/types";
 
 function onUserInteraction(eventType: string) {
   console.log(`User interaction detected: ${eventType}`);
@@ -329,7 +335,9 @@ async function generateStatistics(userId: number): Promise<void> {
         ${activeBudgets
           .map((b) => {
             // Trouver la catégorie correspondante
-            const categoryObj = categories.find((c) => c.id === b.category);
+            const categoryObj = categories.find(
+              (c) => c.id === Number(b.category),
+            );
             console.log(categoryObj);
             const categoryName = categoryObj?.name || "Non défini";
             const categoryIcon = categoryObj?.icon || "";
@@ -384,7 +392,7 @@ async function generateStatistics(userId: number): Promise<void> {
         ${recentTransactions
           .map((t) => {
             const categoryIcon =
-              categories.find((c) => c.id === t.category)?.icon || "";
+              categories.find((c) => c.id === Number(t.category))?.icon || "";
             const color = t.type === "debit" ? "#E62E2E" : "#29CC39";
             const sign = t.type === "debit" ? "-" : "+"; // Ajouter le signe
             const formattedDate = new Date(t.date).toLocaleDateString("fr-FR", {
@@ -413,15 +421,6 @@ async function generateStatistics(userId: number): Promise<void> {
   } catch (error) {
     console.error("Erreur lors de la génération des statistiques :", error);
   }
-}
-
-interface ChartDataset {
-  label: string;
-  data: number[];
-  backgroundColor: string | string[];
-  borderColor: string | string[];
-  borderWidth?: number;
-  tension?: number;
 }
 
 interface ChartData {
@@ -472,7 +471,7 @@ function renderMonthlyExpensesChart(
   titleContainer.appendChild(subtitle);
   container?.appendChild(titleContainer);
   const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
+  container?.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -490,8 +489,6 @@ function renderMonthlyExpensesChart(
           borderWidth: 2,
           tension: 0.4, // Courbure de la ligne
           fill: true, // Activer le remplissage sous la ligne
-          pointBackgroundColor: "#FFFFFF", // Couleur des points
-          pointBorderColor: "#4299E1", // Couleur des bordures des points
           pointBorderWidth: 2, // Épaisseur des bordures des points
           pointRadius: 5, // Taille des points
         },
@@ -508,7 +505,6 @@ function renderMonthlyExpensesChart(
           title: {
             display: true,
             text: "Jours",
-            font: { size: 12 },
           },
           ticks: {
             font: { size: 10 },
@@ -518,7 +514,6 @@ function renderMonthlyExpensesChart(
           title: {
             display: true,
             text: "Montants (€)",
-            font: { size: 12 },
           },
           ticks: {
             font: { size: 10 },
@@ -585,7 +580,7 @@ function renderCategoryExpensesChart(labels: string[], data: number[]): void {
   });
 }
 
-function renderCreditsVsDebitsChart(credits, debits) {
+function renderCreditsVsDebitsChart(credits: number, debits: number) {
   const container = document.getElementById("debitVSCreditChart");
   const title = document.createElement("h2");
   title.textContent = "Crédits vs Débits";
@@ -593,41 +588,50 @@ function renderCreditsVsDebitsChart(credits, debits) {
   const canvas = document.createElement("canvas");
   container?.appendChild(canvas);
   const ctx = canvas.getContext("2d");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Crédits", "Débits"],
-      datasets: [
-        {
-          data: [credits, debits],
-          backgroundColor: ["rgba(41, 76, 96, 0.5)", "rgba(66, 153, 225, 0.5)"],
-          borderRadius: 8,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: true, titleColor: "#6D6D6D", bodyColor: "#6D6D6D" },
-      },
-      scales: {
-        y: {
-          title: {
-            display: true,
-            text: "Montants",
-            color: "#6D6D6D",
+  if (ctx) {
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Crédits", "Débits"],
+        datasets: [
+          {
+            data: [credits, debits],
+            backgroundColor: [
+              "rgba(41, 76, 96, 0.5)",
+              "rgba(66, 153, 225, 0.5)",
+            ],
+            borderRadius: 8,
           },
-          grid: {
-            borderColor: "#6D6D6D",
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            titleColor: "#6D6D6D",
+            bodyColor: "#6D6D6D",
           },
         },
+        scales: {
+          y: {
+            title: {
+              display: true,
+              text: "Montants",
+              color: "#6D6D6D",
+            },
+            grid: {
+              borderColor: "#6D6D6D",
+            },
+          },
+        },
+        x: {
+          categoryPercentage: 0.8,
+        },
       },
-      x: {
-        categoryPercentage: 0.8,
-      },
-    },
-  });
+    });
+  }
 }
 
 // Charger les statistiques après le chargement de la page

@@ -1,6 +1,9 @@
-import { Transaction, isTransaction } from "../pages/transactions.js";
-import { Category, isCategory } from "../pages/categories.js";
-import { Budget, isBudget } from "../pages/budgets.js";
+import {
+  Transaction,
+  Category,
+  Budget,
+  ChartDataset,
+} from "../core/database/types";
 import { openDatabase } from "../core/database/openDatabase.js";
 
 // Configuration des noms de bases de données
@@ -367,15 +370,6 @@ export async function generateStatistics(userId: number): Promise<void> {
   }
 }
 
-interface ChartDataset {
-  label: string;
-  data: number[];
-  backgroundColor: string | string[];
-  borderColor: string | string[];
-  borderWidth?: number;
-  tension?: number;
-}
-
 interface ChartData {
   labels: string[];
   datasets: ChartDataset[];
@@ -423,6 +417,7 @@ function renderMonthlyExpensesChart(
     new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   subtitle.style.color = "#6D6D6D"; // Optionnel : Couleur pour différencier
   subtitle.style.fontSize = "1rem"; // Optionnel : Ajuster la taille de la police
+  if (!container) return;
   container.appendChild(subtitle);
 
   if (!canvas) return;
@@ -508,7 +503,7 @@ function renderCategoryExpensesChart(labels: string[], data: number[]): void {
   });
 }
 
-function renderCreditsVsDebitsChart(credits, debits) {
+function renderCreditsVsDebitsChart(credits: number, debits: number) {
   const container = document.getElementById("debitVSCreditChart");
   const title = document.createElement("h2");
   title.textContent = "Crédits vs Débits";
@@ -516,6 +511,7 @@ function renderCreditsVsDebitsChart(credits, debits) {
   const canvas = document.createElement("canvas");
   container?.appendChild(canvas);
   const ctx = canvas.getContext("2d");
+  if (!ctx) return;
   new Chart(ctx, {
     type: "bar",
     data: {

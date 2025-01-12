@@ -1,5 +1,5 @@
 import { getAllItems } from "../../core/database/openDatabase.js";
-import { Category } from "../../pages/categories.js";
+import { Category } from "../../core/database/types.js";
 import { getIcons } from "../../utils/get-icons.js";
 
 const icons = getIcons();
