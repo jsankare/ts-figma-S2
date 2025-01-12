@@ -51,7 +51,7 @@ export async function fillAddressWithGeolocation() {
 
           // Adapter la devise et la langue en fonction du pays
           if (countryCode) {
-            const { currency } = fetchAllCurrencies(countryCode);
+            const { currency } = await fetchAllCurrencies(countryCode);
             if (currency) currencySelect.value = currency;
           }
         } catch (error) {

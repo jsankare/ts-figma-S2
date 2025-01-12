@@ -111,7 +111,7 @@ export function displayAccountSettingsForm(user: User) {
 
 export async function fetchAllCurrencies(
   countryCode: string,
-): Promise<string[]> {
+): Promise<{ currency: string; currencies: string[] }> {
   let apiUrl = "";
   if (!countryCode) {
     apiUrl = `https://restcountries.com/v3.1/all`;
@@ -132,16 +132,23 @@ export async function fetchAllCurrencies(
 
     countries.forEach((country: any) => {
       if (country.currencies) {
-        country.currencies.forEach((currency: any) => {
-          currenciesSet.add(currency.code);
+        Object.keys(country.currencies).forEach((currencyCode: string) => {
+          currenciesSet.add(currencyCode);
         });
       }
     });
 
-    return Array.from(currenciesSet);
+    const currencies = Array.from(currenciesSet);
+    return {
+      currency: currencies[0] || "",
+      currencies,
+    };
   } catch (error) {
     console.error(`Erreur pour le code pays ${countryCode}:`, error);
-    return [];
+    return {
+      currency: "",
+      currencies: [],
+    };
   }
 }
 
@@ -152,7 +159,7 @@ export async function populateCurrencySelect(): Promise<void> {
   if (!currencySelect) return;
 
   try {
-    const currencies = await fetchAllCurrencies();
+    const { currencies } = await fetchAllCurrencies(""); // Pass empty string for all currencies
     currencies.forEach((currency: string) => {
       const option = document.createElement("option");
       option.value = currency;
@@ -171,7 +178,7 @@ function initAutocomplete() {
     "currency",
   ) as HTMLSelectElement;
   // Initialise l'autocomplétion Google Places
-  declare const google: any;
+  let google: any = window.google;
   const autocomplete = new google.maps.places.Autocomplete(addressInput, {
     types: ["address"],
   });
@@ -200,7 +207,7 @@ function initAutocomplete() {
 
       if (countryCode) {
         const currencies = await fetchAllCurrencies(countryCode);
-        const currency = currencies[0];
+        const currency = currencies.currencies[0];
         console.log(currency);
         if (currency) currencySelect.value = currency;
       }
@@ -215,7 +222,7 @@ function initAutocomplete() {
         const { countryCode } = await getCountryCodeFromAddress(address);
         if (countryCode) {
           const currencies = await fetchAllCurrencies(countryCode);
-          const currency = currencies[0];
+          const currency = currencies.currencies[0];
           if (currency) currencySelect.value = currency;
         }
       } catch (error) {

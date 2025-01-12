@@ -107,3 +107,46 @@ declare global {
     };
   }
 }
+
+export interface ChartScale {
+  title: {
+    display: boolean;
+    text: string;
+    color?: string;
+  };
+  ticks?: {
+    font?: {
+      size: number;
+    };
+  };
+  grid?: {
+    borderColor: string;
+  };
+  beginAtZero?: boolean;
+}
+
+export interface ChartTooltip {
+  enabled: boolean;
+  titleColor?: string;
+  bodyColor?: string;
+}
+
+export interface ChartOptions {
+  responsive: boolean;
+  plugins: {
+    legend: { display: boolean };
+    tooltip: ChartTooltip;
+  };
+  scales?: {
+    x?: ChartScale;
+    y?: ChartScale;
+  };
+  layout?: {
+    padding?: {
+      top: number;
+    };
+  };
+  x?: {
+    categoryPercentage: number;
+  };
+}

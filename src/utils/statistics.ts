@@ -3,6 +3,7 @@ import {
   Category,
   Budget,
   ChartDataset,
+  ChartOptions,
 } from "../core/database/types";
 import { openDatabase } from "../core/database/openDatabase.js";
 
@@ -375,18 +376,6 @@ interface ChartData {
   datasets: ChartDataset[];
 }
 
-interface ChartOptions {
-  responsive: boolean;
-  plugins: {
-    legend: { display: boolean };
-    tooltip: { enabled: boolean };
-  };
-  scales?: {
-    x?: { title: { display: boolean; text: string } };
-    y?: { title: { display: boolean; text: string } };
-  };
-}
-
 interface ChartConfiguration {
   type: string;
   data: ChartData;
@@ -528,7 +517,11 @@ function renderCreditsVsDebitsChart(credits: number, debits: number) {
       responsive: true,
       plugins: {
         legend: { display: false },
-        tooltip: { enabled: true, titleColor: "#6D6D6D", bodyColor: "#6D6D6D" },
+        tooltip: {
+          enabled: true,
+          titleColor: "#6D6D6D",
+          bodyColor: "#6D6D6D",
+        },
       },
       scales: {
         y: {

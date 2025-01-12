@@ -7,6 +7,7 @@ import {
   Budget,
   Category,
   ChartDataset,
+  ChartOptions,
 } from "./core/database/types";
 
 function onUserInteraction(eventType: string) {
@@ -428,18 +429,6 @@ interface ChartData {
   datasets: ChartDataset[];
 }
 
-interface ChartOptions {
-  responsive: boolean;
-  plugins: {
-    legend: { display: boolean };
-    tooltip: { enabled: boolean };
-  };
-  scales?: {
-    x?: { title: { display: boolean; text: string } };
-    y?: { title: { display: boolean; text: string } };
-  };
-}
-
 interface ChartConfiguration {
   type: string;
   data: ChartData;
@@ -518,7 +507,7 @@ function renderMonthlyExpensesChart(
           ticks: {
             font: { size: 10 },
           },
-          beginAtZero: true, // Débuter l'axe Y à 0
+          beginAtZero: true,
         },
       },
       layout: {
