@@ -25,20 +25,19 @@ async function getUser(): Promise<number | null> {
   }
 }
 
-
 export async function getCurrentUser(
   db?: IDBDatabase,
-  email?: string
+  email?: string,
 ): Promise<User | undefined> {
   try {
     // Initialiser db si non fourni
     if (!db) {
-      db = await openDatabase('UserDatabase', 'users');
+      db = await openDatabase("UserDatabase", "users");
     }
 
     // Récupérer l'email depuis localStorage si non fourni
     if (!email) {
-      email = localStorage.getItem('userMail') || undefined;
+      email = localStorage.getItem("userMail") || undefined;
     }
 
     if (!email) {
@@ -64,4 +63,3 @@ export async function getCurrentUser(
     return undefined;
   }
 }
-

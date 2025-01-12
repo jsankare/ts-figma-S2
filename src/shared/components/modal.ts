@@ -1,5 +1,5 @@
 import { getAllItems } from "../../core/database/openDatabase.js";
-import { Category } from "../../pages/categories.js";
+import { Category } from "../../core/database/types.js";
 import { getIcons } from "../../utils/get-icons.js";
 
 const icons = getIcons();
@@ -35,10 +35,10 @@ function getCategoryIcons(): void {
         if (previouslySelected) {
           previouslySelected.classList.remove("selected");
         }
-        
+
         imgwrapper.classList.add("selected");
-          iconPreview.src = icon.icon; // Set the preview image to selected icon
-        }
+        iconPreview.src = icon.icon; // Set the preview image to selected icon
+      }
     });
 
     iconsContainer.appendChild(imgwrapper);

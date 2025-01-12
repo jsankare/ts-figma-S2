@@ -1,17 +1,6 @@
 import { handleFormSubmit, updateListing } from "../shared/components/form.js";
 import { getAllItems } from "../core/database/openDatabase.js";
-
-export interface Transaction {
-  id: number;
-  type: string;
-  name: string;
-  transaction: string;
-  amount: number;
-  category: string;
-  date: string;
-  description: string;
-  userId: number;
-}
+import { Transaction, Category } from "../core/database/types";
 
 export function isTransaction(item: any): item is Transaction {
   return (item as Transaction).amount !== undefined;
@@ -35,24 +24,26 @@ document.addEventListener("DOMContentLoaded", () => {
   ]);
 });
 
-document.getElementById("filterTransactions")?.addEventListener("click", (event) => {
-  event.preventDefault();
+document
+  .getElementById("filterTransactions")
+  ?.addEventListener("click", (event) => {
+    event.preventDefault();
 
-  console.log("Filtering transactions");
-  updateListing("TransactionDatabase","transactions", [
-    "type",
-    "name",
-    "amount",
-    "category",
-    "date",
-  ]);
-});
+    console.log("Filtering transactions");
+    updateListing("TransactionDatabase", "transactions", [
+      "type",
+      "name",
+      "amount",
+      "category",
+      "date",
+    ]);
+  });
 
 async function populateTransactionCategorySelect() {
   try {
     const categories = await getAllItems("CategoryDatabase", "categories");
     const transactionCategorySelect = document.getElementById(
-      "transactionCategory"
+      "transactionCategory",
     ) as HTMLSelectElement;
 
     if (!transactionCategorySelect) {

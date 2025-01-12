@@ -1,6 +1,4 @@
-import { Budget } from "../../pages/budgets.js";
-import { Category } from "../../pages/categories.js";
-import { Transaction } from "../../pages/transactions.js";
+import { Category, Transaction, Budget } from "./types";
 
 export function openDatabase(
   dbName: string,
@@ -295,7 +293,7 @@ export async function updateUserInfo(
   lastname: string,
   address: string,
   currency: string,
-  notifications: boolean
+  notifications: boolean,
 ) {
   const db = await openDatabase("UserDatabase", "users");
   const transaction = db.transaction("users", "readwrite");
@@ -332,7 +330,7 @@ export function addUser(
     picture: string;
     createdAt: Date;
     updatedAt: Date;
-  }
+  },
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("users", "readwrite");

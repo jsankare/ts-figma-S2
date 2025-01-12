@@ -8,6 +8,7 @@ import { showNotification } from "../utils/notification.js";
 import { displayPasswordResetForm } from "../shared/components/passwordReset.js";
 import { displayAccountSettingsForm } from "../shared/components/userSetting.js";
 import isVisible from "../utils/visibility.js";
+import { Budget, Transaction, Category } from "../core/database/types";
 
 displayUserProfile();
 
@@ -44,123 +45,182 @@ async function displayUserProfile() {
   console.timeEnd("profile");
 }
 
-async function updateUserProfileUI(user: any, db: IDBDatabase, userEmail: string) {
+async function updateUserProfileUI(
+  user: any,
+  db: IDBDatabase,
+  userEmail: string,
+) {
   const usernameElement = document.getElementById(
     "profile--username",
   ) as HTMLHeadingElement;
-  const totalTransactions = document.getElementById('profile_transactions') as HTMLParagraphElement;
-  const activeBudget = document.getElementById('profile_active_budget') as HTMLParagraphElement;
-  const totalCategories = document.getElementById('profile_categories') as HTMLParagraphElement;
-  const creationDateElement = document.getElementById('profile_date') as HTMLParagraphElement;
+  const totalTransactions = document.getElementById(
+    "profile_transactions",
+  ) as HTMLParagraphElement;
+  const activeBudget = document.getElementById(
+    "profile_active_budget",
+  ) as HTMLParagraphElement;
+  const totalCategories = document.getElementById(
+    "profile_categories",
+  ) as HTMLParagraphElement;
+  const creationDateElement = document.getElementById(
+    "profile_date",
+  ) as HTMLParagraphElement;
   const profilePicture = document.getElementById(
     "profile--picture",
   ) as HTMLImageElement;
-  const addProfileButton = document.getElementById(
-    "button--addProfilePicture",
-  ) as HTMLFormElement;
-  const modal = document.querySelector(".fromProfilePicture.modal") as HTMLDivElement;
+  const addProfileButton = document.querySelector(
+    ".button--addProfilePicture",
+  ) as HTMLButtonElement;
+  const modal = document.querySelector(
+    ".fromProfilePicture.modal",
+  ) as HTMLDivElement;
 
   if (usernameElement) {
     usernameElement.textContent = `${user.firstname} ${user.lastname}`;
   }
 
   if (creationDateElement) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }; // Exemple : 9 janvier 2025
-    const formattedDate = new Intl.DateTimeFormat('fr-FR', options).format(new Date(user.createdAt));
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    const formattedDate = new Intl.DateTimeFormat("fr-FR", options).format(
+      new Date(user.createdAt),
+    );
     creationDateElement.textContent = `Membre depuis le ${formattedDate}`;
   }
 
-addProfileButton.addEventListener("click", () => {
-  if (modal) {
-    modal.style.display = "block"; // Affiche la modale
+  if (profilePicture) {
+    if (user.picture) {
+      profilePicture.src = user.picture;
+      profilePicture.style.display = "block";
+      if (addProfileButton) {
+        addProfileButton.style.display = "none";
+      }
+    } else {
+      profilePicture.src = "./assets/default-user.svg";
+      profilePicture.style.display = "block";
+      if (addProfileButton) {
+        addProfileButton.style.display = "block";
+      }
+    }
   }
-});
 
-addProfileButton.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  await handleUploadPicture(
-    db,
-    userEmail,
-    profilePicture,
-    addProfileButton,
-  );
-});
+  if (addProfileButton) {
+    addProfileButton.addEventListener("click", () => {
+      if (modal) {
+        modal.style.display = "flex";
+      }
+    });
+
+    const form = document.getElementById(
+      "button--addProfilePicture",
+    ) as HTMLFormElement;
+    if (form) {
+      form.style.display = "block";
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await handleUploadPicture(db, userEmail, profilePicture);
+      });
+    }
+  }
 
   try {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    const transactions = await getAllItems('TransactionDatabase', 'transactions');
-    const filteredTransactions = transactions.filter(transaction => transaction.userId === user.id);
+    const transactions = await getAllItems(
+      "TransactionDatabase",
+      "transactions",
+    );
+    const filteredTransactions = transactions.filter(
+      (transaction) => transaction.userId === user.id,
+    );
 
     if (totalTransactions) {
       totalTransactions.textContent = `${filteredTransactions.length}`;
     }
 
-    const budgets = await getAllItems('BudgetDatabase', 'budgets');
-    const filteredBudgets = budgets.filter(budget => {
-      return (
-        budget.userId === user.id &&
-        budget.month == currentMonth &&
-        budget.year == currentYear
-      );
-    });
+    const budgets = await getAllItems("BudgetDatabase", "budgets");
+    const filteredBudgets = budgets.filter(
+      (item: Category | Transaction | Budget) => {
+        if ("userId" in item && "month" in item && "year" in item) {
+          return (
+            item.userId === user.id &&
+            item.month === currentMonth &&
+            item.year === currentYear
+          );
+        }
+        return false;
+      },
+    );
 
     if (activeBudget) {
       activeBudget.textContent = `${filteredBudgets.length}`;
     }
 
-    const categories = await getAllItems('CategoryDatabase', 'categories');
-    const filteredCategories = categories.filter(category => category.userId === user.id);
+    const categories = await getAllItems("CategoryDatabase", "categories");
+    const filteredCategories = categories.filter(
+      (category) => category.userId === user.id,
+    );
 
     if (totalCategories) {
       totalCategories.textContent = `${filteredCategories.length}`;
-    }
-
-    if (user.picture !== "") {
-      profilePicture.src = user.picture;
-      profilePicture.style.display = "block";
-    } else {
-      profilePicture.style.display = "none";
-      addProfileButton.style.display = "flex";
     }
   } catch (error) {
     console.error("Erreur lors de la mise à jour du profil :", error);
   }
 }
 
-
 async function handleUploadPicture(
   db: IDBDatabase,
   email: string,
   profilePicture: HTMLImageElement,
-  addProfileButton: HTMLElement,
 ) {
   const fileInput = document.getElementById("myfile") as HTMLInputElement;
+  const modal = document.querySelector(
+    ".fromProfilePicture.modal",
+  ) as HTMLDivElement;
+
   if (fileInput.files?.length) {
     const file = fileInput.files[0];
-    const fileName = file.name.split(".")[0];
-    const fileType = file.type.split("/")[1];
-    const fileSize = file.size / 1024;
     try {
       const pictureDataUrl = await uploadImage(file);
       await updateUserProfilePicture(db, email, pictureDataUrl);
-      profilePicture.src = pictureDataUrl;
-      profilePicture.style.display = "block";
-      addProfileButton.style.display = "none";
+
+      if (profilePicture) {
+        profilePicture.src = pictureDataUrl;
+        profilePicture.style.display = "block";
+      }
+
+      const addProfileButton = document.querySelector(
+        ".button--addProfilePicture",
+      ) as HTMLButtonElement;
+      if (addProfileButton) {
+        addProfileButton.style.display = "none";
+      }
+
+      if (modal) {
+        modal.style.display = "none";
+      }
+
       showNotification("Votre site vous informe", {
         body: "Votre image de profil a bien été mise à jour",
         icon: "/assets/logo_no_bg.svg",
         requireInteraction: false,
       });
+
+      toastAlert("success", "Photo de profil mise à jour avec succès");
     } catch (error) {
+      console.error("Erreur lors de la mise à jour de la photo :", error);
       toastAlert(
         "error",
         "Erreur lors de la mise à jour de la photo de profil",
       );
     }
   } else {
-    toastAlert("error", "Aucune image n'a été détectée");
+    toastAlert("error", "Aucune image n'a été sélectionnée");
   }
 }
 
@@ -179,11 +239,10 @@ async function updateUserProfilePicture(
       const user = userRequest.result;
       if (user) {
         user.picture = pictureDataUrl;
+        user.updatedAt = new Date();
         const updateRequest = store.put(user);
-        updateRequest.onsuccess = () => {
-          user.updatedAt = new Date();
-          resolve();
-        };
+
+        updateRequest.onsuccess = () => resolve();
         updateRequest.onerror = () =>
           reject("Erreur lors de la mise à jour de l'image de profil");
       } else {

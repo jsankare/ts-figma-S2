@@ -110,6 +110,7 @@
             border-radius: rem(16);
             margin-top: rem(80);
             width: fit-content;
+            min-width: 50rem;
             box-shadow: 0 0 rem(14) rgba(0, 0, 0, 0.05);
         }
 
@@ -284,5 +285,14 @@
 
     input, textarea, select, button{
         width: 100% !important;
+    }
+}
+
+#account-settings-form {
+    div {
+        div {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
     }
 }

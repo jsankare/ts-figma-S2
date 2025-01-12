@@ -41,7 +41,6 @@ export function showNotification(
 
 (window as any).notifyMe = showNotification;
 
-
 export async function checkBudgetsAndNotify() {
   try {
     // Récupérer tous les budgets
@@ -61,7 +60,7 @@ export async function checkBudgetsAndNotify() {
         const category = await getItemById(
           "CategoryDatabase",
           "categories",
-          categoryId
+          categoryId,
         );
 
         if (isCategory(category)) {
@@ -76,7 +75,7 @@ export async function checkBudgetsAndNotify() {
       // Récupérer toutes les transactions
       const transactions = await getAllItems(
         "TransactionDatabase",
-        "transactions"
+        "transactions",
       );
 
       // Filtrer les transactions pour la catégorie et le mois/année en cours
@@ -96,13 +95,13 @@ export async function checkBudgetsAndNotify() {
       // Calculer le montant total des transactions pour cette catégorie
       const totalTransactionAmount = filteredTransactions.reduce(
         (sum, transaction) => sum + (Number(transaction.amount) || 0),
-        0
+        0,
       );
 
       // Calculer le pourcentage d'utilisation du budget
       const progressPercentage = Math.min(
         (totalTransactionAmount / budget.budget) * 100,
-        100
+        100,
       );
 
       // Afficher une notification si le budget atteint ou dépasse 80 %
