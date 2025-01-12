@@ -1,21 +1,16 @@
-import { handleFormSubmit, updateListing } from "../shared/components/form.js";
-import { getAllItems } from "../core/database/openDatabase.js";
-import { Transaction, Category } from "../core/database/types";
-
-export function isTransaction(item: any): item is Transaction {
-  return (item as Transaction).amount !== undefined;
-}
+import { handleFormSubmit } from "../shared/components/form.js";
+import { populateCategorySelects } from "../shared/components/select.js";
+import { updateListing } from "../shared/components/listing.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   handleFormSubmit(
     "transactionsForm",
     "transactionsListing",
-    "TransactionDatabase",
     "transactions",
     ["type", "name", "amount", "date"],
     ["category"],
   );
-  updateListing("TransactionDatabase", "transactions", [
+  updateListing("transactions", [
     "type",
     "name",
     "amount",
@@ -29,8 +24,7 @@ document
   ?.addEventListener("click", (event) => {
     event.preventDefault();
 
-    console.log("Filtering transactions");
-    updateListing("TransactionDatabase", "transactions", [
+    updateListing("transactions", [
       "type",
       "name",
       "amount",
@@ -39,35 +33,4 @@ document
     ]);
   });
 
-async function populateTransactionCategorySelect() {
-  try {
-    const categories = await getAllItems("CategoryDatabase", "categories");
-    const transactionCategorySelect = document.getElementById(
-      "transactionCategory",
-    ) as HTMLSelectElement;
-
-    if (!transactionCategorySelect) {
-      console.error("#transactionCategorySelect not found");
-      return;
-    }
-
-    const optionsHTML = categories
-      .map((category: Category) =>
-        category.id && category.name
-          ? `<option value="${category.id}">${category.name}</option>`
-          : "",
-      )
-      .join("");
-
-    transactionCategorySelect.innerHTML = `
-      <option value="" selected disabled>Sélectionnez une catégorie</option>
-                        <option value="">Toutes</option>
-      ${optionsHTML}
-    `;
-    console.log("Transaction category select populated successfully.");
-  } catch (error) {
-    console.error("Failed to populate transaction categories:", error);
-  }
-}
-
-populateTransactionCategorySelect();
+populateCategorySelects(null, true);

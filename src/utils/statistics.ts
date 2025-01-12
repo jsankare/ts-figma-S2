@@ -1,47 +1,16 @@
 import {
   Transaction,
+  isTransaction,
   Category,
+  isCategory,
   Budget,
+  isBudget,
   ChartDataset,
   ChartOptions,
-} from "../core/database/types";
-import { openDatabase } from "../core/database/openDatabase.js";
-
-// Configuration des noms de bases de données
-const DB_NAMES = {
-  categories: "CategoryDatabase",
-  transactions: "TransactionDatabase",
-  budgets: "BudgetDatabase",
-} as const;
+} from "../core/database/types.js";
+import { getAllItems } from "../core/database/dbUtils.js";
 
 type StoreItem = Transaction | Category | Budget;
-
-// Fonction pour récupérer tous les éléments d'un store avec filtrage par userId
-function getAllFromStore<T extends StoreItem>(
-  db: any,
-  storeName: string,
-  userId: number,
-): Promise<T[]> {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(storeName, "readonly");
-    const store = transaction.objectStore(storeName);
-    const request = store.getAll();
-
-    request.onsuccess = (event: Event) => {
-      const target = event.target as IDBRequest<T[]>;
-      const filteredData = target.result.filter(
-        (item) => item.userId === userId,
-      );
-      resolve(filteredData);
-    };
-    request.onerror = () =>
-      reject(
-        new Error(
-          `Erreur lors de la récupération des données dans ${storeName}`,
-        ),
-      );
-  });
-}
 
 // Function to create a dashboard card
 function createDashboardCard(title: string, value: string): string {
@@ -60,15 +29,12 @@ async function updateDashboardCards(userId: number): Promise<void> {
 
   try {
     // Get all transactions and budgets
-    const [transactionsDB, budgetsDB] = await Promise.all([
-      openDatabase(DB_NAMES.transactions, "transactions"),
-      openDatabase(DB_NAMES.budgets, "budgets"),
-    ]);
-
-    const [transactions, budgets] = await Promise.all([
-      getAllFromStore<Transaction>(transactionsDB, "transactions", userId),
-      getAllFromStore<Budget>(budgetsDB, "budgets", userId),
-    ]);
+    const transactions = (await getAllItems("transactions"))
+      .filter(isTransaction)
+      .filter((t) => t.userId === userId) as Transaction[];
+    const budgets = (await getAllItems("budgets"))
+      .filter(isBudget)
+      .filter((b) => b.userId === userId) as Budget[];
 
     // Calculate total balance
     const totalIncome = transactions
@@ -119,6 +85,7 @@ interface DailyExpenses {
 // Fonction principale pour générer les statistiques
 export async function generateStatistics(userId: number): Promise<void> {
   try {
+    console.log(userId);
     if (!userId) {
       console.error("Aucun utilisateur trouvé.");
       return;
@@ -128,35 +95,21 @@ export async function generateStatistics(userId: number): Promise<void> {
     await updateDashboardCards(userId);
 
     // Ouvrir les bases de données
-    const [categoriesDB, transactionsDB, budgetsDB] = await Promise.all([
-      openDatabase(DB_NAMES.categories, "categories"),
-      openDatabase(DB_NAMES.transactions, "transactions"),
-      openDatabase(DB_NAMES.budgets, "budgets"),
-    ]);
+    const transactions = (await getAllItems("transactions")) 
+    .filter(isTransaction)
+    .filter((t) => t.userId === userId) as Transaction[];
 
-    // Récupérer les données filtrées par userId
-    const [categories, transactions, budgets] = await Promise.all([
-      getAllFromStore<Category>(categoriesDB, "categories", userId),
-      getAllFromStore<Transaction>(transactionsDB, "transactions", userId),
-      getAllFromStore<Budget>(budgetsDB, "budgets", userId),
-    ]);
+    const budgets = (await getAllItems("budgets"))
+    .filter(isBudget)
+    .filter((b) => b.userId === userId) as Budget[];
 
-    if (!categories.length && !transactions.length && !budgets.length) {
-      console.error("Aucune donnée disponible.");
-      return;
+    const categories = (await getAllItems("categories")) 
+    .filter(isCategory)
+    .filter((c) => c.userId === userId) as Category[];
+
+    if (categories.length === 0 && transactions.length === 0 && budgets.length === 0) {
+      displayEmptyMessage('.homeContainer');
     }
-
-    // Convertir les montants en nombres
-    transactions.forEach((t) => {
-      t.amount = Number(t.amount);
-      t.userId = userId;
-    });
-
-    budgets.forEach((b) => {
-      b.budget = Number(b.budget);
-      b.userId = userId;
-    });
-    transactions.forEach((t) => (t.userId = userId));
 
     // Calcul des totaux
     const totalExpenses = transactions
@@ -540,4 +493,38 @@ function renderCreditsVsDebitsChart(credits: number, debits: number) {
       },
     },
   });
+}
+
+function displayEmptyMessage(containerId: string){
+  const container = document.querySelector(containerId);
+  if (!container) return;
+  container.innerHTML = `<div class="no-content">
+  <h1> Aucunes données à afficher</h1>
+  <p> Bienvenue sur Cash Flow 
+  Pour commencer, veuillez suivre les étapes suivantes :</p>
+  <div class="steps">
+    <div class="step">
+      <a href="/categories.html">
+        <span>1</span>
+        <p>Créez des catégories pour organiser vos transactions et définir vos budgets</p>
+      </a>
+    </div>
+    <div class="step">
+      <a href="/transactions.html">
+        <span>2</span>
+        <p>Ajouter vos transactions pour suivre vos débits et vos crédits en temps réel</p>
+      </a>
+    </div>
+    <div class="step">
+      <a href="/budgets.html">
+        <span>3</span>
+        <p>Etablissez des budgets pour mieux contrôler vos dépenses et gérer vos finances efficacement</p>
+      </a>
+    </div>
+    <div class="step">
+      <span>4</span>
+      <p>Découvrez vos statistiques et profitez d'une exérience fluide pour piloter vos finances</p> 
+    </div>
+  </div>
+  </div>`;
 }

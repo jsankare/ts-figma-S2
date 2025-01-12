@@ -1,6 +1,8 @@
 import { toastAlert } from "./alert.js";
-import { updateUserInfo } from "../../core/database/openDatabase.js";
 import { User } from "../../core/database/types.js";
+import { populateCurrencySelect, fetchAllCurrencies } from "./select.js";
+import { addItem } from "../../core/database/dbUtils.js";
+
 // import { API_KEY_GOOGLE } from "../../config.js";
 import {
   getCountryCodeFromAddress,
@@ -93,82 +95,23 @@ export function displayAccountSettingsForm(user: User) {
       document.getElementById("notifications") as HTMLInputElement
     ).checked;
 
+    const data = {
+      id: user.id,
+      email: user.email,
+      firstname: newFirstname,
+      lastname: newLastname,
+      address: newAddress,
+      currency: newCurrency,
+      notifications: newNotifications,
+    };
+
     try {
-      await updateUserInfo(
-        user.email,
-        newFirstname,
-        newLastname,
-        newAddress,
-        newCurrency,
-        newNotifications,
-      );
+      await addItem('users', data);
       toastAlert("success", "Informations mises à jour avec succès.");
     } catch (error) {
       toastAlert("error", "Erreur lors de la mise à jour des informations.");
     }
   });
-}
-
-export async function fetchAllCurrencies(
-  countryCode: string,
-): Promise<{ currency: string; currencies: string[] }> {
-  let apiUrl = "";
-  if (!countryCode) {
-    apiUrl = `https://restcountries.com/v3.1/all`;
-  } else {
-    apiUrl = `https://restcountries.com/v3.1/alpha/${countryCode}`;
-  }
-
-  try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(
-        `Erreur lors de la récupération des données : ${response.statusText}`,
-      );
-    }
-
-    const countries = await response.json();
-    const currenciesSet = new Set<string>();
-
-    countries.forEach((country: any) => {
-      if (country.currencies) {
-        Object.keys(country.currencies).forEach((currencyCode: string) => {
-          currenciesSet.add(currencyCode);
-        });
-      }
-    });
-
-    const currencies = Array.from(currenciesSet);
-    return {
-      currency: currencies[0] || "",
-      currencies,
-    };
-  } catch (error) {
-    console.error(`Erreur pour le code pays ${countryCode}:`, error);
-    return {
-      currency: "",
-      currencies: [],
-    };
-  }
-}
-
-export async function populateCurrencySelect(): Promise<void> {
-  const currencySelect = document.getElementById(
-    "currency",
-  ) as HTMLSelectElement;
-  if (!currencySelect) return;
-
-  try {
-    const { currencies } = await fetchAllCurrencies(""); // Pass empty string for all currencies
-    currencies.forEach((currency: string) => {
-      const option = document.createElement("option");
-      option.value = currency;
-      option.textContent = currency;
-      currencySelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Erreur lors du remplissage du select des devises :", error);
-  }
 }
 
 function initAutocomplete() {

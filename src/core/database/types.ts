@@ -1,19 +1,3 @@
-export interface Category {
-  id: number;
-  name: string;
-  icon?: string;
-  userId: number;
-  month?: number;
-  amount?: number;
-}
-
-export function isCategory(item: any): item is Category {
-  return (
-    typeof (item as Category).name === "string" &&
-    typeof (item as Category).userId === "number"
-  );
-}
-
 export interface Budget {
   id: number;
   name: string;
@@ -24,6 +8,7 @@ export interface Budget {
   year: number;
   userId: number;
   amount?: number;
+  order: number;
 }
 
 export function isBudget(item: any): item is Budget {
@@ -45,13 +30,29 @@ export interface Transaction {
   category: string;
   date: string;
   userId: number;
+  order: number;
 }
 
 export function isTransaction(item: any): item is Transaction {
   return (
     typeof (item as Transaction).amount === "number" &&
-    typeof (item as Transaction).date === "string" &&
+    typeof (item as Transaction).name === "string" &&
     typeof (item as Transaction).userId === "number"
+  );
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  icon?: string;
+  userId: number;
+  order: number;
+}
+
+export function isCategory(item: any): item is Category {
+  return (
+    typeof (item as Category).name === "string" &&
+    typeof (item as Category).userId === "number"
   );
 }
 
