@@ -2,6 +2,13 @@ import { monitorUserInteraction } from "./utils/userInteraction.js";
 import { openDatabase } from "./core/database/openDatabase.js";
 import { getCurrentUser } from "./core/auth/getCurrentUser.js";
 import { getUser } from "./shared/components/form.js";
+import {
+  Transaction,
+  Budget,
+  Category,
+  ChartDataset,
+  ChartOptions,
+} from "./core/database/types";
 
 function onUserInteraction(eventType: string) {
   console.log(`User interaction detected: ${eventType}`);
@@ -14,7 +21,6 @@ function initializeApp() {
 }
 
 initializeApp();
-
 
 // Configuration des noms de bases de données
 const DB_NAMES = {
@@ -53,10 +59,7 @@ function getAllFromStore<T extends StoreItem>(
 }
 
 // Function to create a dashboard card
-function createDashboardCard(
-  title: string,
-  value: string,
-): string {
+function createDashboardCard(title: string, value: string): string {
   return `
     <div class="dashboard-card">
       <p>${title}</p>
@@ -92,7 +95,6 @@ async function updateDashboardCards(userId: number): Promise<void> {
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const balance = totalIncome - totalExpenses;
-
 
     // Create the cards HTML
     cardsContainer.innerHTML = `
@@ -164,14 +166,12 @@ async function generateStatistics(userId: number): Promise<void> {
       t.amount = Number(t.amount);
       t.userId = userId;
     });
-    
+
     budgets.forEach((b) => {
       b.budget = Number(b.budget);
       b.userId = userId;
     });
-    transactions.forEach((t) => ((
-      t.userId = userId
-    )));
+    transactions.forEach((t) => (t.userId = userId));
 
     // Calcul des totaux
     const totalExpenses = transactions
@@ -263,32 +263,42 @@ async function generateStatistics(userId: number): Promise<void> {
     const categoryAmounts = categoryNames.map((name) => categoryExpenses[name]);
 
     const monthlyCredits = transactions
-    .filter((t) => {
-      const date = new Date(t.date);
-      return (
-        date.getMonth() === currentMonth &&
-        date.getFullYear() === currentYear &&
-        t.type === "credit"
-      );
-    })
-    .reduce((sum, t) => sum + t.amount, 0);
+      .filter((t) => {
+        const date = new Date(t.date);
+        return (
+          date.getMonth() === currentMonth &&
+          date.getFullYear() === currentYear &&
+          t.type === "credit"
+        );
+      })
+      .reduce((sum, t) => sum + t.amount, 0);
 
-  const monthlyDebits = transactions
-    .filter((t) => {
-      const date = new Date(t.date);
-      return (
-        date.getMonth() === currentMonth &&
-        date.getFullYear() === currentYear &&
-        t.type === "debit"
-      );
-    })
-    .reduce((sum, t) => sum + t.amount, 0);
+    const monthlyDebits = transactions
+      .filter((t) => {
+        const date = new Date(t.date);
+        return (
+          date.getMonth() === currentMonth &&
+          date.getFullYear() === currentYear &&
+          t.type === "debit"
+        );
+      })
+      .reduce((sum, t) => sum + t.amount, 0);
 
     const months = [
-      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Août",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre",
     ];
-    
+
     const currentMonthString = months[new Date().getMonth()];
 
     // Afficher les graphiques
@@ -296,10 +306,9 @@ async function generateStatistics(userId: number): Promise<void> {
     renderCategoryExpensesChart(categoryNames, categoryAmounts);
     renderCreditsVsDebitsChart(monthlyCredits, monthlyDebits);
 
-
-  const cta = document.getElementById("cta");
-  if (cta) {
-    cta.innerHTML = `<h2>Ajout rapide</h2>
+    const cta = document.getElementById("cta");
+    if (cta) {
+      cta.innerHTML = `<h2>Ajout rapide</h2>
     <div class="cta-buttons">
     <a href="/categories.html" class="cta-button category"><svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M11.0056 0.549561C11.9602 0.549764 12.8756 0.929154 13.5506 1.60428L22.8019 10.8556C23.569 11.6229 24 12.6635 24 13.7486C24 14.8336 23.569 15.8742 22.8019 16.6415L16.092 23.3514C15.3247 24.1186 14.284 24.5496 13.199 24.5496C12.1139 24.5496 11.0733 24.1186 10.306 23.3514L1.05472 14.1001C0.379593 13.4252 0.000203879 12.5097 0 11.5551V5.34919C0 4.07625 0.505674 2.85545 1.40578 1.95534C2.30589 1.05523 3.52669 0.549561 4.79963 0.549561H11.0056ZM6.59949 4.74924C5.99405 4.74905 5.41091 4.97771 4.96696 5.38939C4.52302 5.80106 4.25109 6.36533 4.20568 6.96907L4.19968 7.14906C4.19968 7.62369 4.34043 8.08767 4.60412 8.48232C4.86782 8.87697 5.24262 9.18456 5.68112 9.3662C6.11963 9.54783 6.60216 9.59536 7.06768 9.50276C7.53319 9.41016 7.9608 9.1816 8.29642 8.84598C8.63204 8.51036 8.8606 8.08276 8.9532 7.61724C9.0458 7.15172 8.99827 6.66919 8.81664 6.23069C8.635 5.79218 8.32741 5.41738 7.93276 5.15368C7.53811 4.88999 7.07413 4.74924 6.59949 4.74924Z" fill="#6D6D6D"/>
@@ -317,20 +326,22 @@ async function generateStatistics(userId: number): Promise<void> {
 </a>
     </div>
     `;
-  }
-   // Afficher les résultats dans la page
-  const activeBudgetsContainer = document.getElementById("activeBudget");
-  if (activeBudgetsContainer) {
-    activeBudgetsContainer.innerHTML = `
+    }
+    // Afficher les résultats dans la page
+    const activeBudgetsContainer = document.getElementById("activeBudget");
+    if (activeBudgetsContainer) {
+      activeBudgetsContainer.innerHTML = `
       <h3>Budgets Actifs</h3>
       <ul>
         ${activeBudgets
           .map((b) => {
             // Trouver la catégorie correspondante
-            const categoryObj = categories.find((c) => c.id == b.category);
+            const categoryObj = categories.find(
+              (c) => c.id === Number(b.category),
+            );
             console.log(categoryObj);
             const categoryName = categoryObj?.name || "Non défini";
-            const categoryIcon = categoryObj?.icon || ""; 
+            const categoryIcon = categoryObj?.icon || "";
             const debitSum = debitSumsByCategory[categoryName] || 0;
 
             const budgetName = b.name || "Non défini";
@@ -371,19 +382,18 @@ async function generateStatistics(userId: number): Promise<void> {
           })
           .join("")}
       </ul>`;
-  }
+    }
 
-
-  const recentTransactionsContainer = document.getElementById('lastTransactions');
-  if (recentTransactionsContainer) {
-    recentTransactionsContainer.innerHTML = `
+    const recentTransactionsContainer =
+      document.getElementById("lastTransactions");
+    if (recentTransactionsContainer) {
+      recentTransactionsContainer.innerHTML = `
       <h3>Transactions Récentes</h3>
       <ul>
         ${recentTransactions
           .map((t) => {
             const categoryIcon =
-              categories.find((c) => c.id == t.category)?.icon ||
-              "";
+              categories.find((c) => c.id === Number(t.category))?.icon || "";
             const color = t.type === "debit" ? "#E62E2E" : "#29CC39";
             const sign = t.type === "debit" ? "-" : "+"; // Ajouter le signe
             const formattedDate = new Date(t.date).toLocaleDateString("fr-FR", {
@@ -408,36 +418,15 @@ async function generateStatistics(userId: number): Promise<void> {
           .join("")}
       </ul>
     `;
-  }  
+    }
   } catch (error) {
     console.error("Erreur lors de la génération des statistiques :", error);
   }
 }
 
-interface ChartDataset {
-  label: string;
-  data: number[];
-  backgroundColor: string | string[];
-  borderColor: string | string[];
-  borderWidth?: number;
-  tension?: number;
-}
-
 interface ChartData {
   labels: string[];
   datasets: ChartDataset[];
-}
-
-interface ChartOptions {
-  responsive: boolean;
-  plugins: {
-    legend: { display: boolean };
-    tooltip: { enabled: boolean };
-  };
-  scales?: {
-    x?: { title: { display: boolean; text: string } };
-    y?: { title: { display: boolean; text: string } };
-  };
 }
 
 interface ChartConfiguration {
@@ -451,7 +440,11 @@ declare class Chart {
 }
 
 // Fonction pour afficher le graphique des dépenses mensuelles
-function renderMonthlyExpensesChart(labels: string[], data: number[], month?: string): void {
+function renderMonthlyExpensesChart(
+  labels: string[],
+  data: number[],
+  month?: string,
+): void {
   const container = document.getElementById("monthlyExpensesChart");
   const titleContainer = document.createElement("div");
   const title = document.createElement("h2");
@@ -459,13 +452,15 @@ function renderMonthlyExpensesChart(labels: string[], data: number[], month?: st
   titleContainer.appendChild(title);
   const subtitle = document.createElement("p");
   console.log(month);
-  subtitle.textContent = month || new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  subtitle.textContent =
+    month ||
+    new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   subtitle.style.color = "#6D6D6D"; // Optionnel : Couleur pour différencier
   subtitle.style.fontSize = "1rem"; // Optionnel : Ajuster la taille de la police
   titleContainer.appendChild(subtitle);
   container?.appendChild(titleContainer);
   const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
+  container?.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -483,8 +478,6 @@ function renderMonthlyExpensesChart(labels: string[], data: number[], month?: st
           borderWidth: 2,
           tension: 0.4, // Courbure de la ligne
           fill: true, // Activer le remplissage sous la ligne
-          pointBackgroundColor: "#FFFFFF", // Couleur des points
-          pointBorderColor: "#4299E1", // Couleur des bordures des points
           pointBorderWidth: 2, // Épaisseur des bordures des points
           pointRadius: 5, // Taille des points
         },
@@ -501,7 +494,6 @@ function renderMonthlyExpensesChart(labels: string[], data: number[], month?: st
           title: {
             display: true,
             text: "Jours",
-            font: { size: 12 },
           },
           ticks: {
             font: { size: 10 },
@@ -511,12 +503,11 @@ function renderMonthlyExpensesChart(labels: string[], data: number[], month?: st
           title: {
             display: true,
             text: "Montants (€)",
-            font: { size: 12 },
           },
           ticks: {
             font: { size: 10 },
           },
-          beginAtZero: true, // Débuter l'axe Y à 0
+          beginAtZero: true,
         },
       },
       layout: {
@@ -578,50 +569,58 @@ function renderCategoryExpensesChart(labels: string[], data: number[]): void {
   });
 }
 
-function renderCreditsVsDebitsChart(credits, debits) {
-  const container = document.getElementById("debitVSCreditChart")
+function renderCreditsVsDebitsChart(credits: number, debits: number) {
+  const container = document.getElementById("debitVSCreditChart");
   const title = document.createElement("h2");
   title.textContent = "Crédits vs Débits";
   container?.appendChild(title);
   const canvas = document.createElement("canvas");
   container?.appendChild(canvas);
   const ctx = canvas.getContext("2d");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Crédits", "Débits"],
-      datasets: [
-        {
-          data: [credits, debits],
-          backgroundColor: ["rgba(41, 76, 96, 0.5)", "rgba(66, 153, 225, 0.5)"],
-          borderRadius: 8,
+  if (ctx) {
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Crédits", "Débits"],
+        datasets: [
+          {
+            data: [credits, debits],
+            backgroundColor: [
+              "rgba(41, 76, 96, 0.5)",
+              "rgba(66, 153, 225, 0.5)",
+            ],
+            borderRadius: 8,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            titleColor: "#6D6D6D",
+            bodyColor: "#6D6D6D",
+          },
         },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: true,
-          titleColor: '#6D6D6D',
-          bodyColor: '#6D6D6D', 
+        scales: {
+          y: {
+            title: {
+              display: true,
+              text: "Montants",
+              color: "#6D6D6D",
+            },
+            grid: {
+              borderColor: "#6D6D6D",
+            },
+          },
+        },
+        x: {
+          categoryPercentage: 0.8,
         },
       },
-      scales: {
-        y: { title: { 
-          display: true, 
-          text: "Montants", 
-          color: "#6D6D6D", 
-        }, 
-      grid: {
-        borderColor: '#6D6D6D',
-      } },
-      },
-      x: {
-        categoryPercentage: 0.8,
-      },
-    },
-  });
+    });
+  }
 }
 
 // Charger les statistiques après le chargement de la page

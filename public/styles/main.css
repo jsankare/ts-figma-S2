@@ -1150,6 +1150,7 @@ p, a, span, input, textarea, select, label {
   border-radius: 1rem;
   margin-top: 5rem;
   width: fit-content;
+  min-width: 50rem;
   box-shadow: 0 0 0.875rem rgba(0, 0, 0, 0.05);
 }
 .profile-container #content {
@@ -1292,6 +1293,11 @@ p, a, span, input, textarea, select, label {
 }
 .form input, .form textarea, .form select, .form button {
   width: 100% !important;
+}
+
+#account-settings-form div div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .header {

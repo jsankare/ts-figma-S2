@@ -1,11 +1,16 @@
 import { toastAlert } from "./alert.js";
 import { updateUserInfo } from "../../core/database/openDatabase.js";
+import { User } from "../../core/database/types.js";
 // import { API_KEY_GOOGLE } from "../../config.js";
-import { getCountryCodeFromAddress, loadGoogleMapsAPI, fillAddressWithGeolocation } from "../../utils/geolocation.js";
+import {
+  getCountryCodeFromAddress,
+  loadGoogleMapsAPI,
+  fillAddressWithGeolocation,
+} from "../../utils/geolocation.js";
 
 loadGoogleMapsAPI();
 
-export function displayAccountSettingsForm(user) {
+export function displayAccountSettingsForm(user: User) {
   const formContainer = document.getElementById(
     "profile_modification",
   ) as HTMLElement;
@@ -104,9 +109,11 @@ export function displayAccountSettingsForm(user) {
   });
 }
 
-export async function fetchAllCurrencies(countryCode): Promise<string[]> {
-  let apiUrl;
-  if(!countryCode){
+export async function fetchAllCurrencies(
+  countryCode: string,
+): Promise<{ currency: string; currencies: string[] }> {
+  let apiUrl = "";
+  if (!countryCode) {
     apiUrl = `https://restcountries.com/v3.1/all`;
   } else {
     apiUrl = `https://restcountries.com/v3.1/alpha/${countryCode}`;
@@ -114,35 +121,46 @@ export async function fetchAllCurrencies(countryCode): Promise<string[]> {
 
   try {
     const response = await fetch(apiUrl);
-      if (!response.ok) {
-          throw new Error(`Erreur lors de la récupération des données : ${response.statusText}`);
+    if (!response.ok) {
+      throw new Error(
+        `Erreur lors de la récupération des données : ${response.statusText}`,
+      );
+    }
+
+    const countries = await response.json();
+    const currenciesSet = new Set<string>();
+
+    countries.forEach((country: any) => {
+      if (country.currencies) {
+        Object.keys(country.currencies).forEach((currencyCode: string) => {
+          currenciesSet.add(currencyCode);
+        });
       }
+    });
 
-      const countries = await response.json();
-      const currenciesSet = new Set<string>();
-
-      countries.forEach((country: any) => {
-          if (country.currencies) {
-              country.currencies.forEach((currency: any) => {
-                  currenciesSet.add(currency.code);
-              });
-          }
-      });
-
-      return Array.from{ currenciesSet };
+    const currencies = Array.from(currenciesSet);
+    return {
+      currency: currencies[0] || "",
+      currencies,
+    };
   } catch (error) {
-      console.error(`Erreur pour le code pays ${countryCode}:`, error);
+    console.error(`Erreur pour le code pays ${countryCode}:`, error);
+    return {
+      currency: "",
+      currencies: [],
+    };
   }
 }
 
-
 export async function populateCurrencySelect(): Promise<void> {
-  const currencySelect = document.getElementById("currency") as HTMLSelectElement;
+  const currencySelect = document.getElementById(
+    "currency",
+  ) as HTMLSelectElement;
   if (!currencySelect) return;
 
   try {
-    const currencies = await fetchAllCurrencies();
-    currencies.forEach((currency) => {
+    const { currencies } = await fetchAllCurrencies(""); // Pass empty string for all currencies
+    currencies.forEach((currency: string) => {
       const option = document.createElement("option");
       option.value = currency;
       option.textContent = currency;
@@ -155,11 +173,12 @@ export async function populateCurrencySelect(): Promise<void> {
 
 function initAutocomplete() {
   const addressInput = document.getElementById("address") as HTMLInputElement;
+
   const currencySelect = document.getElementById(
     "currency",
   ) as HTMLSelectElement;
-
   // Initialise l'autocomplétion Google Places
+  let google: any = window.google;
   const autocomplete = new google.maps.places.Autocomplete(addressInput, {
     types: ["address"],
   });
@@ -179,7 +198,7 @@ function initAutocomplete() {
   }
 
   // Écoute les modifications apportées par autocomplétion
-  autocomplete.addListener("place_changed", () => {
+  autocomplete.addListener("place_changed", async () => {
     const place = autocomplete.getPlace();
     if (place.geometry) {
       const countryCode = place.address_components.find((component: any) =>
@@ -187,9 +206,9 @@ function initAutocomplete() {
       )?.short_name;
 
       if (countryCode) {
-        const { currency } =
-        fetchAllCurrencies(countryCode);
-          console.log(currency);
+        const currencies = await fetchAllCurrencies(countryCode);
+        const currency = currencies.currencies[0];
+        console.log(currency);
         if (currency) currencySelect.value = currency;
       }
     }
@@ -202,8 +221,8 @@ function initAutocomplete() {
       try {
         const { countryCode } = await getCountryCodeFromAddress(address);
         if (countryCode) {
-          const { currency } =
-            fetchAllCurrencies(countryCode);
+          const currencies = await fetchAllCurrencies(countryCode);
+          const currency = currencies.currencies[0];
           if (currency) currencySelect.value = currency;
         }
       } catch (error) {
@@ -212,4 +231,3 @@ function initAutocomplete() {
     }
   });
 }
-

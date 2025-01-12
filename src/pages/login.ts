@@ -95,8 +95,6 @@ async function handleLogin(event: Event) {
   }
 }
 
-
-
 // Add submit to login form only
 const loginForm = document.querySelector("form");
 loginForm?.addEventListener("submit", handleLogin);
