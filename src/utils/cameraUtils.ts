@@ -67,7 +67,11 @@ async function takePicture(): Promise<void> {
 
   try {
     // Update the profile picture in the database
-    const user = getCurrentUser();
+    const user = await getCurrentUser();
+    if (!user) {
+      toastAlert("error", "Utilisateur non trouvé.");
+      return;
+    }
 
     await updateItem("users", user.id, { picture: pictureDataUrl });
 

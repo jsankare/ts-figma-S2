@@ -1,1 +1,1 @@
-{"version":3,"sourceRoot":"","sources":[],"names":[],"mappings":"","file":"colors.css"}
+{"version":3,"sourceRoot":"","sources":["../../../src/css/partials/colors.scss"],"names":[],"mappings":"AAQA;EACE,WATU;EAUV,MATK;EAUL,YATW;EAUX,IATG;EAUH,WATU;EAUV,KATI;EAUJ,OATM","file":"colors.css"}

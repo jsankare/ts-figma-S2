@@ -112,7 +112,7 @@ async function updateUserProfileUI(
       form.style.display = "block";
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        await handleUploadPicture(user.email, profilePicture);
+        await handleUploadPicture(user.email, profilePicture, addProfileButton);
       });
     }
   }
@@ -208,7 +208,7 @@ document.getElementById("take-photo-button")?.addEventListener("click", () => {
   const video = document.getElementById("video") as HTMLVideoElement;
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
   if (video && canvas) {
-    takePicture(video, canvas, stream);
+    takePicture();
   } else {
     toastAlert("error", "Éléments vidéo ou canvas introuvables.");
   }
