@@ -1,17 +1,40 @@
-/* Error: 2 arguments required, but only 1 was passed.
- *   ,
- * 4 |     font-size: rem(32);
- *   |                ^^^^^^^
- *   '
- *   src/css/partials/font.scss 4:16  root stylesheet */
-
-body::before {
-  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
-      "Droid Sans Mono", monospace, monospace;
-  white-space: pre;
-  display: block;
-  padding: 1em;
-  margin-bottom: 1em;
-  border-bottom: 2px solid black;
-  content: "Error: 2 arguments required, but only 1 was passed.\a   \2577 \a 4 \2502      font-size: rem(32);\d\a   \2502                 ^^^^^^^\a   \2575 \a   src/css/partials/font.scss 4:16  root stylesheet";
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+h1 {
+  font-size: rem(32);
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
 }
+
+h2 {
+  font-size: rem(24);
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: rem(20);
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  line-height: rem(25);
+}
+
+p, a, span, input, textarea, select, label {
+  font-size: rem(16);
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  line-height: rem(23.8);
+}
+
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: rem(27) !important;
+  }
+  h2 {
+    font-size: rem(20);
+  }
+  h3 {
+    font-size: rem(18);
+  }
+}
+
+/*# sourceMappingURL=font.css.map */

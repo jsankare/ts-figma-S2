@@ -61,11 +61,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileNameDisplay = document.querySelector(".file-name");
     if (fileInput) {
       fileInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          fileNameDisplay.textContent = file.name; // Met à jour le texte avec le nom du fichier
-        } else {
-          fileNameDisplay.textContent = "Aucun fichier sélectionné"; // Message par défaut si aucun fichier n'est sélectionné
+        const target = event.target as HTMLInputElement | null;
+        if (target && target.files) {
+          const file = target.files[0];
+          if (file) {
+            if (fileNameDisplay) {
+              fileNameDisplay.textContent = file.name; // Met à jour le texte avec le nom du fichier
+            }
+          } else {
+            if (fileNameDisplay) {
+              fileNameDisplay.textContent = "Aucun fichier sélectionné"; // Message par défaut si aucun fichier n'est sélectionné
+            }
+          }
         }
       });
     }
